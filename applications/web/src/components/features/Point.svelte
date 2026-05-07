@@ -1,19 +1,19 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {slide} from "svelte/transition"
   import {quintOut} from "svelte/easing"
   import {renameStep} from "shared/projectUtils"
-  import {workbenchIsStale, featureIndex} from "shared/stores"
   import {base} from "../../base"
 
   const log = (function () { const context = "[PointFeature.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let name: string, index: number
+  let { name, index }: { name: string; index: number } = $props()
 
   const source = `${base}/actions/point_min_icon.svg`
   const closeAndRefresh = () => {
     log("closing, refreshing")
-    workbenchIsStale.set(true)
-    $featureIndex = 1000
+    store.workbenchIsStale = true
+    store.featureIndex = 1000
   }
 </script>
 
@@ -21,11 +21,11 @@
   class="flex items-center text-sm hover:bg-sky-200 dark:hover:bg-gray-600"
   role="button"
   tabindex="0"
-  on:dblclick={() => {
-    if ($featureIndex === index) {
+  ondblclick={() => {
+    if (store.featureIndex === index) {
       closeAndRefresh()
     } else {
-      $featureIndex = index
+      store.featureIndex = index
     }
   }}
 >
@@ -33,10 +33,11 @@
   {name}
 </div>
 
-{#if $featureIndex === index}
+{#if store.featureIndex === index}
   <div transition:slide={{delay: 0, duration: 400, easing: quintOut, axis: "y"}}>
     <form
-      on:submit|preventDefault={() => {
+      onsubmit={(e) => {
+        e.preventDefault()
         closeAndRefresh()
       }}
       class="px-3 py-2 bg-gray-100 dark:bg-gray-600 flex flex-col space-y-2"
@@ -55,7 +56,7 @@
       <div class="flex space-x-1.5">
         <button
           class="flex-grow bg-sky-500 hover:bg-sky-700 text-white font-bold py-1.5 px-1 shadow"
-          on:click={() => {
+          onclick={() => {
             renameStep(index, name)
           }}>Done</button
         >

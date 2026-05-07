@@ -1,13 +1,13 @@
 <script lang="ts">
   import fileDownload from "js-file-download"
-  import FileArrowDown from "phosphor-svelte/lib/FileArrowDown"
+  
   import {getObjectString} from "shared/projectUtils"
   import type {WithTarget} from "shared/types"
   import {base} from "../base"
 
   const log = (function () { const context = "[SolidItem.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let name: string
+  let { name }: { name: string } = $props()
 
   const source = `${base}/actions/part.svg`
   let contextMenuVisible = false
@@ -74,7 +74,8 @@
   class="flex items-center text-sm hover:bg-sky-200 dark:hover:bg-gray-600"
   role="button"
   tabindex="0"
-  on:contextmenu|preventDefault={e => {
+  oncontextmenu={(e) => {
+    e.preventDefault()
     log("solid", e)
     rightClickContextMenu(e)
   }}
@@ -90,18 +91,18 @@
         <li class="block list-none w-[1fr] my-1">
           <button
             class="text-base text-[#222] w-full h-[30px] text-left bg-white dark:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-300 dark:hover:bg-gray-600 border-0 hover:text-black hover:text-left hover:bg-[#eee] rounded-[5px] flex"
-            on:click={exportSolidOBJ}
+            onclick={exportSolidOBJ}
           >
-            <FileArrowDown class="h-6 w-6 mx-2" /> Download as OBJ
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm37.66-85.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L120,148.69V88a8,8,0,0,1,16,0v60.69l18.34-18.35A8,8,0,0,1,165.66,130.34Z" /></svg> Download as OBJ
           </button>
         </li>
 
         <li class="block list-none w-[1fr] my-1">
           <button
             class="text-base text-[#222] w-full h-[30px] text-left bg-white dark:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-300 dark:hover:bg-gray-600 border-0 hover:text-black hover:text-left hover:bg-[#eee] rounded-[5px] flex"
-            on:click={exportSolidSTEP}
+            onclick={exportSolidSTEP}
           >
-            <FileArrowDown class="h-6 w-6 mx-2" />Download as STEP
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm37.66-85.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L120,148.69V88a8,8,0,0,1,16,0v60.69l18.34-18.35A8,8,0,0,1,165.66,130.34Z" /></svg>Download as STEP
           </button>
         </li>
       </ul>
@@ -109,4 +110,4 @@
   </nav>
 {/if}
 
-<svelte:window on:click={onWindowClick} />
+<svelte:window onclick={onWindowClick} />

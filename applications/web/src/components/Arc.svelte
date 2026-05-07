@@ -1,29 +1,32 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {LineGeometry} from "three/addons/lines/LineGeometry.js"
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
   import {Vector2} from "three"
   import {T} from "@threlte/core"
   import {flatten, arcToPoints, promoteTo3} from "shared/projectUtils"
-  import {currentlySelected, currentlyMousedOver, sketchTool} from "shared/stores"
-  import type {EntityType, SketchPoint} from "shared/types"
   import {isEntity} from "shared/typeGuards"
 
   const log = (function () { const context = "[Arc.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
   const type: EntityType = "arc"
 
-  export let id: string, center: SketchPoint, start: SketchPoint, end: SketchPoint
-
-  export let dashedLineMaterial: LineMaterial,
-    dashedHoveredMaterial: LineMaterial,
-    solidLineMaterial: LineMaterial,
-    solidHoveredMaterial: LineMaterial,
-    solidSelectedMaterial: LineMaterial,
+  let { id, center, start, end, dashedLineMaterial, dashedHoveredMaterial, solidLineMaterial, solidHoveredMaterial, solidSelectedMaterial, collisionLineMaterial }: {
+    id: string
+    center: SketchPoint
+    start: SketchPoint
+    end: SketchPoint
+    dashedLineMaterial: LineMaterial
+    dashedHoveredMaterial: LineMaterial
+    solidLineMaterial: LineMaterial
+    solidHoveredMaterial: LineMaterial
+    solidSelectedMaterial: LineMaterial
     collisionLineMaterial: LineMaterial
+  } = $props()
 
-  let hovered = false
+  let hovered = $state(false)
 
-  $: selected = $currentlySelected.some(e => isEntity(e) && e.id === id && e.type === type) ? true : false
+  let selected = $derived(store.currentlySelected.some(e => isEntity(e) && e.id === id && e.type === type) ? true : false)
 
   const center2 = new Vector2(center.twoD.x, center.twoD.y)
   const start2 = new Vector2(start.twoD.x, start.twoD.y)
@@ -39,33 +42,33 @@
   <T.Line2
     geometry={lineGeometry}
     material={hovered ? dashedHoveredMaterial : dashedLineMaterial}
-    on:create={({ref}) => {
-      ref.computeLineDistances()
+    oncreate={({ref}) => {
+      ref?.computeLineDistances()
     }}
   />
   <T.Line2
     geometry={lineGeometry}
     material={hovered ? solidHoveredMaterial : selected ? solidSelectedMaterial : solidLineMaterial}
-    on:create={({ref}) => {
-      ref.computeLineDistances()
+    oncreate={({ref}) => {
+      ref?.computeLineDistances()
     }}
   />
   <T.Line2
     geometry={lineGeometry}
     material={collisionLineMaterial}
-    on:create={({ref}) => {
-      ref.computeLineDistances()
+    oncreate={({ref}) => {
+      ref?.computeLineDistances()
     }}
-    on:pointerover={() => {
-      if ($sketchTool === "select") {
+    onpointerover={() => {
+      if (store.sketchTool === "select") {
         hovered = true
-        $currentlyMousedOver = [...$currentlyMousedOver, {type, id}]
+        store.currentlyMousedOver = [...store.currentlyMousedOver, {type, id}]
       }
     }}
-    on:pointerout={() => {
-      if ($sketchTool === "select") {
+    onpointerout={() => {
+      if (store.sketchTool === "select") {
         hovered = false
-        $currentlyMousedOver = $currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
+        store.currentlyMousedOver = store.currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
       }
     }}
   />

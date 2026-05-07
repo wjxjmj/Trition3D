@@ -10,7 +10,7 @@
     "build": "wasm-pack build --target web --no-pack",
     "clean": "rimraf target pkg node_modules",
     "test": "cargo test",
-    "postinstall": "pnpm build"
+    "postinstall": "echo 'Skipping WASM build on non-WSL platform. Build manually with: pnpm build'"
   },
   "version": "0.1.0",
   "license": "Elastic License 2.0",

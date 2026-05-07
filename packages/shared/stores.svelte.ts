@@ -1,0 +1,95 @@
+import type {Project as WasmProject, Realization as WasmRealization} from "cadmium"
+import type {
+  WorkBench,
+  MessageHistory,
+  Project,
+  Realization,
+  Entity,
+  EntityType,
+  SnapEntity,
+  PointLikeById,
+  PreviewGeometry,
+} from "./types"
+import {
+  isArcEntity,
+  isCircleEntity,
+  isEntity,
+  isFaceEntity,
+  isLineEntity,
+  isMeshFaceEntity,
+  isPlaneEntity,
+  isPoint3DEntity,
+  isPointEntity,
+} from "./typeGuards"
+
+// prettier-ignore
+const log = (function () { const context = "[stores.svelte.ts]"; const color = "hotpink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`) })()
+
+// Reusable setter helper for tool components
+export function resetToolState() {
+  store.sketchTool = "select"
+  store.previewGeometry = []
+  store.snapPoints = []
+}
+
+function emptyWorkBench(): WorkBench {
+  return { name: "", history: [], step_counters: { Extrusion: 0, Plane: 0, Point: 0, Sketch: 0 } }
+}
+function emptyProject(): Project {
+  return { name: "", assemblies: [], workbenches: [] }
+}
+function emptyRealization(): Realization {
+  return { planes: {}, points: {}, sketches: {}, solids: {} }
+}
+
+// Single reactive state object — enables mutation from non-.svelte.ts files
+// @ts-ignore
+export const store = $state({
+  // @ts-ignore
+  wasmProject: {} as WasmProject,
+  project: emptyProject() as Project,
+  projectIsStale: false,
+
+  workbenchIndex: 0,
+  workbench: emptyWorkBench() as WorkBench,
+  workbenchIsStale: false,
+
+  featureIndex: 1000,
+  extrusionFeatures: [] as Entity[],
+  wasmRealization: undefined as WasmRealization | undefined,
+  realization: emptyRealization() as Realization,
+  realizationIsStale: false,
+
+  hiddenSketches: [] as string[],
+  sketchBeingEdited: "",
+  sketchTool: "",
+
+  selectingFor: [] as EntityType[],
+  selectionMax: 1000,
+  selectionMin: 0,
+
+  currentlyMousedOver: [] as SnapEntity[],
+  currentlySelected: [] as Entity[],
+  snapPoints: [] as PointLikeById[],
+  previewGeometry: [] as PreviewGeometry[],
+
+  messageHistory: [] as MessageHistory[],
+})
+
+// Logging $effects (staleness sync moved to App.svelte)
+$effect.root(() => { log("[project]", store.project) })
+$effect.root(() => { log("[workbenchIndex]", store.workbenchIndex) })
+$effect.root(() => { log("[workbench]", store.workbench) })
+$effect.root(() => { log("[workbenchIsStale]", store.workbenchIsStale) })
+$effect.root(() => { log("[featureIndex]", store.featureIndex) })
+$effect.root(() => { log("[extrusionFeatures]", store.extrusionFeatures) })
+$effect.root(() => { log("[realization]", store.realization) })
+$effect.root(() => { log("[realizationIsStale]", store.realizationIsStale) })
+$effect.root(() => { log("[sketchBeingEdited]", store.sketchBeingEdited) })
+$effect.root(() => { log("[messageHistory]", store.messageHistory) })
+
+$effect.root(() => {
+  log("[currentlySelected]", store.currentlySelected)
+  const allValid = store.currentlySelected.every(entity => isEntity(entity))
+  if (!allValid) console.error("[stores.svelte.ts] [currentlySelected] has invalid entities", store.currentlySelected)
+})

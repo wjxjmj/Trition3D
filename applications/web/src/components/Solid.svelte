@@ -8,24 +8,23 @@
 
   const log = (function () { const context = "[Solid.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let name: string, indices, vertices, normals, truckSolid: TruckSolid
-
-  export let dashedLineMaterial: LineMaterial,
-    dashedHoveredMaterial: LineMaterial,
-    solidLineMaterial: LineMaterial,
-    solidHoveredMaterial: LineMaterial,
-    solidSelectedMaterial: LineMaterial,
+  let { name, indices, vertices, normals, truckSolid, dashedLineMaterial, dashedHoveredMaterial, solidLineMaterial, solidHoveredMaterial, solidSelectedMaterial, collisionLineMaterial }: {
+    name: string
+    indices: any
+    vertices: any
+    normals: any
+    truckSolid: TruckSolid
+    dashedLineMaterial: LineMaterial
+    dashedHoveredMaterial: LineMaterial
+    solidLineMaterial: LineMaterial
+    solidHoveredMaterial: LineMaterial
+    solidSelectedMaterial: LineMaterial
     collisionLineMaterial: LineMaterial
+  } = $props()
 
-  let truck_vertices: TruckBoundary["vertices"], truck_edges: TruckEdge[], truck_faces: TruckFace[]
-
-  $: {
-    const boundaries = truckSolid.boundaries[0]
-    truck_vertices = boundaries.vertices
-    truck_edges = boundaries.edges
-    truck_faces = boundaries.faces
-    // log("truckSolid.boundaries[0]", "boundaries:", boundaries)
-  }
+  let truck_vertices = $derived(truckSolid.boundaries[0].vertices)
+  let truck_edges = $derived(truckSolid.boundaries[0].edges)
+  let truck_faces = $derived(truckSolid.boundaries[0].faces)
 
   const geometry = new THREE.BufferGeometry()
 

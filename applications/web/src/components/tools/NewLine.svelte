@@ -1,18 +1,17 @@
 <script lang="ts">
-  import {snapPoints, sketchTool, previewGeometry, currentlyMousedOver} from "shared/stores"
-  import {addLineToSketch, addPointToSketch} from "shared/projectUtils"
+  import {store} from "shared/stores.svelte"
   import {Vector3} from "three"
   import type {IDictionary, Point, PointLikeById, PreviewGeometry, ProjectToPlane, SketchPoint} from "shared/types"
 
   const log = (function () { const context = "[NewLineTool.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let pointsById: IDictionary<SketchPoint>, sketchIndex: string, active: boolean, projectToPlane: ProjectToPlane
+  let { pointsById, sketchIndex, active, projectToPlane }: { pointsById: IDictionary<SketchPoint>; sketchIndex: string; active: boolean; projectToPlane: ProjectToPlane } = $props()
 
   let previousPoint: PointLikeById | null = null
 
   let stack: PointLikeById[] = []
 
-  $: if ($sketchTool !== "line") clearStack()
+  $effect(() => { if (store.sketchTool !== "line") clearStack() })
 
   function pushToStack(point: PointLikeById) {
     // point should have the following properties:
@@ -49,7 +48,7 @@
   }
 
   export function click(_event: Event, projected: Point) {
-    if ($snapPoints.length > 0) processPoint($snapPoints[0])
+    if (store.snapPoints.length > 0) processPoint(store.snapPoints[0])
     else processPoint({twoD: projected.twoD, threeD: projected.threeD, id: null})
   }
 
@@ -59,7 +58,7 @@
     // so these snap points do not necessarily correspond to actual points in the sketch
     let snappedTo: PointLikeById | null = null
 
-    for (const geom of $currentlyMousedOver) {
+    for (const geom of store.currentlyMousedOver) {
       if (geom.type === "point3D") {
         if (geom.x && geom.y && geom.z) {
           const twoD = projectToPlane(new Vector3(geom.x, geom.y, geom.z))
@@ -82,9 +81,9 @@
       }
     }
 
-    // only reset $snapPoints if something has changed
-    if (snappedTo) $snapPoints = [snappedTo] satisfies PointLikeById[]
-    else if ($snapPoints.length > 0) $snapPoints = []
+    // only reset store.snapPoints if something has changed
+    if (snappedTo) store.snapPoints = [snappedTo] satisfies PointLikeById[]
+    else if (store.snapPoints.length > 0) store.snapPoints = []
 
     if (previousPoint) {
       let end: PointLikeById = {twoD: {x: projected.x, y: projected.y}} satisfies PointLikeById
@@ -106,22 +105,22 @@
         previewGeoms.push(p)
       }
 
-      previewGeometry.set(previewGeoms)
-    } else previewGeometry.set([])
+      store.previewGeometry = previewGeoms
+    } else store.previewGeometry = []
   }
 
   export function onKeyDown(event: KeyboardEvent) {
     if (!active) return
     if (event.key === "Escape") {
       clearStack()
-      $sketchTool = "select"
+      store.sketchTool = "select"
     }
   }
 
   function clearStack() {
     previousPoint = null
-    previewGeometry.set([])
-    snapPoints.set([])
+    store.previewGeometry = []
+    store.snapPoints = []
     stack = []
   }
 
@@ -130,4 +129,4 @@
   }
 </script>
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window onkeydown={onKeyDown} />

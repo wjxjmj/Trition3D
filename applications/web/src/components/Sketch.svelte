@@ -1,26 +1,30 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import type {LineMaterial} from "three/examples/jsm/lines/LineMaterial.js"
   import PassiveSketch from "./PassiveSketch.svelte"
-  import {currentlySelected, previewGeometry, sketchTool} from "shared/stores"
-  import type {PlaneRealized, SketchTuple} from "shared/types"
 
   const log = (function () { const context = "[Sketch.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let uniqueId: string, name: string, sketchTuple: SketchTuple, editing: boolean, plane: PlaneRealized
+  let { uniqueId, name, sketchTuple, editing, plane, dashedLineMaterial, dashedHoveredMaterial, solidLineMaterial, solidHoveredMaterial, solidSelectedMaterial, collisionLineMaterial }: {
+    uniqueId: string
+    name: string
+    sketchTuple: SketchTuple
+    editing: boolean
+    plane: PlaneRealized
+    dashedLineMaterial: LineMaterial
+    dashedHoveredMaterial: LineMaterial
+    solidLineMaterial: LineMaterial
+    solidHoveredMaterial: LineMaterial
+    solidSelectedMaterial: LineMaterial
+    collisionLineMaterial: LineMaterial
+  } = $props()
 
   // log("[props]", "uniqueId:", uniqueId, "name:", name, "sketchTuple", sketchTuple, "editing", editing, "plane", plane)
 
-  export let dashedLineMaterial: LineMaterial,
-    dashedHoveredMaterial: LineMaterial,
-    solidLineMaterial: LineMaterial,
-    solidHoveredMaterial: LineMaterial,
-    solidSelectedMaterial: LineMaterial,
-    collisionLineMaterial: LineMaterial
-
   function setTool(tool: string): void {
-    $sketchTool = tool
-    $currentlySelected = []
-    $previewGeometry = []
+    store.sketchTool = tool
+    store.currentlySelected = []
+    store.previewGeometry = []
   }
 
   function onKeyDown(event: KeyboardEvent) {
@@ -73,4 +77,4 @@
   />
 {/if}
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window onkeydown={onKeyDown} />

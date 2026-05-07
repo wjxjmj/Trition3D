@@ -4,10 +4,10 @@
   "main": "index.js",
   "private": true,
   "dependencies": {
-    "eslint": "8.x",
-    "@typescript-eslint/eslint-plugin": "7.x",
-    "@typescript-eslint/parser": "7.x",
-    "eslint-config-prettier": "9.x"
+    "eslint": "^9.25.0",
+    "@typescript-eslint/eslint-plugin": "^8.30.0",
+    "@typescript-eslint/parser": "^8.30.0",
+    "eslint-config-prettier": "^9.1.0"
   },
   "devDependencies": {
     "@repo/config-prettier": "workspace:*"

@@ -1,47 +1,45 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {slide} from "svelte/transition"
   import {quintOut} from "svelte/easing"
   import {arraysEqual, renameStep, updateExtrusion} from "shared/projectUtils"
-  import {selectingFor, workbenchIsStale, featureIndex, currentlySelected, hiddenSketches} from "shared/stores"
-  import X from "phosphor-svelte/lib/X"
-  import type {ExtrusionData} from "shared/types"
   import {base} from "../../base"
 
   const log = (function () { const context = "[ExtrusionFeature.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let name: string, index: number, id: string, data: ExtrusionData["data"]["extrusion"]
+  let { name, index, id, data }: { name: string; index: number; id: string; data: ExtrusionData["data"]["extrusion"] } = $props()
 
   // $: data, log("[props]", "name:", name, "index:", index, "id:", id, "data:", data)
   // $: data, log("[props]", "typeof id:", typeof id, "id:", id)
   // $: data, log("[props]", "typeof data.face_ids[0]:", typeof data.face_ids[0], "data.face_ids:", data.face_ids)
 
   // coerce from number[] to string[] for frontend as we use strings for ids here
-  let faceIdsFromInputs = data.face_ids.sort().map(e => e + "")
+  let faceIdsFromInputs = $state(data.face_ids.sort().map(e => e + ""))
 
   // reactive update of selected faces
-  $: if (data && data.face_ids) faceIdsFromInputs = data.face_ids.map(e => e + "").sort()
+  $effect(() => { if (data && data.face_ids) faceIdsFromInputs = data.face_ids.map(e => e + "").sort() })
 
-  let length = data.length
+  let length = $state(data.length)
 
   const closeAndRefresh = () => {
     // log("[closeAndRefresh] extrusion feature closing")
-    $featureIndex = 1000
-    $currentlySelected = []
-    $selectingFor = []
+    store.featureIndex = 1000
+    store.currentlySelected = []
+    store.selectingFor = []
     // hide the sketch that this extrusion uses
-    if (!$hiddenSketches.includes(data.sketch_id)) {
+    if (!store.hiddenSketches.includes(data.sketch_id)) {
       // log("[closeAndRefresh] Oh, we're hiding the sketch that this extrusion uses")
-      $hiddenSketches = [...$hiddenSketches, data.sketch_id]
+      store.hiddenSketches = [...store.hiddenSketches, data.sketch_id]
     }
 
-    workbenchIsStale.set(true)
+    store.workbenchIsStale = true
   }
 
   function sendUpdate(specificFaceIds?: string[]) {
     if (specificFaceIds) {
       updateExtrusion(id, data.sketch_id, length, specificFaceIds)
     } else {
-      const faceIdsFromSelection = $currentlySelected
+      const faceIdsFromSelection = store.currentlySelected
         .filter(e => e.type === "face")
         .map(e => e.id)
         .sort()
@@ -49,8 +47,9 @@
     }
   }
 
-  currentlySelected.subscribe(store => {
-    if ($featureIndex !== index) return
+  $effect(() => {
+    const store = store.currentlySelected
+    if (store.featureIndex !== index) return
 
     const faceIdsFromSelection = store
       .filter(e => e.type === "face")
@@ -65,32 +64,34 @@
     }
   })
 
-  // $: log($currentlySelected)
-  // $: faceIds = $currentlySelected.filter((e) => e.type === 'face').map((e) => e.id)
+  // $: log(store.currentlySelected)
+  // $: faceIds = store.currentlySelected.filter((e) => e.type === 'face').map((e) => e.id)
 
   const source = `${base}/actions/extrude_min.svg`
 
-  $: if ($featureIndex === index) {
-    $selectingFor = ["face"]
-    $currentlySelected = faceIdsFromInputs.map(id => ({type: "face", id}))
-    // log("[$currentlySelected]", $currentlySelected)
-  }
+  $effect(() => {
+    if (store.featureIndex === index) {
+      store.selectingFor = ["face"]
+      store.currentlySelected = faceIdsFromInputs.map(id => ({type: "face", id}))
+      // log("[store.currentlySelected]", store.currentlySelected)
+    }
+  })
 </script>
 
 <div
   class="flex items-center text-sm hover:bg-sky-200 dark:hover:bg-gray-600"
   role="button"
   tabindex="0"
-  on:dblclick={() => {
-    if ($featureIndex === index) {
+  ondblclick={() => {
+    if (store.featureIndex === index) {
       closeAndRefresh()
     } else {
-      $featureIndex = index
-      // $selectingFor = []
+      store.featureIndex = index
+      // store.selectingFor = []
     }
   }}
 >
-  {#if $featureIndex < index}
+  {#if store.featureIndex < index}
     <img class="h-8 w-8 px-1 opacity-50" src={source} alt={name} />
     <span class="italic opacity-50">{name}</span>
   {:else}
@@ -99,10 +100,11 @@
   {/if}
 </div>
 
-{#if $featureIndex === index}
+{#if store.featureIndex === index}
   <div transition:slide={{delay: 0, duration: 400, easing: quintOut, axis: "y"}}>
     <form
-      on:submit|preventDefault={() => {
+      onsubmit={(e) => {
+        e.preventDefault()
         closeAndRefresh()
       }}
       class="px-3 py-2 bg-gray-100 dark:bg-gray-600 flex flex-col space-y-2"
@@ -126,7 +128,7 @@
           class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:border focus:border-sky-500"
           type="number"
           bind:value={length}
-          on:input={() => {
+          oninput={() => {
             sendUpdate()
           }}
         />
@@ -139,8 +141,9 @@
         {#each faceIdsFromInputs as faceId}
           <div class="bg-sky-200 pl-2 py-0.5 m-1 rounded text-sm">
             {faceId}<button
-              on:click|preventDefault={() => {
-                $currentlySelected = $currentlySelected.filter(item => !(item.id === faceId && item.type === "face"))
+              onclick={(e) => {
+                e.preventDefault()
+                store.currentlySelected = store.currentlySelected.filter(item => !(item.id === faceId && item.type === "face"))
               }}><X /></button
             >
           </div>
@@ -150,7 +153,7 @@
       <div class="flex space-x-1.5">
         <button
           class="flex-grow bg-sky-500 hover:bg-sky-700 text-white font-bold py-1.5 px-1 shadow"
-          on:click={() => {
+          onclick={() => {
             renameStep(index, name)
           }}>Done</button
         >

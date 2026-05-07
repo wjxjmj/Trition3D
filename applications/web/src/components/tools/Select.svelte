@@ -1,21 +1,20 @@
 <script lang="ts">
-  import {currentlyMousedOver, currentlySelected} from "shared/stores"
-  import {deleteEntities} from "shared/projectUtils"
+  import {store} from "shared/stores.svelte"
 
   const log = (function () { const context = "[SelectTool.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let sketchIndex: string, active: boolean
+  let { sketchIndex, active }: { sketchIndex: string; active: boolean } = $props()
 
   export function click(_event: Event, _projected: any) {
-    if ($currentlyMousedOver.length === 0) {
+    if (store.currentlyMousedOver.length === 0) {
       // they clicked off into empty space. deselect everything
-      currentlySelected.set([])
+      store.currentlySelected = []
     }
 
-    // just add the thing that is moused over to a new store like $currentlySelected
+    // just add the thing that is moused over to a new store like store.currentlySelected
     // make a copy we can modify here, potentially in several ways
-    let alreadySelected = [...$currentlySelected]
-    for (let obj of $currentlyMousedOver) {
+    let alreadySelected = [...store.currentlySelected]
+    for (let obj of store.currentlyMousedOver) {
       let found = alreadySelected.some(e => e.id === obj.id && e.type === obj.type) ? true : false
 
       if (found) {
@@ -27,7 +26,7 @@
     }
 
     log("already selected", alreadySelected)
-    currentlySelected.set(alreadySelected)
+    store.currentlySelected = alreadySelected
   }
 
   // export a function to handle keyboard events
@@ -38,14 +37,14 @@
 
     // log('key press', event)
     if (event.key === "Escape") {
-      currentlySelected.set([])
+      store.currentlySelected = []
     } else if (event.key === "Delete" || event.key === "Backspace") {
       // delete the currently selected things
-      deleteEntities(sketchIndex, $currentlySelected)
-      currentlyMousedOver.set([])
-      currentlySelected.set([])
+      deleteEntities(sketchIndex, store.currentlySelected)
+      store.currentlyMousedOver = []
+      store.currentlySelected = []
     }
   }
 </script>
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window onkeydown={onKeyDown} />

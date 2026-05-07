@@ -1,7 +1,7 @@
 <script lang="ts">
-  import {HierarchicalObject, T, useTask, useThrelte} from "@threlte/core"
-  import {onDestroy, onMount} from "svelte"
+  import {T, useTask, useThrelte} from "@threlte/core"
   import {
+    BoxGeometry,
     CanvasTexture,
     CapsuleGeometry,
     Color,
@@ -25,33 +25,41 @@
   import type {SetCameraFocus} from "shared/types"
   import type {CubeGizmoProps} from "./CubeGizmo"
 
-  type $$Props = CubeGizmoProps
+  let {
+    renderTask = undefined,
+    animationTask = undefined,
+    setCameraFocus,
+    verticalPlacement = "bottom",
+    horizontalPlacement = "right",
+    size = 128,
+    xColor = 0xff0000, // red
+    yColor = 0x179316, // green
+    zColor = 0x0000ff, // blue
+    toneMapped = false,
+    paddingX = 0,
+    paddingY = 0,
+  }: CubeGizmoProps & { setCameraFocus: SetCameraFocus } = $props()
 
-  export let renderTask: $$Props["renderTask"] = undefined
-  export let animationTask: $$Props["animationTask"] = undefined
-  export let setCameraFocus: SetCameraFocus
-
-  export let verticalPlacement: Required<$$Props>["verticalPlacement"] = "bottom"
-  export let horizontalPlacement: Required<$$Props>["horizontalPlacement"] = "right"
-  export let size: Required<$$Props>["size"] = 128
-  export let xColor: Required<$$Props>["xColor"] = 0xff0000 // red
-  export let yColor: Required<$$Props>["yColor"] = 0x179316 // green
-  export let zColor: Required<$$Props>["zColor"] = 0x0000ff // blue
   const mouseoverColor = 0xb1daf2 // light blue
   const white = 0xffffff
-  export let toneMapped: Required<$$Props>["toneMapped"] = false
-  export let paddingX: Required<$$Props>["paddingX"] = 0
-  export let paddingY: Required<$$Props>["paddingY"] = 0
 
   const origin = new Vector3(0, 0, 0)
   const textureSize = 64
   const gray = 0xa1a8ad
   const black = 0x000000
 
-  const {autoRenderTask, renderer, camera, invalidate} = useThrelte()
+  const {autoRenderTask, renderer, camera, invalidate, size: canvasSize} = useThrelte()
 
   // invalidate the frame when any of the following values change
-  $: size, horizontalPlacement, verticalPlacement, toneMapped, paddingX, paddingY, invalidate()
+  $effect(() => {
+    size
+    horizontalPlacement
+    verticalPlacement
+    toneMapped
+    paddingX
+    paddingY
+    invalidate()
+  })
 
   const orthoCam = new OrthographicCamera(-2.1, 2.1, 2.1, -2.1, 0, 4)
   orthoCam.position.set(0, 0, 2)
@@ -59,12 +67,24 @@
   const rotationRoot = new Scene()
   const triangleControls = new Scene()
 
+  // Detach from main scene after Threlte finishes mounting children.
+  // Double rAF ensures all <T is={...}> children are fully populated.
+  $effect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        rotationRoot.parent?.remove(rotationRoot)
+        triangleControls.parent?.remove(triangleControls)
+      })
+    })
+  })
+
   const viewport = new Vector4()
 
   // Position and render the gizmo in the parent element.
   useTask(
     renderTask?.key ?? Symbol("cube-gizmo-render"),
     () => {
+
       const autoClear = renderer.autoClear
       renderer.autoClear = false
       renderer.getViewport(viewport)
@@ -92,31 +112,54 @@
   // target is added as a sibling of the renderer's
   // dom element.
   const clickTarget = document.createElement("div")
-  // We need to know the bounding rect of the renderer's dom element
   const renderTarget = renderer.domElement
-  const boundingRect = renderTarget.getBoundingClientRect()
 
-  clickTarget.style.position = "absolute"
-  $: {
+  let _debugPosLogged = false
+  function positionClickTarget() {
+    if (!_debugPosLogged) {
+      console.log('[CubeGizmo] canvas offsetWidth:', renderTarget.offsetWidth, 'offsetHeight:', renderTarget.offsetHeight)
+      console.log('[CubeGizmo] canvas width:', renderTarget.width, 'height:', renderTarget.height)
+      console.log('[CubeGizmo] clickTarget parent relative, top:', paddingY, 'right:', paddingX)
+      _debugPosLogged = true
+    }
     if (horizontalPlacement === "right") {
       clickTarget.style.right = `${paddingX}px`
       clickTarget.style.left = ""
     } else {
       clickTarget.style.right = ""
-      clickTarget.style.left = `${paddingX + boundingRect.left}px`
+      clickTarget.style.left = `${paddingX}px`
     }
 
     if (verticalPlacement === "bottom") {
-      clickTarget.style.bottom = ""
-      clickTarget.style.top = `${boundingRect.bottom - size - paddingY}px`
+      clickTarget.style.bottom = `${paddingY}px`
+      clickTarget.style.top = ""
     } else {
       clickTarget.style.bottom = ""
-      clickTarget.style.top = `${paddingY + boundingRect.top}px`
+      clickTarget.style.top = `${paddingY}px`
     }
 
     clickTarget.style.height = `${size}px`
     clickTarget.style.width = `${size}px`
   }
+
+  clickTarget.style.position = "absolute"
+  // Ensure parent is positioned so clickTarget absolute coords are relative to it
+  if (renderTarget.parentElement) {
+    renderTarget.parentElement.style.position = "relative"
+  }
+  $effect(() => {
+    // React to canvas size changes
+    canvasSize.width; canvasSize.height
+    // Use rAF to ensure CSS layout is complete before reading position
+    requestAnimationFrame(() => positionClickTarget())
+  })
+
+  // Also track position changes via ResizeObserver (catches panel resize, etc.)
+  const resizeObserver = new ResizeObserver(() => positionClickTarget())
+  $effect(() => {
+    resizeObserver.observe(renderTarget)
+    return () => resizeObserver.disconnect()
+  })
 
   let xAxisLabel: Sprite
   let yAxisLabel: Sprite
@@ -156,6 +199,18 @@
     const offsetY = rect.top + (clickTarget.offsetHeight - size)
     mouse.x = ((event.clientX - offsetX) / (rect.right - offsetX)) * 2 - 1
     mouse.y = -((event.clientY - offsetY) / (rect.bottom - offsetY)) * 2 + 1
+
+    // Debug: log first 5 mouse events
+    if ((window as any).__gizmoDebugCount === undefined) (window as any).__gizmoDebugCount = 0
+    if ((window as any).__gizmoDebugCount < 5) {
+      console.log('[CubeGizmo] clickTarget rect:', JSON.stringify(rect),
+        'offsetWidth:', clickTarget.offsetWidth, 'offsetHeight:', clickTarget.offsetHeight,
+        'size:', size,
+        'offsetX:', offsetX, 'offsetY:', offsetY,
+        'clientX:', event.clientX, 'clientY:', event.clientY,
+        'mouse:', mouse.x.toFixed(3), mouse.y.toFixed(3))
+      ;(window as any).__gizmoDebugCount++
+    }
 
     raycaster.setFromCamera(mouse, orthoCam)
   }
@@ -405,18 +460,18 @@
     return pixelAlpha
   }
 
-  onMount(() => {
+  $effect(() => {
     renderer.domElement.parentElement?.appendChild(clickTarget)
     clickTarget.addEventListener("click", handleClick)
     clickTarget.addEventListener("mousemove", handleMousemove)
     clickTarget.addEventListener("mouseleave", handleMouseleave)
-  })
 
-  onDestroy(() => {
-    renderer.domElement.parentElement?.removeChild(clickTarget)
-    clickTarget.removeEventListener("click", handleClick)
-    clickTarget.removeEventListener("mousemove", handleMousemove)
-    clickTarget.removeEventListener("mouseleave", handleMouseleave)
+    return () => {
+      renderer.domElement.parentElement?.removeChild(clickTarget)
+      clickTarget.removeEventListener("click", handleClick)
+      clickTarget.removeEventListener("mousemove", handleMousemove)
+      clickTarget.removeEventListener("mouseleave", handleMouseleave)
+    }
   })
 
   // Rotate the gizmo as the camera moves.
@@ -633,67 +688,22 @@
 
   const axisLine = new CapsuleGeometry(0.02, 1.5)
   axisLine.rotateZ(Math.PI / 2)
+
+  // Create cube imperatively — Threlte 8.5 multi-material attach doesn't work in runes mode
+  cubeRight = new MeshBasicMaterial({ color: gray, map: getCubeSpriteTexture(textureSize, "Right") })
+  cubeLeft = new MeshBasicMaterial({ color: gray, map: getCubeSpriteTexture(textureSize, "Left") })
+  cubeBack = new MeshBasicMaterial({ color: gray, map: getCubeSpriteTexture(textureSize, "Back") })
+  cubeFront = new MeshBasicMaterial({ color: gray, map: getCubeSpriteTexture(textureSize, "Front") })
+  cubeTop = new MeshBasicMaterial({ color: gray, map: getCubeSpriteTexture(textureSize, "Top") })
+  cubeBottom = new MeshBasicMaterial({ color: gray, map: getCubeSpriteTexture(textureSize, "Bottom") })
+  cube = new Mesh(
+    new BoxGeometry(1.5, 1.5, 1.5),
+    [cubeRight, cubeLeft, cubeBack, cubeFront, cubeTop, cubeBottom]
+  )
+  rotationRoot.add(cube)
 </script>
 
-<HierarchicalObject>
-  <T is={rotationRoot}>
-    <T.Mesh bind:ref={cube}>
-      <T.BoxGeometry args={[1.5, 1.5, 1.5]} />
-      <T.MeshBasicMaterial
-        bind:ref={cubeRight}
-        color={gray}
-        map={getCubeSpriteTexture(textureSize, "Right")}
-        attach={(parent, self) => {
-          if (Array.isArray(parent.material)) parent.material = [...parent.material, self]
-          else parent.material = [self]
-        }}
-      />
-      <T.MeshBasicMaterial
-        bind:ref={cubeLeft}
-        color={gray}
-        map={getCubeSpriteTexture(textureSize, "Left")}
-        attach={(parent, self) => {
-          if (Array.isArray(parent.material)) parent.material = [...parent.material, self]
-          else parent.material = [self]
-        }}
-      />
-      <T.MeshBasicMaterial
-        bind:ref={cubeBack}
-        color={gray}
-        map={getCubeSpriteTexture(textureSize, "Back")}
-        attach={(parent, self) => {
-          if (Array.isArray(parent.material)) parent.material = [...parent.material, self]
-          else parent.material = [self]
-        }}
-      />
-      <T.MeshBasicMaterial
-        bind:ref={cubeFront}
-        color={gray}
-        map={getCubeSpriteTexture(textureSize, "Front")}
-        attach={(parent, self) => {
-          if (Array.isArray(parent.material)) parent.material = [...parent.material, self]
-          else parent.material = [self]
-        }}
-      />
-      <T.MeshBasicMaterial
-        bind:ref={cubeTop}
-        color={gray}
-        map={getCubeSpriteTexture(textureSize, "Top")}
-        attach={(parent, self) => {
-          if (Array.isArray(parent.material)) parent.material = [...parent.material, self]
-          else parent.material = [self]
-        }}
-      />
-      <T.MeshBasicMaterial
-        bind:ref={cubeBottom}
-        color={gray}
-        map={getCubeSpriteTexture(textureSize, "Bottom")}
-        attach={(parent, self) => {
-          if (Array.isArray(parent.material)) parent.material = [...parent.material, self]
-          else parent.material = [self]
-        }}
-      />
-    </T.Mesh>
+<T is={rotationRoot}>
 
     <T.Sprite bind:ref={xAxisLabel} position={[1, -0.75, -0.75]}>
       <!-- hide the text 'X' when xAxisLabel is orthogonal to viewport -->
@@ -743,4 +753,3 @@
       <T.SpriteMaterial color={gray} map={getCurvedArrowSpriteTexture("right")} />
     </T.Sprite>
   </T>
-</HierarchicalObject>

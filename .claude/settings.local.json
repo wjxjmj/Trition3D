@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --version)",
+      "Bash(cargo --version)",
+      "Bash(rustup show *)",
+      "Bash(pnpm install *)",
+      "Bash(cargo install *)",
+      "Bash(curl -fsSL https://github.com/rustwasm/wasm-pack/releases/download/v0.13.1/wasm-pack-init.exe -o /tmp/wasm-pack-init.exe)",
+      "Read(//tmp/**)",
+      "Bash(cargo check *)",
+      "Bash(export http_proxy=http://localhost:10808)",
+      "Bash(export https_proxy=http://localhost:10808)",
+      "Bash(rustup default *)",
+      "Bash(git *)",
+      "Bash(pnpm view *)",
+      "Bash(wsl *)",
+      "Bash(curl -fsSL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init -o /tmp/rustup-init-linux)",
+      "Bash(pnpm dev *)",
+      "Bash(npx vite *)",
+      "WebFetch(domain:127.0.0.1)",
+      "Bash(npx kill-port *)"
+    ]
+  }
+}

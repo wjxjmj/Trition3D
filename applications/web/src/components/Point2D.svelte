@@ -1,18 +1,22 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {LineGeometry} from "three/addons/lines/LineGeometry.js"
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
   import {useTexture} from "@threlte/extras"
   import {BufferGeometry, Float32BufferAttribute, Vector2} from "three"
-  import {currentlySelected, currentlyMousedOver, sketchTool} from "shared/stores"
-  import {flatten, promoteTo3} from "shared/projectUtils"
   import {T} from "@threlte/core"
+  import {flatten, promoteTo3} from "shared/projectUtils"
   import type {EntityType} from "shared/types"
   import {base} from "../base"
 
-  export let x, y, hidden: boolean, id: string
-  export let isPreview = false
-
-  export let collisionLineMaterial: LineMaterial
+  let { x, y, hidden, id, isPreview = false, collisionLineMaterial }: {
+    x: number
+    y: number
+    hidden: boolean
+    id: string
+    isPreview?: boolean
+    collisionLineMaterial: LineMaterial
+  } = $props()
 
   const source = `${base}/actions/just_a_point.svg`
   const outlineSource = `${base}/actions/point_outline.svg`
@@ -22,8 +26,8 @@
 
   const type: EntityType = "point"
 
-  let hovered = false
-  $: selected = $currentlySelected.some(e => e.id === id && e.type === type) ? true : false
+  let hovered = $state(false)
+  let selected = $derived(store.currentlySelected.some(e => e.id === id && e.type === type) ? true : false)
 
   const delta = 0.0001
   const pointsH = flatten(promoteTo3([new Vector2(x - delta, y), new Vector2(x + delta, y)]))
@@ -45,34 +49,34 @@
   {#await pointTexture then pointImg}
     {#await outlineTexture then outlineImg}
       <T.Group
-        on:pointerover={() => {
+        onpointerover={() => {
           if (isPreview) return
-          if (validTools.includes($sketchTool)) {
+          if (validTools.includes(store.sketchTool)) {
             hovered = true
-            $currentlyMousedOver = [...$currentlyMousedOver, {type, id}]
+            store.currentlyMousedOver = [...store.currentlyMousedOver, {type, id}]
           }
         }}
-        on:pointerout={() => {
+        onpointerout={() => {
           if (isPreview) return
-          if (validTools.includes($sketchTool)) {
+          if (validTools.includes(store.sketchTool)) {
             hovered = false
-            $currentlyMousedOver = $currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
+            store.currentlyMousedOver = store.currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
           }
         }}
       >
         <T.Line2
           geometry={lineGeometryH}
           material={collisionLineMaterial}
-          on:create={({ref}) => {
-            ref.computeLineDistances()
+          oncreate={({ref}) => {
+            ref?.computeLineDistances()
           }}
         />
 
         <T.Line2
           geometry={lineGeometryV}
           material={collisionLineMaterial}
-          on:create={({ref}) => {
-            ref.computeLineDistances()
+          oncreate={({ref}) => {
+            ref?.computeLineDistances()
           }}
         />
       </T.Group>

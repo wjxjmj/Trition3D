@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {Matrix4, Euler, MeshStandardMaterial, DoubleSide, Vector2, Vector3, type Vector3Like} from "three"
   import {T, extend, useThrelte} from "@threlte/core"
   import {Text, Suspense} from "@threlte/extras"
@@ -7,12 +8,19 @@
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
   import {LineGeometry} from "three/addons/lines/LineGeometry.js"
 
-  import {currentlySelected, currentlyMousedOver, selectingFor, selectionMin, selectionMax} from "shared/stores"
-  import type {EntityType} from "shared/types"
 
   const log = (function () { const context = "[Plane.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let name: string, id: string, width: number, height: number, origin: Vector3Like, primary: Vector3Like, secondary: Vector3Like, tertiary: Vector3Like
+  let { name, id, width, height, origin, primary, secondary, tertiary }: {
+    name: string
+    id: string
+    width: number
+    height: number
+    origin: Vector3Like
+    primary: Vector3Like
+    secondary: Vector3Like
+    tertiary: Vector3Like
+  } = $props()
 
   // log("[props]","name:",name,"id:",id,"width:",width,"height:",height,"origin:",origin,"primary:",primary,"secondary:",secondary,"tertiary:",tertiary)
 
@@ -62,40 +70,41 @@
   // this is x, y, z for each of five points, making a closed rectangle
   const points = [-width / 2, -height / 2, 0, width / 2, -height / 2, 0, width / 2, height / 2, 0, -width / 2, height / 2, 0, -width / 2, -height / 2, 0]
 
-  $: standardLineMaterial = new LineMaterial({
+  let standardLineMaterial = $derived(new LineMaterial({
     color: "#42a7eb",
     linewidth: 2.0 * $dpr,
     depthTest: true,
     transparent: true,
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
-  $: hoveredLineMaterial = new LineMaterial({
+  let hoveredLineMaterial = $derived(new LineMaterial({
     color: "#fcba03",
     linewidth: 3.0 * $dpr,
     depthTest: true,
     transparent: true,
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
   const lineGeometry = new LineGeometry()
   lineGeometry.setPositions(points)
 
   const type: EntityType = "plane"
 
-  let hovered = false
-  let selected = false
-  // currentlySelected.subscribe(() => {
+  let hovered = $state(false)
+  let selected = $derived(store.currentlySelected.some(e => e.id === id && e.type === type) ? true : false)
+  // store.currentlySelected.subscribe(() => {
   // 	// if (!id) return
-  // 	// if (!$currentlySelected.length) return
-  // 	selected = $currentlySelected.some((e) => e.id === id && e.type === type) ? true : false
+  // 	// if (!store.currentlySelected.length) return
+  // 	selected = store.currentlySelected.some((e) => e.id === id && e.type === type) ? true : false
   // 	log('recomputed whether plane', id, 'was selected: ', selected)
   // })
-  $: selected = $currentlySelected.some(e => e.id === id && e.type === type) ? true : false
 
-  $: if ($currentlyMousedOver.length === 0) hovered = false
+  $effect(() => {
+    if (store.currentlyMousedOver.length === 0) hovered = false
+  })
 </script>
 
 <T.Group
@@ -109,66 +118,66 @@
 >
   <T.Mesh
     material={hovered ? hoveredMaterial : standardMaterial}
-    on:pointerenter={e => {
-      if ($selectingFor.includes(type)) {
+    onpointerenter={e => {
+      if (store.selectingFor.includes(type)) {
         e.stopPropagation()
         hovered = true
-        $currentlyMousedOver = [...$currentlyMousedOver, {type, id: id}]
+        store.currentlyMousedOver = [...store.currentlyMousedOver, {type, id: id}]
       }
     }}
-    on:pointerleave={() => {
-      if ($selectingFor.includes(type)) {
+    onpointerleave={() => {
+      if (store.selectingFor.includes(type)) {
         hovered = false
-        $currentlyMousedOver = $currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
+        store.currentlyMousedOver = store.currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
       } else {
         hovered = false
       }
     }}
-    on:click={e => {
-      if ($selectingFor.includes(type)) {
+    onclick={e => {
+      if (store.selectingFor.includes(type)) {
         e.stopPropagation()
-        if ($currentlySelected.some(e => e.id === id && e.type === type)) {
-          if ($currentlySelected.length - 1 < $selectionMin) {
+        if (store.currentlySelected.some(e => e.id === id && e.type === type)) {
+          if (store.currentlySelected.length - 1 < store.selectionMin) {
             // we can't deselect if doing so puts us below the minimum
             // number of selected entities
             return
           }
 
-          $currentlySelected = $currentlySelected.filter(item => !(+item.id === +id && item.type === type))
+          store.currentlySelected = store.currentlySelected.filter(item => !(+item.id === +id && item.type === type))
         } else {
           // if selecting this entity puts us above the maximum
           // number of selected entities, boot the oldest one
-          if ($currentlySelected.length + 1 > $selectionMax) $currentlySelected.shift()
+          if (store.currentlySelected.length + 1 > store.selectionMax) store.currentlySelected.shift()
 
-          /**   cadmium wants a string for id whereas for most ids it wants number, u64 iirc 
-								we should use number for all entity ids? seems cleaner to use one type. otherwise we could do:
-					
-					  		interface Entity {
-									id: number | string
-									type: EntityType
-								}
+          /**   cadmium wants a string for id whereas for most ids it wants number, u64 iirc
+									we should use number for all entity ids? seems cleaner to use one type. otherwise we could do:
 
-								really it could be a uuid. certainly it shouldn't be the name of the plane because it
-								shouldn't be adjustable by the user. it's data. perhaps:
+						  		interface Entity {
+										id: number | string
+										type: EntityType
+									}
 
-								interface Entity {
-									id: number
-									name?: string
-									type: EntityType
-								}
+									really it could be a uuid. certainly it shouldn't be the name of the plane because it
+									shouldn't be adjustable by the user. it's data. perhaps:
 
-								for now I'll leave id as number and tell typescript to ignore this line:
+									interface Entity {
+										id: number
+										name?: string
+										type: EntityType
+									}
 
-								interface Entity {
-									id: number
-									type: EntityType
-								}
+									for now I'll leave id as number and tell typescript to ignore this line:
 
-								edit: stick with strings in the ui - the dom only has strings and some of our ids are not numeric strings
-								simply convert to number before sending to rust as required
-					*/
+									interface Entity {
+										id: number
+										type: EntityType
+									}
+
+									edit: stick with strings in the ui - the dom only has strings and some of our ids are not numeric strings
+									simply convert to number before sending to rust as required
+						*/
           // @ts-ignore
-          $currentlySelected = [...$currentlySelected, {type, id: id.toString()}]
+          store.currentlySelected = [...store.currentlySelected, {type, id: id.toString()}]
         }
       }
     }}
@@ -179,8 +188,8 @@
   <T.Line2
     geometry={lineGeometry}
     material={selected ? hoveredLineMaterial : hovered ? hoveredLineMaterial : standardLineMaterial}
-    on:create={({ref}) => {
-      ref.computeLineDistances()
+    oncreate={({ref}) => {
+      ref?.computeLineDistances()
     }}
   />
 

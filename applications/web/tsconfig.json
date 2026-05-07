@@ -1,4 +1,7 @@
 {
-  "extends": ["@repo/config-typescript/vite.json", "@tsconfig/svelte/tsconfig.json"],
+  "extends": ["@repo/config-typescript/vite.json"],
+  "compilerOptions": {
+    "moduleResolution": "bundler"
+  },
   "include": ["src", "vite.config.ts"]
 }

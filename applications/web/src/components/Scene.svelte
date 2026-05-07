@@ -1,17 +1,17 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {T, useThrelte} from "@threlte/core"
   import {Environment} from "@threlte/extras"
   import {Vector2, Vector3, type Vector3Like} from "three"
   import {interactivity} from "@threlte/extras"
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
-  import {realization, workbench, sketchBeingEdited} from "shared/stores"
+  import CadControls from "./controls/CadControls/CadControls.svelte"
   import Point3D from "./Point3D.svelte"
   import Plane from "./Plane.svelte"
   import Solid from "./Solid.svelte"
   import Sketch from "./Sketch.svelte"
   import CubeGizmo from "./controls/CubeGizmo/CubeGizmo.svelte"
   import {base} from "../base"
-  import CadControls from "./controls/CadControls/CadControls.svelte"
 
   const log = (function () { const context = "[Scene.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
@@ -19,22 +19,18 @@
 
   const {size, dpr, camera} = useThrelte()
 
-  $: points = $realization.points ? Object.entries($realization.points) : []
-  $: planes = $realization.planes ? Object.entries($realization.planes) : []
-  $: planesById = planes ? Object.fromEntries(planes) : {}
-  $: solids = $realization.solids ? Object.entries($realization.solids) : []
-  $: sketches = $realization.sketches ? Object.entries($realization.sketches) : []
+  let points = $derived(store.realization.points ? Object.entries(store.realization.points) : [])
+  let planes = $derived(store.realization.planes ? Object.entries(store.realization.planes) : [])
+  let planesById = $derived(planes ? Object.fromEntries(planes) : {})
+  let solids = $derived(store.realization.solids ? Object.entries(store.realization.solids) : [])
+  let sketches = $derived(store.realization.sketches ? Object.entries(store.realization.sketches) : [])
 
-  // $: $workbench, log("[$workbench]", $workbench)
-  // $: points, log("[realization.points]", points)
-  // $: planes, log("[realization.planes]", planes)
+  // $: store.workbench, log("[store.workbench]", store.workbench)
+  // $: points, log("[store.realization.points]", points)
+  // $: planes, log("[store.realization.planes]", planes)
   // $: planesById, log("[planesById]", planesById)
-  // $: solids, log("[realization.solids]", solids)
-  // $: sketches, log("[realization.sketches]", sketches)
-
-  // put it on window for debugging. todo remove
-  if (!(globalThis as any).realization) (globalThis as any).realization = []
-  $: $realization, (() => ((globalThis as any).realization = [...(globalThis as any).realization, $realization]))()
+  // $: solids, log("[store.realization.solids]", solids)
+  // $: sketches, log("[store.realization.sketches]", sketches)
 
   export function setCameraFocus(goTo: Vector3Like, lookAt: Vector3Like, up: Vector3Like): void {
     // TODO: make this tween nicely
@@ -48,7 +44,7 @@
     camera.current.up = lookup
   }
 
-  $: dashedLineMaterial = new LineMaterial({
+  let dashedLineMaterial = $derived(new LineMaterial({
     color: "#000000",
     linewidth: 1.0 * $dpr,
     depthTest: false,
@@ -58,9 +54,9 @@
     gapSize: 2,
     dashScale: 1,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
-  $: dashedHoveredMaterial = new LineMaterial({
+  let dashedHoveredMaterial = $derived(new LineMaterial({
     color: "#ffaa00",
     linewidth: 1.0 * $dpr,
     depthTest: false,
@@ -70,36 +66,36 @@
     gapSize: 2,
     dashScale: 1,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
-  $: solidLineMaterial = new LineMaterial({
+  let solidLineMaterial = $derived(new LineMaterial({
     color: "#000000",
     linewidth: 1.5 * $dpr,
     depthTest: true,
     transparent: true,
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
-  $: solidHoveredMaterial = new LineMaterial({
+  let solidHoveredMaterial = $derived(new LineMaterial({
     color: "#88aa00",
     linewidth: 5.5 * $dpr,
     depthTest: true,
     transparent: true,
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
-  $: solidSelectedMaterial = new LineMaterial({
+  let solidSelectedMaterial = $derived(new LineMaterial({
     color: "#ffaa00",
     linewidth: 5.5 * $dpr,
     depthTest: true,
     transparent: true,
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
-  $: collisionLineMaterial = new LineMaterial({
+  let collisionLineMaterial = $derived(new LineMaterial({
     color: "#FFFFFF",
     linewidth: 12.0 * $dpr,
     depthTest: false,
@@ -108,7 +104,7 @@
     opacity: 0,
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
-  })
+  }))
 
   // mouseButtons={{ LEFT: 0, MIDDLE: 1, RIGHT: 2 }} 0 // standard
   // mouseButtons={{ LEFT: 0, MIDDLE: 2, RIGHT: 1 }} 1 // no
@@ -122,7 +118,7 @@
 </script>
 
 <T.OrthographicCamera makeDefault position={[160.8, -250.8, 200.55]} zoom={5} up={[0, 0, 1]}>
-  <CadControls rotateSpeed={1.8} panSpeed={0.5} on:create={({ref}) => {}} mouseButtons={{LEFT: 2, MIDDLE: 50, RIGHT: 1}} />
+  <CadControls rotateSpeed={1.8} panSpeed={0.5} oncreate={({ref}) => {}} mouseButtons={{LEFT: 2, MIDDLE: 50, RIGHT: 1}} />
 </T.OrthographicCamera>
 
 <!-- <T.DirectionalLight args={['#ff8888', 50.0]} position.x={-10} position.y={0} position.z={0} />
@@ -139,11 +135,11 @@
 
 <Environment path="{base}/envmap/hdr/" files="kloofendal_28d_misty_puresky_1k.hdr" isBackground={false} format="hdr" />
 
-{#each points as [pointName, point] (`${$workbench.name}-${pointName}`)}
+{#each points as [pointName, point] (`${store.workbench.name}-${pointName}`)}
   <Point3D id={pointName} x={point.x} y={point.y} z={point.z} hidden={point.hidden} {collisionLineMaterial} />
 {/each}
 
-{#each planes as [planeName, plane] (`${$workbench.name}-${planeName}`)}
+{#each planes as [planeName, plane] (`${store.workbench.name}-${planeName}`)}
   <Plane
     name={plane.name}
     id={planeName}
@@ -156,12 +152,12 @@
   />
 {/each}
 
-{#each sketches as [sketchId, sketchTuple] (`${$workbench.name}-${sketchId}`)}
+{#each sketches as [sketchId, sketchTuple] (`${store.workbench.name}-${sketchId}`)}
   <Sketch
     uniqueId={sketchId}
     name={sketchTuple[2]}
     {sketchTuple}
-    editing={$sketchBeingEdited === sketchId}
+    editing={store.sketchBeingEdited === sketchId}
     plane={planesById[sketchTuple[0].plane_id]}
     {solidLineMaterial}
     {solidHoveredMaterial}
@@ -172,7 +168,7 @@
   />
 {/each}
 
-{#each solids as [solidName, solid] (`${$workbench.name}-${solidName}-${solid.crc32}`)}
+{#each solids as [solidName, solid] (`${store.workbench.name}-${solidName}-${solid.crc32}`)}
   <Solid
     name={solidName}
     indices={solid.indices}

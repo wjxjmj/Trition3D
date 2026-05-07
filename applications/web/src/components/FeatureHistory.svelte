@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {workbench, realization} from "shared/stores"
+  import {store} from "shared/stores.svelte"
   import PointFeature from "./features/Point.svelte"
   import PlaneFeature from "./features/Plane.svelte"
   import SketchFeature from "./features/Sketch.svelte"
@@ -18,17 +18,17 @@
   let initialPosition = {x: 0, y: 0}
   let innerWidth = 0
   let innerHeight = 0
-  $: overallHeight = innerHeight > 10 ? innerHeight - 45 * 3 : 300
-  $: partsHeight = overallHeight - height - 12
+  let overallHeight = $derived(innerHeight > 10 ? innerHeight - 45 * 3 : 300)
+  let partsHeight = $derived(overallHeight - height - 12)
 
-  $: history = $workbench.history ?? []
-  $: solids = $realization.solids ?? {}
+  let history = $derived(store.workbench.history ?? [])
+  let solids = $derived(store.realization.solids ?? {})
 
-  $: $workbench, log("[$workbench]", $workbench)
-  $: $workbench.history, log("[$workbench.history]", $workbench.history)
-  $: $realization, log("[$realization]", $realization)
+  $effect(() => { store.workbench; log("[store.workbench]", store.workbench) })
+  $effect(() => { store.workbench.history; log("[store.workbench.history]", store.workbench.history) })
+  $effect(() => { store.realization; log("[store.realization]", store.realization) })
 
-  export let setCameraFocus: SetCameraFocus
+  let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
 
   function onMouseDown(event: MouseEvent) {
     initialPosition = {x: event.pageX, y: event.pageY}
@@ -73,7 +73,7 @@
     {/each}
   </div>
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="h-[12px] cursor-row-resize border-b-2 border-b-gray-300" on:mousedown={onMouseDown}></div>
+  <div class="h-[12px] cursor-row-resize border-b-2 border-b-gray-300" onmousedown={onMouseDown}></div>
   <div style="height:{partsHeight}px" class="overflow-y-auto">
     <div class="font-bold text-sm px-2 py-2">
       Solids ({solids ? Object.keys(solids).length : 0})
@@ -84,4 +84,4 @@
   </div>
 </div>
 
-<svelte:window on:mousemove={onMouseMove} on:mouseup={onMouseUp} bind:innerWidth bind:innerHeight />
+<svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} bind:innerWidth bind:innerHeight />

@@ -1,28 +1,28 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {LineGeometry} from "three/addons/lines/LineGeometry.js"
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
   import {T} from "@threlte/core"
   import {flatten, circleToPoints, promoteTo3} from "shared/projectUtils"
-  import {currentlySelected, currentlyMousedOver, sketchTool} from "shared/stores"
-  import type {CircleTuple, EntityType} from "shared/types"
 
   const log = (function () { const context = "[Circle.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
   const type: EntityType = "circle"
 
-  export let id: string, center: CircleTuple["center"], radius: number
-
-  // log("[props]", "id:", id, "center:", center, "radius:", radius)
-
-  export let dashedLineMaterial: LineMaterial,
-    dashedHoveredMaterial: LineMaterial,
-    solidLineMaterial: LineMaterial,
-    solidHoveredMaterial: LineMaterial,
-    solidSelectedMaterial: LineMaterial,
+  let { id, center, radius, dashedLineMaterial, dashedHoveredMaterial, solidLineMaterial, solidHoveredMaterial, solidSelectedMaterial, collisionLineMaterial }: {
+    id: string
+    center: CircleTuple["center"]
+    radius: number
+    dashedLineMaterial: LineMaterial
+    dashedHoveredMaterial: LineMaterial
+    solidLineMaterial: LineMaterial
+    solidHoveredMaterial: LineMaterial
+    solidSelectedMaterial: LineMaterial
     collisionLineMaterial: LineMaterial
+  } = $props()
 
-  let hovered = false
-  $: selected = $currentlySelected.some(e => e.id === id && e.type === type) ? true : false
+  let hovered = $state(false)
+  let selected = $derived(store.currentlySelected.some(e => e.id === id && e.type === type) ? true : false)
 
   // array of x,y,z points
   const points = flatten(promoteTo3(circleToPoints(center.twoD, radius)))
@@ -32,31 +32,31 @@
 </script>
 
 <T.Group>
-  <T.Line2 geometry={lineGeometry} material={hovered ? dashedHoveredMaterial : dashedLineMaterial} on:create={({ref}) => ref.computeLineDistances()} />
+  <T.Line2 geometry={lineGeometry} material={hovered ? dashedHoveredMaterial : dashedLineMaterial} oncreate={({ref}) => ref?.computeLineDistances()} />
   <T.Line2
     geometry={lineGeometry}
     material={hovered ? solidHoveredMaterial : selected ? solidSelectedMaterial : solidLineMaterial}
-    on:create={({ref}) => {
-      ref.computeLineDistances()
+    oncreate={({ref}) => {
+      ref?.computeLineDistances()
     }}
   />
   <T.Line2
     geometry={lineGeometry}
     material={collisionLineMaterial}
-    on:create={({ref}) => {
-      ref.computeLineDistances()
+    oncreate={({ref}) => {
+      ref?.computeLineDistances()
     }}
-    on:pointerover={() => {
-      if ($sketchTool === "select") {
+    onpointerover={() => {
+      if (store.sketchTool === "select") {
         hovered = true
-        $currentlyMousedOver = [...$currentlyMousedOver, {type, id}]
-        // log("$currentlyMousedOver", $currentlyMousedOver)
+        store.currentlyMousedOver = [...store.currentlyMousedOver, {type, id}]
+        // log("store.currentlyMousedOver", store.currentlyMousedOver)
       }
     }}
-    on:pointerout={() => {
-      if ($sketchTool === "select") {
+    onpointerout={() => {
+      if (store.sketchTool === "select") {
         hovered = false
-        $currentlyMousedOver = $currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
+        store.currentlyMousedOver = store.currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
       }
     }}
   />

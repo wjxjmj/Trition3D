@@ -1,26 +1,27 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {LineGeometry} from "three/addons/lines/LineGeometry.js"
   import type {LineMaterial} from "three/examples/jsm/lines/LineMaterial.js"
   import {Shape, ShapeGeometry, Vector3, Vector2, Path, MeshStandardMaterial, DoubleSide, Euler, Matrix4, type Vector3Like} from "three"
   import {T} from "@threlte/core"
   import {flatten} from "shared/projectUtils"
-  import {currentlySelected, currentlyMousedOver, selectingFor, selectionMax, selectionMin} from "shared/stores"
-  import type {EntityType, TruckEdge, TruckFace, TruckFaceBoundary} from "shared/types"
   import nurbs from "nurbs"
 
   const log = (function () { const context = "[SelectableSurface.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let truck_face: TruckFace, truck_edges: TruckEdge[], id: string
+  let { truck_face, truck_edges, id, dashedLineMaterial, dashedHoveredMaterial, solidLineMaterial, solidHoveredMaterial, solidSelectedMaterial, collisionLineMaterial, truck_vertices }: {
+    truck_face: TruckFace
+    truck_edges: TruckEdge[]
+    id: string
+    dashedLineMaterial: LineMaterial
+    dashedHoveredMaterial: LineMaterial
+    solidLineMaterial: LineMaterial
+    solidHoveredMaterial: LineMaterial
+    solidSelectedMaterial: LineMaterial
+    collisionLineMaterial: LineMaterial
+    truck_vertices: any
+  } = $props()
   // log("[props]", "truck_face:", truck_face, "truck_edges:", truck_edges, "id:", id)
-
-  // svelte-ignore unused-export-let hmmm why does it not ignore?
-  export let dashedLineMaterial: LineMaterial,
-    dashedHoveredMaterial: LineMaterial,
-    solidLineMaterial: LineMaterial,
-    solidHoveredMaterial: LineMaterial,
-    solidSelectedMaterial: LineMaterial,
-    collisionLineMaterial: LineMaterial,
-    truck_vertices
 
   const standardMaterial = new MeshStandardMaterial({
     color: "#525252",
@@ -95,24 +96,24 @@
     // shape.setFromPoints(points)
 
     /*
-		shape lives in 2D and needs points which look like {x: 3 y: 2.3}
+			shape lives in 2D and needs points which look like {x: 3 y: 2.3}
 
-		So I need to extract the origin, x and y axis that define the Plane that
-		this surface lives on, then project each xyz point onto that 2d plane
-		then save each of those as the new points, then shape.setFromPoints(those_points)
+			So I need to extract the origin, x and y axis that define the Plane that
+			this surface lives on, then project each xyz point onto that 2d plane
+			then save each of those as the new points, then shape.setFromPoints(those_points)
 
-		THEN I need to understand the rotation and translation required to go from the TOP plane
-		to this new plane, and apply that rotation to a T.Group object which contains the face
+			THEN I need to understand the rotation and translation required to go from the TOP plane
+			to this new plane, and apply that rotation to a T.Group object which contains the face
 
-		Q: what do I do when the face is not planar? does a 2d nurbs surface provide me with a way
-		to make triangles easily?
-		Q: Can I completely replace the mesh visualization with this b-rep visualization? That would
-		solve my issue with huge numbers of triangles AND my inefficient triangle encoding
-		Q: how do I pick how many points to make for a NURBS curve? Is it sufficient to
-		assume it is a circular arc and do the radius thing, with some minimum so even small holes
-		look good? Or does it provide a single NURBS curve for where the circle hits the straight lines?
-		If so, can I determine from the knot vector where I need to sample densely?
-		*/
+			Q: what do I do when the face is not planar? does a 2d nurbs surface provide me with a way
+			to make triangles easily?
+			Q: Can I completely replace the mesh visualization with this b-rep visualization? That would
+			solve my issue with huge numbers of triangles AND my inefficient triangle encoding
+			Q: how do I pick how many points to make for a NURBS curve? Is it sufficient to
+			assume it is a circular arc and do the radius thing, with some minimum so even small holes
+			look good? Or does it provide a single NURBS curve for where the circle hits the straight lines?
+			If so, can I determine from the knot vector where I need to sample densely?
+			*/
 
     boundaries.slice(1).forEach(element => {
       let points = curveToPoints(element)
@@ -207,9 +208,8 @@
     return points
   }
 
-  let hovered = false
-  let selected = false
-  $: selected = $currentlySelected.some(e => e.id === id && e.type === type) ? true : false
+  let hovered = $state(false)
+  let selected = $derived(store.currentlySelected.some(e => e.id === id && e.type === type) ? true : false)
 
   const type: EntityType = "meshFace"
 </script>
@@ -219,8 +219,8 @@
     <T.Line2
       geometry={exterior}
       material={solidLineMaterial}
-      on:create={({ref}) => {
-        ref.computeLineDistances()
+      oncreate={({ref}) => {
+        ref?.computeLineDistances()
       }}
     />
 
@@ -228,8 +228,8 @@
       <T.Line2
         geometry={interior}
         material={solidLineMaterial}
-        on:create={({ref}) => {
-          ref.computeLineDistances()
+        oncreate={({ref}) => {
+          ref?.computeLineDistances()
         }}
       />
     {/each}
@@ -238,40 +238,40 @@
       <T.Mesh
         {geometry}
         material={hovered ? hoveredMaterial : standardMaterial}
-        on:pointerenter={e => {
-          if ($selectingFor.includes(type)) {
+        onpointerenter={e => {
+          if (store.selectingFor.includes(type)) {
             // log("On Pointer Enter and includes type")
             e.stopPropagation()
             hovered = true
-            $currentlyMousedOver = [...$currentlyMousedOver, {type, id}]
+            store.currentlyMousedOver = [...store.currentlyMousedOver, {type, id}]
           }
         }}
-        on:pointerleave={() => {
+        onpointerleave={() => {
           // log("On Pointer Leave!"")
-          if ($selectingFor.includes(type)) {
+          if (store.selectingFor.includes(type)) {
             hovered = false
-            $currentlyMousedOver = $currentlyMousedOver.filter(item => !(+item.id === +id && item.type === type))
+            store.currentlyMousedOver = store.currentlyMousedOver.filter(item => !(+item.id === +id && item.type === type))
           } else hovered = false
         }}
-        on:click={e => {
-          if ($selectingFor.includes(type)) {
+        onclick={e => {
+          if (store.selectingFor.includes(type)) {
             e.stopPropagation()
-            if ($currentlySelected.some(e => e.id === id && e.type === type)) {
-              if ($currentlySelected.length - 1 < $selectionMin) {
+            if (store.currentlySelected.some(e => e.id === id && e.type === type)) {
+              if (store.currentlySelected.length - 1 < store.selectionMin) {
                 // we can't deselect if doing so puts us below the minimum
                 // number of selected entities
                 return
               }
 
-              $currentlySelected = $currentlySelected.filter(item => !(item.id === id && item.type === type))
+              store.currentlySelected = store.currentlySelected.filter(item => !(item.id === id && item.type === type))
             } else {
-              if ($currentlySelected.length + 1 > $selectionMax) {
+              if (store.currentlySelected.length + 1 > store.selectionMax) {
                 // if selecting this entity puts us above the maximum
                 // number of selected entities, boot the oldest one
-                $currentlySelected.shift()
+                store.currentlySelected.shift()
               }
 
-              $currentlySelected = [...$currentlySelected, {type, id: id}]
+              store.currentlySelected = [...store.currentlySelected, {type, id: id}]
             }
           }
         }}

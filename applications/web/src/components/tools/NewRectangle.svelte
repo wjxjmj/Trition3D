@@ -1,18 +1,17 @@
 <script lang="ts">
-  import {snapPoints, sketchTool, previewGeometry, currentlyMousedOver} from "shared/stores"
-  import {addRectangleBetweenPoints, addPointToSketch} from "shared/projectUtils"
+  import {store} from "shared/stores.svelte"
   import {Vector3} from "three"
   import type {IDictionary, PointLikeById, ProjectToPlane, SketchPoint} from "shared/types"
 
   const log = (function () { const context = "[NewRectangleTool.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  export let pointsById: IDictionary<SketchPoint>, sketchIndex: string, active: boolean, projectToPlane: ProjectToPlane
+  let { pointsById, sketchIndex, active, projectToPlane }: { pointsById: IDictionary<SketchPoint>; sketchIndex: string; active: boolean; projectToPlane: ProjectToPlane } = $props()
 
   let anchorPoint: PointLikeById | null = null
 
   let stack: PointLikeById[] = []
 
-  $: if ($sketchTool !== "rectangle") clearStack()
+  $effect(() => { if (store.sketchTool !== "rectangle") clearStack() })
 
   function pushToStack(point: PointLikeById) {
     if (!point) return
@@ -39,7 +38,7 @@
   }
 
   export function click(_event: Event, projected: PointLikeById) {
-    if ($snapPoints.length > 0) processPoint($snapPoints[0])
+    if (store.snapPoints.length > 0) processPoint(store.snapPoints[0])
     else processPoint({twoD: projected.twoD, threeD: projected.threeD, id: null})
   }
 
@@ -51,7 +50,7 @@
     // and to the perimeters of circles and so on
     // so these snap points do not necessarily correspond to actual points in the sketch
     let snappedTo
-    for (const geom of $currentlyMousedOver) {
+    for (const geom of store.currentlyMousedOver) {
       if (geom.type === "point3D") {
         const twoD = projectToPlane(new Vector3(geom.x, geom.y, geom.z))
         snappedTo = {
@@ -68,10 +67,10 @@
       }
     }
 
-    // only reset $snapPoints if something has changed
+    // only reset store.snapPoints if something has changed
     // @ts-ignore
-    if (snappedTo) $snapPoints = [snappedTo]
-    else if ($snapPoints.length > 0) $snapPoints = []
+    if (snappedTo) store.snapPoints = [snappedTo]
+    else if (store.snapPoints.length > 0) store.snapPoints = []
 
     if (anchorPoint) {
       const end = snappedTo ? snappedTo : {twoD: {x: projected.x, y: projected.y}}
@@ -133,22 +132,22 @@
         })
       }
       // @ts-ignore todo make factory functions so type is EntityType
-      previewGeometry.set(previewGeoms)
-    } else previewGeometry.set([])
+      store.previewGeometry = previewGeoms
+    } else store.previewGeometry = []
   }
 
   export function onKeyDown(event: KeyboardEvent) {
     if (!active) return
     if (event.key === "Escape") {
       clearStack()
-      $sketchTool = "select"
+      store.sketchTool = "select"
     }
   }
 
   function clearStack() {
     anchorPoint = null
-    previewGeometry.set([])
-    snapPoints.set([])
+    store.previewGeometry = []
+    store.snapPoints = []
     stack = []
   }
 
@@ -157,4 +156,4 @@
   }
 </script>
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window onkeydown={onKeyDown} />

@@ -1,12 +1,11 @@
 <script>
-  import {project, workbenchIndex, workbenchIsStale} from "shared/stores"
-  import {renameWorkbench} from "shared/projectUtils"
+  import {store} from "shared/stores.svelte"
 
   // prettier-ignore
   const log = (function () { const context = "[BottomBar.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})()
-  var new_workbench_name = ""
+  let new_workbench_name = $state("")
 
-  $: workbenches = $project.workbenches ?? []
+  let workbenches = $derived(store.project.workbenches ?? [])
 </script>
 
 <div class="bg-gray-100 dark:bg-gray-800 h-[45px] flex">
@@ -16,39 +15,39 @@
         class="bg-gray-300 text-gray-700 py-2 px-4"
         type="text"
         bind:value={new_workbench_name}
-        on:blur={() => {
-          log("Renaming workbench index aborted")
+        onblur={() => {
+          log("Renaming store.workbench index aborted")
           wb.renaming = false
         }}
-        on:keydown={e => {
+        onkeydown={e => {
           if (e.key === "Enter") {
-            log("Renaming workbench index:", i)
+            log("Renaming store.workbench index:", i)
             renameWorkbench(new_workbench_name)
             wb.name = new_workbench_name
-            workbenchIsStale.set(true)
+            store.workbenchIsStale = true
             wb.renaming = false
           }
         }}
       />
     {:else}
       <button
-        class="{$workbenchIndex === i
+        class="{store.workbenchIndex === i
           ? 'bg-gray-300 dark:bg-gray-600'
           : 'bg-gray-200 dark:bg-gray-800'} hover:bg-sky-300 text-gray-700 dark:text-gray-300 dark:hover:text-gray-700 py-2 px-4"
         type="button"
-        on:dblclick={() => {
-          if ($workbenchIndex !== i) {
+        ondblclick={() => {
+          if (store.workbenchIndex !== i) {
             return
           }
 
-          log("Renaming workbench index:", i)
+          log("Renaming store.workbench index:", i)
           wb.renaming = true
           new_workbench_name = wb.name
         }}
-        on:click={() => {
-          log("Setting new workbench index:", i)
-          workbenchIndex.set(i)
-          workbenchIsStale.set(true)
+        onclick={() => {
+          log("Setting new store.workbench index:", i)
+          store.workbenchIndex = i
+          store.workbenchIsStale = true
         }}>{wb.name}</button
       >
     {/if}

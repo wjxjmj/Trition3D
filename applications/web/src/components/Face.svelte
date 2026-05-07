@@ -1,9 +1,8 @@
 <script lang="ts">
+  import {store} from "shared/stores.svelte"
   import {T} from "@threlte/core"
   import {Path, Vector2, Shape, MeshStandardMaterial, DoubleSide, ShapeGeometry} from "three"
   import {circleToPoints, arcToPoints} from "shared/projectUtils"
-  import {currentlySelected, currentlyMousedOver, selectingFor} from "shared/stores"
-  import type {EntityType, IDictionary, SketchPoint} from "shared/types"
   // import Sketch from './Sketch.svelte'
 
   const log = (function () { const context = "[Face.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -13,13 +12,16 @@
   // 	 exterior: wire
   //   holes: wires[]
   // }
-  export let face: any, id: string, pointsById: IDictionary<SketchPoint>
-  // log("[props]", "face:", face, "id:", id, "pointsById:", pointsById)
+  let { face, id, pointsById }: {
+    face: any
+    id: string
+    pointsById: IDictionary<SketchPoint>
+  } = $props()
 
   const type: EntityType = "face"
 
-  let hovered = false
-  $: selected = $currentlySelected.some(e => e.id === id && e.type === type) ? true : false
+  let hovered = $state(false)
+  let selected = $derived(store.currentlySelected.some(e => e.id === id && e.type === type) ? true : false)
 
   // a face has an exterior and holes.
   // exterior is a wire, and holes is an array of wires.
@@ -133,26 +135,26 @@
   <T.Mesh
     {geometry}
     material={selected ? selectedMaterial : hovered ? hoverMaterial : standardMaterial}
-    on:pointerenter={() => {
-      if ($selectingFor.includes(type)) {
+    onpointerenter={() => {
+      if (store.selectingFor.includes(type)) {
         hovered = true
-        $currentlyMousedOver = [...$currentlyMousedOver, {type, id}]
+        store.currentlyMousedOver = [...store.currentlyMousedOver, {type, id}]
       }
     }}
-    on:pointerleave={() => {
-      if ($selectingFor.includes(type)) {
+    onpointerleave={() => {
+      if (store.selectingFor.includes(type)) {
         hovered = false
-        $currentlyMousedOver = $currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
+        store.currentlyMousedOver = store.currentlyMousedOver.filter(item => !(item.id === id && item.type === type))
       }
     }}
-    on:click={() => {
-      if ($selectingFor.includes(type)) {
-        if ($currentlySelected.some(e => e.id === id && e.type === type)) {
+    onclick={() => {
+      if (store.selectingFor.includes(type)) {
+        if (store.currentlySelected.some(e => e.id === id && e.type === type)) {
           // this face was already selected, so unselect it
-          $currentlySelected = $currentlySelected.filter(item => !(item.id === id && item.type === type))
+          store.currentlySelected = store.currentlySelected.filter(item => !(item.id === id && item.type === type))
         } else {
           // @ts-ignore todo make all numeric ids number type.
-          $currentlySelected = [...$currentlySelected, {type, id}]
+          store.currentlySelected = [...store.currentlySelected, {type, id}]
         }
       }
     }}
