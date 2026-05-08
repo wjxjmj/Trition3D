@@ -44,7 +44,7 @@
   <div
     class="ml-auto mr-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-500 px-1 py-1 rounded"
     onmousedown={() => {
-      setCameraFocus(plane.tertiary, plane.origin, plane.secondary)
+      setCameraFocus?.(plane.tertiary, plane.origin, plane.secondary)
       // move camera to focus on plane
     }}
   >

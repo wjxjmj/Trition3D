@@ -31,5 +31,8 @@ anyhow = { version = "1.0.97", features = ["backtrace"] }
 thiserror = "1.0.69"
 strum = { version = "0.27.1", features = ["derive"] }
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [lib]
 crate-type = ["cdylib", "rlib"]

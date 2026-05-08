@@ -76,20 +76,8 @@ export const store = $state({
   messageHistory: [] as MessageHistory[],
 })
 
-// Logging $effects (staleness sync moved to App.svelte)
-$effect.root(() => { log("[project]", store.project) })
-$effect.root(() => { log("[workbenchIndex]", store.workbenchIndex) })
-$effect.root(() => { log("[workbench]", store.workbench) })
-$effect.root(() => { log("[workbenchIsStale]", store.workbenchIsStale) })
-$effect.root(() => { log("[featureIndex]", store.featureIndex) })
-$effect.root(() => { log("[extrusionFeatures]", store.extrusionFeatures) })
-$effect.root(() => { log("[realization]", store.realization) })
-$effect.root(() => { log("[realizationIsStale]", store.realizationIsStale) })
-$effect.root(() => { log("[sketchBeingEdited]", store.sketchBeingEdited) })
-$effect.root(() => { log("[messageHistory]", store.messageHistory) })
-
+// Validation $effect
 $effect.root(() => {
-  log("[currentlySelected]", store.currentlySelected)
   const allValid = store.currentlySelected.every(entity => isEntity(entity))
   if (!allValid) console.error("[stores.svelte.ts] [currentlySelected] has invalid entities", store.currentlySelected)
 })

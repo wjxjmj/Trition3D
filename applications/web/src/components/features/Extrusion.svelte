@@ -35,31 +35,39 @@
     store.workbenchIsStale = true
   }
 
+  let updating = false
+
   function sendUpdate(specificFaceIds?: string[]) {
-    if (specificFaceIds) {
-      updateExtrusion(id, data.sketch_id, length, specificFaceIds)
-    } else {
-      const faceIdsFromSelection = store.currentlySelected
-        .filter(e => e.type === "face")
-        .map(e => e.id)
-        .sort()
-      updateExtrusion(id, data.sketch_id, length, faceIdsFromSelection)
+    if (updating) return
+    updating = true
+    try {
+      if (specificFaceIds) {
+        updateExtrusion(id, data.sketch_id, length, specificFaceIds)
+      } else {
+        const faceIdsFromSelection = store.currentlySelected
+          .filter(e => e.type === "face")
+          .map(e => e.id)
+          .sort()
+        updateExtrusion(id, data.sketch_id, length, faceIdsFromSelection)
+      }
+    } finally {
+      setTimeout(() => updating = false, 200)
     }
   }
 
   $effect(() => {
-    const store = store.currentlySelected
+    const selected = store.currentlySelected
     if (store.featureIndex !== index) return
+    if (updating) return
 
-    const faceIdsFromSelection = store
+    const faceIdsFromSelection = selected
       .filter(e => e.type === "face")
       .map(e => e.id)
       .sort()
 
     if (arraysEqual(faceIdsFromInputs, faceIdsFromSelection)) {
-      // log("[closeAndRefresh] face ids are the same, no update")
+      // same, no update
     } else {
-      // log("[closeAndRefresh] triggering update to new face Ids:", faceIdsFromSelection)
       sendUpdate(faceIdsFromSelection)
     }
   })
@@ -71,7 +79,7 @@
 
   $effect(() => {
     if (store.featureIndex === index) {
-      store.selectingFor = ["face"]
+      store.selectingFor = ["face", "meshFace"]
       store.currentlySelected = faceIdsFromInputs.map(id => ({type: "face", id}))
       // log("[store.currentlySelected]", store.currentlySelected)
     }
@@ -144,7 +152,7 @@
               onclick={(e) => {
                 e.preventDefault()
                 store.currentlySelected = store.currentlySelected.filter(item => !(item.id === faceId && item.type === "face"))
-              }}><X /></button
+              }}><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg></button
             >
           </div>
         {/each}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
   import {Vector3} from "three"
+  import {addPointToSketch, addLineToSketch} from "shared/projectUtils"
   import type {IDictionary, Point, PointLikeById, PreviewGeometry, ProjectToPlane, SketchPoint} from "shared/types"
 
   const log = (function () { const context = "[NewLineTool.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore

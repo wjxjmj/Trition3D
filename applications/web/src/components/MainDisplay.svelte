@@ -19,7 +19,12 @@
   let viewportWidth = $derived(innerWidth - width - 10)
   let height = $derived(innerHeight > 135 ? innerHeight - 45 * 3 : 300)
 
-  let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
+  let setCameraFocus: SetCameraFocus
+  let sceneRef: any = $state()
+
+  function doSetCameraFocus(goTo: any, lookAt: any, up: any) {
+    sceneRef?.setCameraFocus?.(goTo, lookAt, up)
+  }
 
   function onMouseDown(event: MouseEvent) {
     initialPosition = {x: event.pageX, y: event.pageY}
@@ -45,7 +50,7 @@
 </script>
 
 <div style="width:{width}px; height:{height}px" class="dark:bg-gray-700">
-  <FeatureHistory {setCameraFocus} />
+  <FeatureHistory setCameraFocus={doSetCameraFocus} />
 </div>
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="w-[12px] cursor-col-resize border-r-gray-300 dark:bg-gray-700 border-r-2" onmousedown={onMouseDown}></div>
@@ -64,7 +69,7 @@
   }}
 >
   <Canvas>
-    <Scene bind:setCameraFocus />
+    <Scene bind:this={sceneRef} />
   </Canvas>
   <div class="dark:text-gray-300 absolute bottom-1 right-1">{GIT_BRANCH} {GIT_HASH}</div>
 </div>

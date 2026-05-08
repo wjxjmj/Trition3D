@@ -1,5 +1,6 @@
 <script>
   import {store} from "shared/stores.svelte"
+  import {newExtrusion, newSketchOnPlane} from "shared/projectUtils"
   import {base} from "../base"
 
   const log = (function () { const context = "[ToolBar.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -9,13 +10,14 @@
   const solveSketch = () => {}
   const createNewExtrusion = () => {
     newExtrusion()
-    // set that as the current feature being edited
-    store.featureIndex = store.workbench.history.length - 1
+    // New extrusion will be at index = current length (added after sync)
+    store.featureIndex = store.workbench.history.length
   }
   const createNewSketch = () => {
     // log('Create new sketch')
     newSketchOnPlane()
-    store.featureIndex = store.workbench.history.length - 1
+    // New sketch will be at index = current length (added after sync)
+    store.featureIndex = store.workbench.history.length
   }
   const stepSketch = () => {}
   const debugging = false

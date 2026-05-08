@@ -1,234 +1,86 @@
->[!CAUTION]
->This repo is inactive. No PRs or issues will be accepted.
-
 # CADmium
 
-This project aims to create a new CAD program from scratch. It is small, it runs in a web browser, and the source code is available for free here on Github.
+A parametric CAD program that runs in the browser. Build 3D models with sketches and extrusions, export to OBJ/STEP.
 
-Legacy CAD programs have taken many thousands of years of collective engineering time to get where they are so this program will never be able to compete on breadth of features. But CADmium is intended to capture 80% of the most common CAD use cases while doing less than 10% of the work. For now we are targeting the home hobbyist who just wants to design a widget for their 3D printer, not a company that wants to design a car or airplane, although that will come later.
+**Status:** Upgraded to modern toolchain. Active development fork.
 
-If you're looking for:
+## Technology Stack
 
-- A simple, modern, parametric CAD UI that runs in a browser
-- That can export solids as .step, .obj, or .cadmium (a json-based CAD format that this project is inventing)
-- That can export sketches as .svg or .dxf
-- That works without an internet connection
+| Layer | Technology |
+|-------|-----------|
+| 3D Kernel | [truck](https://github.com/ricosjp/truck) (Rust b-rep engine) |
+| Core Logic | Rust → WASM (`packages/cadmium`) |
+| Frontend | Svelte 5.55 (runes mode) + Vite 7 + Tailwind CSS |
+| 3D Rendering | Threlte 8.5 + Three.js 0.175 |
+| Package Manager | pnpm 10 with turborepo |
+| Format | .cadmium (JSON-based, serialized from Rust structs) |
 
-Then this project may be for you!
+## Quick Start
 
-**Status**: Early prototype. This tool is not yet an MVP, but is being developed in the open. ~~Please do not share this to HN or Reddit or things like that.~~ ha, well I guess [that ship has sailed](https://news.ycombinator.com/item?id=40428827)!
+```shell
+# Prerequisites: Node >= 24, pnpm >= 10, Rust with wasm-pack
+pnpm install
+pnpm dev        # http://127.0.0.1:5173
+```
 
-## Overall Plan
+### WASM Build (WSL required on Windows)
 
-**Demos:** We are currently racing toward our first demo release, [V0.0.1](https://github.com/orgs/CADmium-Co/projects/1?pane=info). This is a good first exercise for us to decide on build and release processes.
+```shell
+# In WSL, with proxy configured:
+cd packages/cadmium
+wasm-pack build --target web --no-pack --release
+```
 
-After that we will do a few more demo (V0.0.\*) releases, aggregating features until it feels pretty usable.
+The release build (`--release`) is **critical** for performance — dev mode WASM is ~3x larger and significantly slower.
 
-**Alpha:** When it feels like we've reached an MVP that people might actually want to use, it's time to release an Alpha version (V0.1.0) and actively solicit feedback from users. We'll use that feedback to make more improvements, re-inventing things if necessary to achieve a great workflow.
+## Features
 
-Beyond that, we'll see!
+- **Sketches**: 2D drawing on planes (line, circle, rectangle)
+- **Extrusions**: Convert sketches to 3D solids
+- **Navigation**: Orbit/pan/zoom + Gizmo cube for quick view switching
+- **Export**: OBJ (mesh), STEP (brep, experimental), .cadmium (project)
+- **File management**: Save/load projects, persistence of visibility state
+- **Dark mode**: Toggle in toolbar
 
-## Technology
+## Development
 
-The boundary representation engine under the hood is [truck](https://github.com/ricosjp/truck), which is written in rust and is not dependent on any legacy b-rep engine.
+```shell
+pnpm dev          # Start dev server
+pnpm build        # Production build
+cargo test        # Rust tests (in packages/cadmium)
+```
 
-Leveraging truck, we wrote a small rust library called [cadmium](https://github.com/CADmium-Co/CADmium/tree/main/src/rust/cadmium) which provides structs for projects, workspaces, sketches, extrusions, and constraints. Our goal is that this rust library provides all the same functionality as the UI for anyone who prefers code-first CAD. This library is able to save and load projects to disk as json. We have also built a set of javascript bindings so that the whole thing can be compiled to wasm and run in a browser.
+### Environment
+- **WSL recommended** for WASM compilation (MSVC linker has path issues on Windows)
+- Proxy at `localhost:10808` if behind firewall (set `http_proxy`/`https_proxy`)
+- WASM built in WSL, web dev server runs on Windows host
 
-The UI is built with [SvelteKit](https://kit.svelte.dev/) and [Tailwind](https://tailwindcss.com/). It is hosted with Github Pages. We use [three.js](https://threejs.org/) for rendering, which in this case uses WebGL under the hood. We use [Threlte](https://github.com/threlte/threlte) to manage the scene graph declaratively.
+## Architecture
 
-Native builds use [Tauri](https://tauri.app/), which is a Rust-based wrapper around OS-specific native webviews that allows us to build a native app from the same codebase.
+```
+Project → Workbench[] → history: Step[]
+                          ├── Point
+                          ├── Plane
+                          ├── Sketch (2D geometry + constraints)
+                          └── Extrusion (sketch → 3D solid)
+```
+
+- **Message system**: UI sends `Message` enum variants to Rust core, which mutates project state
+- **Realization**: Workbench history is "realized" into concrete 3D geometry
+- **Stores**: Single `$state` object (`packages/shared/stores.svelte.ts`) with staleness-triggered sync
+- **Sketch solver**: Physics-based iterative constraint solver (spring forces + damping)
+
+## Project Structure
+
+```
+packages/
+  cadmium/          Rust CAD kernel → WASM
+  shared/           TypeScript types, stores, utilities
+applications/
+  web/              Svelte 5 frontend
+  tauri/            Tauri desktop wrapper (disabled, code preserved)
+```
 
 ## License
 
-This software is offered under the [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license). In summary, you can do whatever you like with this software except offer it as a service to third parties.
-
-## Running The Code
-
-If you're just trying to kick the tires, [click here](https://CADmium-Co.github.io/CADmium/) to view the live web demo.
-
-To build locally using pnpm workspace & turbo:
-
-```shell
-git clone https://github.com/Cadmium-Co/CADmium.git
-cd CADmium
-pnpm install
-pnpm dev
-```
-
-### Native Builds
-
-```shell
-# Development
-pnpm tauri dev
-
-# Generate binaries and installers
-pnpm tauri build
-```
-
-Tauri can [generate icons](https://tauri.app/v1/guides/features/icons/) for the native build with the following command:
-
-```shell
-pnpm tauri icon applications/web/public/cadmium_logo_min.svg
-```
-
-## Tooling setup
-
-### pnpm
-
-We use pnpm to manage the monorepo. Please follow the instructions here to install: https://pnpm.io/installation#using-a-standalone-script
-
-If you're new to node you can use pnpm to manage nodejs:
-
-```shell
-# https://pnpm.io/cli/env#use
-pnpm env use --global 20
-```
-
-### rust
-
-First install rust using rustup: https://rustup.rs
-
-Then install wasm-pack
-
-```shell
-cargo install wasm-pack
-```
-
-## Running Tests
-
-```shell
-pnpm test
-```
-
-Playwright is used for e2e testing. You may be prompted with a command to install it.
-
-For manjaro/archlinux folks it may report missing dependencies. On manjaro the missing dependencies are solved [thanks to this comment](https://github.com/microsoft/playwright/issues/2621#issuecomment-931530175):
-
-```shell
-yay -S aur/enchant1.6 aur/icu66 aur/libwebp052
-```
-
-Watch vitest unit tests only:
-
-```shell
-cd applications/web
-pnpm test:unit -w
-```
-
-### rust
-
-To build and run the Rust tests:
-
-```shell
-cargo test
-```
-
-### rust examples
-
-Simple exaples using the rust code can be found in `packages/cadmium/examples`
-
-Run simple rust example with:
-```
-cargo run --example project_simple_extrusion
-```
-
-Will produce example.obj file and example.step output files, the .step file can be examined in a CAD viewer.
-
-## git blame
-
-To ignore commits used purely for formatting changes, to preserve correct authorship, set your local git config:
-
-```shell
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-```
-
-## Contributing
-
-We are actively seeking contributors! Please join the [Discord](https://discord.gg/qJCsKJeyZv) and come help out!
-
-Most especially, we need help in the following areas:
-
-**Design:** The tool must look and feel good and we are not designers. We would love contributions in the form of:
-
-- Advice, mockups, or tailwindcss examples of how to make different elements look and behave better
-- In particular, help picking a color palette that works well and is unique
-- Help figuring out how to implement dark mode
-
-**Rust:** This is our first project in Rust. We need help from experienced Rustaceans to:
-
-- Figure out how to better lay out the rust code
-- Point out any glaring issues with how I'm using the language (We've thus far completely avoided Lifetimes, Traits, Rc, RefCell, etc and that may be hampering things)
-
-**Svelte:** This is our first project using Svelte. We'd love an experienced set of eyes to:
-
-- Look over the basic structure and tell us if we're making any big mistakes
-- Help us migrate to Svelte 5 when it comes out
-
-If you feel like you would be willing and able to help, please join [our discord](https://discord.gg/qJCsKJeyZv)!
-
-## License FAQs
-
-### What license do you use?
-We use the [Elastic License v2.0](https://github.com/CADmium-Co/CADmium/blob/main/LICENSE.md).
-
-### What are the terms of that license?
-You can do anything you want with the code except offer it as a service to third parties.
-
-### Why do you use that license instead of MIT, GPL, etc?
-Because we don't want Autodesk, Siemens, Dassault, or PTC to clone our code, change the logo, and start offering it as one of their products.
-
-### Can I host a CADmium instance for my family?
-Yes.
-
-### Can I host a CADmium instance for my company for internal use?
-Yes.
-
-### Can I host a CADmium instance for my company for my clients as a free service?
-No.
-
-### Can I host a CADmium instance for my company for my clients as a paid service?
-No.
-
-### If you choose at some point to stop developing CADmium, what will/can happen to the project?
-We would convert the license to MIT, GPL, or something similar.
-
-### If I fork the project and change it (rebranding or adding a new feature) can I host it myself?
-Yes, so long as your fork is only used by you or your company. You are not permitted to host your fork as a service for third parties.
-
-### Do I have to publish my fork?
-No.
-
-## Immediate TODOs for V0.0.1 release (The Demo)
-
-Github project for tracking progress is [here](https://github.com/orgs/CADmium-Co/projects/1/views/1?pane=info)
-
-- [ ] Sketching
-  - [ ] Implement a standalone first-order 2D constraint solver
-  - [ ] Integrate that new solver into sketch.rs
-  - [ ] Ability to create a sketch on the face of a solid
-  - [ ] Ability to create and modify constraints in the UI
-  - [ ] Entities: line, rect, circle, arc, 2D fillet
-  - [ ] Constraints: horiz, vert, parallel, perp, length, radius, coincident, maybe a few others
-- [ ] Extrusion
-  - [ ] Configure an extrusion to create new solid or subtract from existing solid
-  - [ ] Modes: New, Add, Cut
-  - [ ] Control: depth, offset
-  - [ ] Ability to extrude multiple faces (from one sketch) at a time while not extruding every face in the sketch
-- [ ] Revolution
-  - [ ] Same as Extrusions
-- [ ] Boolean
-  - [ ] Union, Intersection, Subtraction
-- [ ] Project
-  - [x] Ability to rename the project
-  - [ ] Ability to delete steps
-  - [ ] bind ctrl + s to .cadmium export, and ctrl + o to .cadmium import
-- [ ] Units
-  - [ ] Make it clear that the whole file uses millimeter units
-- [ ] Files
-  - [ ] Save and load CADmium files
-  - [ ] Export as STEP, OBJ, STL, SVG, DXF
-- [ ] Marketing
-  - [ ] Youtube video demonstrating how to make:
-    - [ ] A simple cube
-    - [ ] A plate with screw holes
-    - [ ] Something pretty complex [like this](https://cad.onshape.com/documents/2382065421b11eec78db785a/w/3a8d47849c9b8d3e2c1584d6/e/63184eaca6140916d236e50b?renderMode=0&uiState=66507497cd1f34699629cbb5)
+[Elastic License 2.0](LICENSE.md) — You may use, modify, and distribute this software, but may not offer it as a service to third parties.

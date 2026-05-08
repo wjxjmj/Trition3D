@@ -1,6 +1,7 @@
 <script lang="ts">
   import fileDownload from "js-file-download"
   
+  import {store} from "shared/stores.svelte"
   import {getObjectString} from "shared/projectUtils"
   import type {WithTarget} from "shared/types"
   import {base} from "../base"
@@ -10,14 +11,14 @@
   let { name }: { name: string } = $props()
 
   const source = `${base}/actions/part.svg`
-  let contextMenuVisible = false
+  let contextMenuVisible = $state(false)
 
   // pos is cursor position when right click occur
-  let pos = {x: 0, y: 0}
+  let pos = $state({x: 0, y: 0})
   // menu is dimension (height and width) of context menu
-  let menu = {h: 0, w: 0}
+  let menu = $state({h: 0, w: 0})
   // browser/window dimension (height and width)
-  let browser_size = {h: 0, w: 0}
+  let browser_size = $state({h: 0, w: 0})
 
   function getContextMenuDimension(node: HTMLElement) {
     // This function will get context menu dimension
@@ -57,11 +58,9 @@
     contextMenuVisible = false
   }
   const exportSolidSTEP = () => {
-    log("export solid STEP")
     contextMenuVisible = false
-    // let step_string = $realization_rust.solid_to_step(solid_name)
-    // log(step_string)
-    // fileDownload(step_string, solid_name + '.step')
+    const step_string = store.wasmRealization.solid_to_step(name)
+    fileDownload(step_string, `${name}.step`)
   }
 
   function onWindowClick() {

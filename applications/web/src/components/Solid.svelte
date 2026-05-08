@@ -38,11 +38,11 @@
   geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normalsArray, 3))
 
   const material = new THREE.MeshStandardMaterial({
-    color: "#999999",
+    color: "#e8e8e8",
     side: THREE.DoubleSide,
     wireframe: false,
-    metalness: 1.0,
-    roughness: 0.6,
+    metalness: 0.2,
+    roughness: 0.7,
   })
 
   const edges = new THREE.EdgesGeometry(geometry, 15)

@@ -114,14 +114,7 @@
   const clickTarget = document.createElement("div")
   const renderTarget = renderer.domElement
 
-  let _debugPosLogged = false
   function positionClickTarget() {
-    if (!_debugPosLogged) {
-      console.log('[CubeGizmo] canvas offsetWidth:', renderTarget.offsetWidth, 'offsetHeight:', renderTarget.offsetHeight)
-      console.log('[CubeGizmo] canvas width:', renderTarget.width, 'height:', renderTarget.height)
-      console.log('[CubeGizmo] clickTarget parent relative, top:', paddingY, 'right:', paddingX)
-      _debugPosLogged = true
-    }
     if (horizontalPlacement === "right") {
       clickTarget.style.right = `${paddingX}px`
       clickTarget.style.left = ""
@@ -199,18 +192,6 @@
     const offsetY = rect.top + (clickTarget.offsetHeight - size)
     mouse.x = ((event.clientX - offsetX) / (rect.right - offsetX)) * 2 - 1
     mouse.y = -((event.clientY - offsetY) / (rect.bottom - offsetY)) * 2 + 1
-
-    // Debug: log first 5 mouse events
-    if ((window as any).__gizmoDebugCount === undefined) (window as any).__gizmoDebugCount = 0
-    if ((window as any).__gizmoDebugCount < 5) {
-      console.log('[CubeGizmo] clickTarget rect:', JSON.stringify(rect),
-        'offsetWidth:', clickTarget.offsetWidth, 'offsetHeight:', clickTarget.offsetHeight,
-        'size:', size,
-        'offsetX:', offsetX, 'offsetY:', offsetY,
-        'clientX:', event.clientX, 'clientY:', event.clientY,
-        'mouse:', mouse.x.toFixed(3), mouse.y.toFixed(3))
-      ;(window as any).__gizmoDebugCount++
-    }
 
     raycaster.setFromCamera(mouse, orthoCam)
   }

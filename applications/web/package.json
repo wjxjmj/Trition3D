@@ -47,6 +47,7 @@
     "gsap": "^3.12.5",
     "js-file-download": "^0.4.12",
     "just-debounce-it": "^3.2.0",
+    "lucide-static": "^1.14.0",
     "nurbs": "^1.1.1",
     "shared": "workspace:*",
     "three": "^0.175.0",

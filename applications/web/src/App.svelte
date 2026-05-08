@@ -9,7 +9,7 @@
   const log = (function () { const context = "[App.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
   const userName = "mattferraro.dev"
-  let newFileContent: string | null = null
+  let newFileContent: string | null = $state(null)
 
   $effect(() => {
     init().then(() => {
@@ -29,11 +29,34 @@
 
   $effect(() => {
     if (newFileContent) {
-      log("[newFileContent] received new file", newFileContent)
-      const newWasmProject = WasmProject.from_json(newFileContent)
+      log("[newFileContent] received new file")
+      // Extract persistence data from JSON wrapper
+      let jsonToLoad = newFileContent
+      try {
+        const parsed = JSON.parse(newFileContent)
+        if (parsed.__cadmium_hiddenSketches) {
+          store.hiddenSketches = parsed.__cadmium_hiddenSketches
+          delete parsed.__cadmium_hiddenSketches
+          jsonToLoad = JSON.stringify(parsed)
+        } else {
+          store.hiddenSketches = []
+        }
+      } catch {
+        store.hiddenSketches = []
+      }
+      const newWasmProject = WasmProject.from_json(jsonToLoad)
       store.wasmProject = newWasmProject
       store.projectIsStale = true
       newFileContent = null
+    }
+  })
+
+  $effect(() => {
+    if (store.projectIsStale) {
+      store.project = JSON.parse(store.wasmProject.to_json())
+      store.workbenchIndex = 0
+      store.workbenchIsStale = true
+      store.projectIsStale = false
     }
   })
 
@@ -47,7 +70,7 @@
 
   $effect(() => {
     if (store.realizationIsStale) {
-      store.wasmRealization = store.wasmProject.get_realization(store.workbenchIndex, store.featureIndex + 1)
+      store.wasmRealization = store.wasmProject.get_realization(store.workbenchIndex, 1000)
       store.realization = JSON.parse(store.wasmRealization.to_json())
       store.realizationIsStale = false
     }

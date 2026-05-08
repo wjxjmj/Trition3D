@@ -1,5 +1,6 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
+  import {addPointToSketch, addRectangleBetweenPoints} from "shared/projectUtils"
   import {Vector3} from "three"
   import type {IDictionary, PointLikeById, ProjectToPlane, SketchPoint} from "shared/types"
 

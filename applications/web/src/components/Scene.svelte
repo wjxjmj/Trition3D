@@ -131,7 +131,8 @@
 <T.PointLight args={['#ffffff', 3000.0]} position.x={10} position.y={-13} position.z={1.1} />
 <T.PointLight args={['#ffffff', 3000.0]} position.x={-10.5} position.y={11} position.z={0.86} /> -->
 
-<!-- <T.AmbientLight intensity={0.6} /> -->
+<T.AmbientLight intensity={0.4} />
+<T.DirectionalLight position={[10, 10, 10]} intensity={0.5} />
 
 <Environment path="{base}/envmap/hdr/" files="kloofendal_28d_misty_puresky_1k.hdr" isBackground={false} format="hdr" />
 
