@@ -9,11 +9,13 @@
 
   const log = (function () { const context = "[AppBar.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  async function openExternal(url: string) {
-    try {
-      const { open } = await import("@tauri-apps/plugin-shell")
-      await open(url)
-    } catch {
+  function openExternal(url: string) {
+    const tauriInternals = (window as any).__TAURI_INTERNALS__
+    if (tauriInternals) {
+      tauriInternals.invoke("plugin:shell|open", { path: url }).catch(() => {
+        window.open(url, "_blank")
+      })
+    } else {
       window.open(url, "_blank")
     }
   }
