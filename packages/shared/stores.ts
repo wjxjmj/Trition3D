@@ -1,4 +1,4 @@
-import {Project as WasmProject, Realization as WasmRealization} from "cadmium"
+import {Project as WasmProject, Realization as WasmRealization} from "trition3d"
 import {writable} from "svelte/store"
 import type {WorkBench, MessageHistory, Project, Realization, Entity, EntityType, SnapEntity, PointLikeById, PreviewGeometry} from "./types"
 import {isArcEntity, isCircleEntity, isEntity, isFaceEntity, isLineEntity, isMeshFaceEntity, isPlaneEntity, isPoint3DEntity, isPointEntity} from "./typeGuards"

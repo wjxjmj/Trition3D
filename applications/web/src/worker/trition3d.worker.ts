@@ -3,7 +3,7 @@
  * Loads the WASM module and exposes a message-based API.
  * Main thread sends requests, Worker computes and returns results.
  */
-import {default as init, Project as WasmProject, Realization as WasmRealization, type Message} from "cadmium"
+import {default as init, Project as WasmProject, Realization as WasmRealization, type Message} from "trition3d"
 
 let wasmReady = false
 let project: WasmProject | null = null

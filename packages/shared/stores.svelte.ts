@@ -1,4 +1,4 @@
-import type {Project as WasmProject, Realization as WasmRealization} from "cadmium"
+import type {Project as WasmProject, Realization as WasmRealization} from "trition3d"
 import type {
   WorkBench,
   MessageHistory,

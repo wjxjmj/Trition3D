@@ -12,7 +12,7 @@ import type {
   WithTarget,
   WorkBench,
 } from "./types"
-import type {Realization as WasmRealization, Message} from "cadmium"
+import type {Realization as WasmRealization, Message} from "trition3d"
 import {
   isDeleteArcs,
   isDeleteCircles,

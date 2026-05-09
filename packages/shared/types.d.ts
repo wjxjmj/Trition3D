@@ -1,4 +1,4 @@
-import { Message, MessageResult } from "cadmium"
+import { Message, MessageResult } from "trition3d"
 import type { Vector2, Vector3, Vector2Like, Vector3Like } from "three"
 
 interface IDictionary<TValue> {

@@ -43,7 +43,7 @@
     "@threlte/core": "^8.5.0",
     "@threlte/extras": "^9.15.0",
     "@types/three": "^0.175.0",
-    "cadmium": "workspace:*",
+    "trition3d": "workspace:*",
     "camera-controls": "^2.8.3",
     "gsap": "^3.12.5",
     "js-file-download": "^0.4.12",

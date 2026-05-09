@@ -1,8 +1,8 @@
 use std::sync::{Arc, Mutex, OnceLock};
 
-use cadmium::message::Message;
-use cadmium::project::Project;
-use cadmium::realization::Realization;
+use trition3d::message::Message;
+use trition3d::project::Project;
+use trition3d::realization::Realization;
 
 static PROJECT: OnceLock<Arc<Mutex<Project>>> = OnceLock::new();
 static REALIZATION_CACHE: OnceLock<Arc<Mutex<Option<Realization>>>> = OnceLock::new();

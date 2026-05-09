@@ -84,9 +84,9 @@
       class="hover:bg-gray-300 dark:hover:bg-gray-600 rounded p-1"
       onclick={() => {
         let json = JSON.parse(store.wasmProject.to_json())
-        json["__cadmium_hiddenSketches"] = store.hiddenSketches
-        json["__cadmium_hiddenSolids"] = store.hiddenSolids
-        fileDownload(JSON.stringify(json), `${project.name}.cadmium`)
+        json["__trition3d_hiddenSketches"] = store.hiddenSketches
+        json["__trition3d_hiddenSolids"] = store.hiddenSolids
+        fileDownload(JSON.stringify(json), `${project.name}.tri`)
       }}
     >
       <span class="h-6 w-6 block">{@html Download}</span>

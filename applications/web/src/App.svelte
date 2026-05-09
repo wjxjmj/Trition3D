@@ -1,6 +1,6 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
-  import {default as init, Project as WasmProject} from "cadmium"
+  import {default as init, Project as WasmProject} from "trition3d"
   import AppBar from "./components/AppBar.svelte"
   import BottomBar from "./components/BottomBar.svelte"
   import MainDisplay from "./components/MainDisplay.svelte"
@@ -32,10 +32,10 @@
       let jsonToLoad = newFileContent
       try {
         const parsed = JSON.parse(newFileContent)
-        store.hiddenSketches = parsed.__cadmium_hiddenSketches || []
-        store.hiddenSolids = parsed.__cadmium_hiddenSolids || []
-        delete parsed.__cadmium_hiddenSketches
-        delete parsed.__cadmium_hiddenSolids
+        store.hiddenSketches = parsed.__trition3d_hiddenSketches || []
+        store.hiddenSolids = parsed.__trition3d_hiddenSolids || []
+        delete parsed.__trition3d_hiddenSketches
+        delete parsed.__trition3d_hiddenSolids
         jsonToLoad = JSON.stringify(parsed)
       } catch {
         store.hiddenSketches = []

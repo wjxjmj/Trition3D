@@ -41,9 +41,6 @@ importers:
       '@types/three':
         specifier: ^0.175.0
         version: 0.175.0
-      cadmium:
-        specifier: workspace:*
-        version: link:../../packages/cadmium
       camera-controls:
         specifier: ^2.8.3
         version: 2.8.4(three@0.175.0)
@@ -68,6 +65,9 @@ importers:
       three:
         specifier: ^0.175.0
         version: 0.175.0
+      trition3d:
+        specifier: workspace:*
+        version: link:../../packages/trition3d
       troika-three-text:
         specifier: ^0.49.1
         version: 0.49.1(three@0.175.0)
@@ -133,12 +133,6 @@ importers:
         specifier: ^3.1.0
         version: 3.2.4(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.4.3)
 
-  packages/cadmium:
-    devDependencies:
-      onchange:
-        specifier: ^7.1.0
-        version: 7.1.0
-
   packages/config-eslint:
     dependencies:
       '@typescript-eslint/eslint-plugin':
@@ -164,15 +158,21 @@ importers:
 
   packages/shared:
     dependencies:
-      cadmium:
-        specifier: workspace:*
-        version: link:../cadmium
       svelte:
         specifier: ^5.25.0
         version: 5.55.5(@typescript-eslint/types@8.59.1)
       three:
         specifier: ^0.175.0
         version: 0.175.0
+      trition3d:
+        specifier: workspace:*
+        version: link:../trition3d
+
+  packages/trition3d:
+    devDependencies:
+      onchange:
+        specifier: ^7.1.0
+        version: 7.1.0
 
 packages:
 
@@ -3717,7 +3717,7 @@ snapshots:
       '@blakeembrey/template': 1.1.0
       arg: 4.1.3
       chokidar: 3.6.0
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       ignore: 5.3.1
       tree-kill: 1.2.2
 

@@ -1,4 +1,4 @@
-use cadmium::{
+use trition3d::{
     extrusion::{Direction, Extrusion, ExtrusionMode},
     project::Project,
 };

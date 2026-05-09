@@ -4,7 +4,7 @@
  * Uses a simple request/response pattern with auto-incrementing message IDs.
  */
 
-import type {Message} from "cadmium"
+import type {Message} from "trition3d"
 
 type PendingPromise = {
   resolve: (value: any) => void
@@ -18,7 +18,7 @@ const pending = new Map<number, PendingPromise>()
 function getWorker(): Worker {
   if (!worker) {
     worker = new Worker(
-      new URL("../applications/web/src/worker/cadmium.worker.ts", import.meta.url),
+      new URL("../applications/web/src/worker/trition3d.worker.ts", import.meta.url),
       { type: "module" }
     )
     worker.onmessage = (e: MessageEvent) => {

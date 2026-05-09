@@ -29,7 +29,15 @@
       "Bash(sed -i 's/CADmium/Trition3D/g' applications/web/index.html)",
       "Bash(sed -i 's/CADmium/Trition3D/g' applications/web/src/components/AppBar.svelte)",
       "Bash(sed -i 's/\"CADmium\"/\"Trition3D\"/g' applications/tauri/tauri.conf.json)",
-      "Bash(sed -i 's/com.cadmium.dev/com.trition3d.dev/g' applications/tauri/tauri.conf.json)"
+      "Bash(sed -i 's/com.cadmium.dev/com.trition3d.dev/g' applications/tauri/tauri.conf.json)",
+      "Bash(mv packages/shared/cadmiumBridge.ts packages/shared/trition3dBridge.ts)",
+      "Bash(mv applications/web/src/worker/cadmium.worker.ts applications/web/src/worker/trition3d.worker.ts)",
+      "Bash(sed -i 's/__cadmium_hidden/__trition3d_hidden/g' applications/web/src/components/AppBar.svelte applications/web/src/App.svelte)",
+      "Bash(sed -i 's|cadmium.worker.ts|trition3d.worker.ts|g' packages/shared/workerBridge.ts)",
+      "Bash(rm Cargo.lock)",
+      "Bash(sed -i 's/\"name\": \"trition3d-shared\"/\"name\": \"shared\"/g' packages/shared/package.json)",
+      "Bash(sed -i 's/\"trition3d-shared\": \"workspace:\\\\*\"/\"shared\": \"workspace:*\"/g' applications/web/package.json)",
+      "Bash(sed -i 's/\"trition3d\": \"workspace:\\\\*\"/\"trition3d\": \"workspace:*\"/g' packages/shared/package.json applications/web/package.json)"
     ]
   }
 }

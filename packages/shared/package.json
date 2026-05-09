@@ -1,5 +1,5 @@
 {
-  "name": "trition3d-shared",
+  "name": "shared",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "clean": "rimraf node_modules"
   },
   "dependencies": {
-    "cadmium": "workspace:*",
+    "trition3d": "workspace:*",
     "svelte": "^5.25.0",
     "three": "^0.175.0"
   }

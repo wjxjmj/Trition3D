@@ -1,5 +1,5 @@
 [workspace]
-members = ["packages/cadmium", "applications/tauri"]
+members = ["packages/trition3d", "applications/tauri"]
 
 
 

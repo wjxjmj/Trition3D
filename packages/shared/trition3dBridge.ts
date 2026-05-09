@@ -4,7 +4,7 @@
  * In Tauri mode: uses `invoke()` to call Rust commands — project lives in Rust memory.
  */
 
-import {default as wasmInit, Project as WasmProject, Realization as WasmRealization, type Message} from "cadmium"
+import {default as wasmInit, Project as WasmProject, Realization as WasmRealization, type Message} from "trition3d"
 
 let isTauri = !!(window as any).__TAURI_INTERNALS__
 
