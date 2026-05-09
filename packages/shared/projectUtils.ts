@@ -59,12 +59,15 @@ export function arraysEqual(a: any[], b: any[]) {
 
 function sendWasmMessage(message: Message): any {
   if (isTauriMode()) {
-    // Async path: queue the message, return dummy result
-    const result = sendMessageAsync(message)
-    result.then((r: any) => {
+    // Tauri async path: fire message, sync state when complete
+    // Note: full native mode requires async-await throughout call chain
+    sendMessageAsync(message).then((r: any) => {
+      log("[sendWasmMessage][Tauri] reply:", r)
       store.messageHistory = [...store.messageHistory, {message, result: r}]
+      store.workbenchIsStale = true
     })
-    return { success: "queued" }
+    // Return placeholder — callers that parse result will need async adaptation
+    return { success: '{"id":"0"}', id: "0" }
   }
   let wp = store.wasmProject
   log("[sendWasmMessage] sending message:", message)
