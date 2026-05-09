@@ -1,158 +1,170 @@
 /**
  * Bridge that abstracts CADmium backend — WASM (web) or Tauri native (desktop).
- * The bridge stores the full project JSON and passes it to native commands.
+ * In WASM mode: uses the `cadmium` WASM package directly (synchronous).
+ * In Tauri mode: uses `invoke()` to call Rust commands (async).
+ *
+ * Stores the project state as a JSON string bridged between JS and Rust.
  */
 
-import {default as wasmInit, Project as WasmProject, Realization as WasmRealization, Message} from "cadmium"
-
-// prettier-ignore
-const log = (function () { const context = "[cadmiumBridge]"; const color = "teal"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`) })()
+import {default as wasmInit, Project as WasmProject, Realization as WasmRealization, type Message} from "cadmium"
 
 let isTauri = !!(window as any).__TAURI_INTERNALS__
 
 let projectJson: string | null = null
 let wasmProject: WasmProject | null = null
+let wasmRealization: WasmRealization | null = null
 let wasmInitialized = false
 
-// --- Initialization ---
+export function isTauriMode(): boolean {
+  return isTauri
+}
 
-export async function initBridge(): Promise<void> {
+export async function init(): Promise<void> {
   if (isTauri) {
-    log("Running in Tauri native mode")
-  } else {
-    await wasmInit()
-    wasmInitialized = true
-    log("Running in WASM mode")
+    // Tauri mode: no WASM init needed, Rust commands handle everything
+    return
   }
+  await wasmInit()
+  wasmInitialized = true
 }
 
 // --- Project ---
 
-export function projectNew(name: string): string {
+export function projectNew(name: string): void {
   if (isTauri) {
-    // Synchronous in Tauri: we queue the async call and return a placeholder
-    // The actual project JSON is set asynchronously
-    ;(window as any).__TAURI_INTERNALS__?.invoke("project_new", { name }).then((json: string) => {
-      projectJson = json
-    })
-    return ""
-  } else {
-    wasmProject = new WasmProject(name)
-    projectJson = wasmProject.to_json()
-    return projectJson
+    // Tauri: queue async creation (caller should use async version)
+    return
   }
+  wasmProject = new WasmProject(name)
+  projectJson = wasmProject.to_json()
 }
 
-export async function projectNewAsync(name: string): Promise<string> {
+export async function projectNewAsync(name: string): Promise<void> {
   if (isTauri) {
     const { invoke } = await import("@tauri-apps/api/core")
-    projectJson = await invoke("project_new", { name })
-    return projectJson
-  } else {
-    wasmProject = new WasmProject(name)
-    projectJson = wasmProject.to_json()
-    return projectJson
+    projectJson = await invoke<string>("project_new", { name })
+    return
   }
+  wasmProject = new WasmProject(name)
+  projectJson = wasmProject.to_json()
 }
 
-export function projectFromJson(json: string): string {
+export function projectFromJson(json: string): void {
   if (isTauri) {
-    ;(window as any).__TAURI_INTERNALS__?.invoke("project_from_json", { json }).then((result: string) => {
-      projectJson = result
-    })
-    return ""
-  } else {
-    wasmProject = WasmProject.from_json(json)
-    projectJson = wasmProject.to_json()
-    return projectJson
+    return // use async version
   }
+  wasmProject = WasmProject.from_json(json)
+  projectJson = wasmProject.to_json()
 }
 
-export async function projectFromJsonAsync(json: string): Promise<string> {
+export async function projectFromJsonAsync(json: string): Promise<void> {
   if (isTauri) {
     const { invoke } = await import("@tauri-apps/api/core")
-    projectJson = await invoke("project_from_json", { json })
-    return projectJson
-  } else {
-    wasmProject = WasmProject.from_json(json)
-    projectJson = wasmProject.to_json()
-    return projectJson
+    projectJson = await invoke<string>("project_from_json", { json })
+    return
   }
+  wasmProject = WasmProject.from_json(json)
+  projectJson = wasmProject.to_json()
 }
 
-export async function projectToJson(): Promise<string> {
+export function projectToJson(): string {
   if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke("project_to_json", { projectJson })
-  } else {
-    return wasmProject!.to_json()
+    return projectJson || ""
   }
+  return wasmProject?.to_json() || ""
 }
 
 // --- Message handling ---
 
-export async function sendMessage(message: Message): Promise<{ success: boolean; data: string }> {
+export function sendMessage(message: Message): any {
+  if (isTauri) {
+    // Messages go through async path
+    return { success: false }
+  }
+  return wasmProject!.send_message(message)
+}
+
+export async function sendMessageAsync(message: Message): Promise<any> {
   if (isTauri) {
     const { invoke } = await import("@tauri-apps/api/core")
-    const result: string = await invoke("project_send_message", {
+    const result = await invoke<string>("project_send_message", {
       projectJson,
       messageJson: JSON.stringify(message),
     })
     const parsed = JSON.parse(result)
     projectJson = JSON.parse(parsed.project)
-    return { success: true, data: parsed.result }
-  } else {
-    const result = wasmProject!.send_message(message)
-    projectJson = wasmProject!.to_json()
-    return { success: typeof result === "string" || (result as any).success !== undefined, data: typeof result === "string" ? result : JSON.stringify(result) }
+    return parsed.result
   }
+  const result = wasmProject!.send_message(message)
+  projectJson = wasmProject!.to_json()
+  return result
 }
 
 // --- Workbench & Realization ---
 
-export async function getWorkbench(index: number): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke("project_get_workbench", { projectJson, index })
-  } else {
-    return wasmProject!.get_workbench(index)
-  }
+export function getWorkbench(index: number): string {
+  if (isTauri) return ""
+  return wasmProject!.get_workbench(index)
 }
 
-export async function getRealization(workbenchId: number, maxSteps: number): Promise<string> {
+export async function getWorkbenchAsync(index: number): Promise<string> {
   if (isTauri) {
     const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke("project_get_realization", {
+    return await invoke<string>("project_get_workbench", { projectJson, index })
+  }
+  return wasmProject!.get_workbench(index)
+}
+
+export function getRealization(workbenchId: number, maxSteps: number): WasmRealization | null {
+  if (isTauri) return null
+  wasmRealization = wasmProject!.get_realization(workbenchId, maxSteps)
+  return wasmRealization
+}
+
+export function getRealizationJson(): string {
+  if (isTauri) return ""
+  return wasmRealization?.to_json() || ""
+}
+
+export async function getRealizationJsonAsync(workbenchId: number, maxSteps: number): Promise<string> {
+  if (isTauri) {
+    const { invoke } = await import("@tauri-apps/api/core")
+    return await invoke<string>("project_get_realization", {
       projectJson,
       workbenchId,
       maxSteps,
     })
-  } else {
-    const realized = wasmProject!.get_realization(workbenchId, maxSteps)
-    return realized.to_json()
   }
+  wasmRealization = wasmProject!.get_realization(workbenchId, maxSteps)
+  return wasmRealization.to_json()
 }
 
 // --- Export ---
 
-export async function solidToObj(realizationJson: string, solidName: string, tolerance: number): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke("solid_to_obj", { realizationJson, solidName, tolerance })
-  } else {
-    const r = new WasmRealization(/* need to pass the wasm realization */)
-    // Fallback to WASM path
-    return ""
-  }
+export function solidToObj(realizationJson: string, solidName: string, tolerance: number): string {
+  if (isTauri || !wasmRealization) return ""
+  return wasmRealization.solid_to_obj(solidName, tolerance)
 }
 
-export async function solidToStep(realizationJson: string, solidName: string): Promise<string> {
+export async function solidToObjAsync(realizationJson: string, solidName: string, tolerance: number): Promise<string> {
   if (isTauri) {
     const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke("solid_to_step", { realizationJson, solidName })
-  } else {
-    return ""
+    return await invoke<string>("solid_to_obj", { realizationJson, solidName, tolerance })
   }
+  return wasmRealization?.solid_to_obj(solidName, tolerance) || ""
+}
+
+export function solidToStep(realizationJson: string, solidName: string): string {
+  if (isTauri || !wasmRealization) return ""
+  return wasmRealization.solid_to_step(solidName)
+}
+
+export async function solidToStepAsync(realizationJson: string, solidName: string): Promise<string> {
+  if (isTauri) {
+    const { invoke } = await import("@tauri-apps/api/core")
+    return await invoke<string>("solid_to_step", { realizationJson, solidName })
+  }
+  return wasmRealization?.solid_to_step(solidName) || ""
 }
 
 // --- Utility ---
@@ -163,4 +175,12 @@ export function getProjectJson(): string | null {
 
 export function setProjectJson(json: string): void {
   projectJson = json
+}
+
+export function getWasmProject(): WasmProject | null {
+  return wasmProject
+}
+
+export function hasWasmProject(): boolean {
+  return wasmProject !== null
 }

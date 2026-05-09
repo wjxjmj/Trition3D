@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@playwright/test": "~1.52.0",
+    "@tauri-apps/cli": "^2.11.1",
     "cross-env": "^7.0.3",
     "rimraf": "^5.0.7",
     "turbo": "^2.5.0"

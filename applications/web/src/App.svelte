@@ -15,7 +15,6 @@
     init().then(() => {
       log('WASM initialized, creating project')
       store.wasmProject = new WasmProject("First Project")
-      // Directly sync project/workbench/realization instead of relying on $effect.root
       store.project = JSON.parse(store.wasmProject.to_json())
       store.workbenchIndex = 0
       store.workbench = JSON.parse(store.wasmProject.get_workbench(0))

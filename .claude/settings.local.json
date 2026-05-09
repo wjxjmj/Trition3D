@@ -21,7 +21,9 @@
       "WebFetch(domain:127.0.0.1)",
       "Bash(npx kill-port *)",
       "Bash(cargo tree *)",
-      "Bash(cargo update *)"
+      "Bash(cargo update *)",
+      "Bash(cargo build *)",
+      "Bash(pnpm build *)"
     ]
   }
 }
