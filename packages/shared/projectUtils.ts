@@ -1,4 +1,5 @@
 import {store} from "./stores.svelte"
+import {isTauriMode, sendMessageAsync, getWorkbenchAsync, getRealizationJsonAsync, getWasmProject} from "./cadmiumBridge"
 import {Vector2, Vector3, type Vector2Like} from "three"
 import {resetToolState} from "./stores.svelte"
 import type {
@@ -56,12 +57,19 @@ export function arraysEqual(a: any[], b: any[]) {
   return true
 }
 
-function sendWasmMessage(message: Message) {
+function sendWasmMessage(message: Message): any {
+  if (isTauriMode()) {
+    // Async path: queue the message, return dummy result
+    const result = sendMessageAsync(message)
+    result.then((r: any) => {
+      store.messageHistory = [...store.messageHistory, {message, result: r}]
+    })
+    return { success: "queued" }
+  }
   let wp = store.wasmProject
   log("[sendWasmMessage] sending message:", message)
   let result = wp.send_message(message)
   log("[sendWasmMessage] reply:", result)
-
   store.messageHistory = [...store.messageHistory, {message, result}]
   return result
 }

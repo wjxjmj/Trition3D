@@ -12,6 +12,11 @@ let wasmProject: WasmProject | null = null
 let wasmRealization: WasmRealization | null = null
 let wasmInitialized = false
 
+// Tauri invoke via global API (avoids bundling issues)
+function tauriInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  return (window as any).__TAURI_INTERNALS__.invoke(cmd, args)
+}
+
 export function isTauriMode(): boolean {
   return isTauri
 }
@@ -30,10 +35,7 @@ export function projectNew(name: string): void {
 }
 
 export async function projectNewAsync(name: string): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("project_new", { name })
-  }
+  if (isTauri) return tauriInvoke<string>("project_new", { name })
   wasmProject = new WasmProject(name)
   return wasmProject.to_json()
 }
@@ -44,23 +46,13 @@ export function projectFromJson(json: string): void {
 }
 
 export async function projectFromJsonAsync(json: string): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("project_from_json", { json })
-  }
+  if (isTauri) return tauriInvoke<string>("project_from_json", { json })
   wasmProject = WasmProject.from_json(json)
   return wasmProject.to_json()
 }
 
-export function projectToJson(): string {
-  return wasmProject?.to_json() || ""
-}
-
 export async function projectToJsonAsync(): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("project_to_json")
-  }
+  if (isTauri) return tauriInvoke<string>("project_to_json")
   return wasmProject?.to_json() || ""
 }
 
@@ -72,8 +64,7 @@ export function sendMessage(message: Message): any {
 
 export async function sendMessageAsync(message: Message): Promise<any> {
   if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    const resultJson = await invoke<string>("project_send_message", {
+    const resultJson = await tauriInvoke<string>("project_send_message", {
       messageJson: JSON.stringify(message),
     })
     return JSON.parse(resultJson)
@@ -88,10 +79,7 @@ export function getWorkbench(index: number): string {
 }
 
 export async function getWorkbenchAsync(index: number): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("project_get_workbench", { index })
-  }
+  if (isTauri) return tauriInvoke<string>("project_get_workbench", { index })
   return wasmProject!.get_workbench(index)
 }
 
@@ -100,17 +88,9 @@ export function getRealization(workbenchId: number, maxSteps: number): WasmReali
   return wasmRealization
 }
 
-export function getRealizationJson(): string {
-  return wasmRealization?.to_json() || ""
-}
-
 export async function getRealizationJsonAsync(workbenchId: number, maxSteps: number): Promise<string> {
   if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("project_get_realization", {
-      workbenchId,
-      maxSteps,
-    })
+    return tauriInvoke<string>("project_get_realization", { workbenchId, maxSteps })
   }
   wasmRealization = wasmProject!.get_realization(workbenchId, maxSteps)
   return wasmRealization.to_json()
@@ -119,18 +99,12 @@ export async function getRealizationJsonAsync(workbenchId: number, maxSteps: num
 // --- Export ---
 
 export async function solidToObjAsync(solidName: string, tolerance: number): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("solid_to_obj", { solidName, tolerance })
-  }
+  if (isTauri) return tauriInvoke<string>("solid_to_obj", { solidName, tolerance })
   return wasmRealization?.solid_to_obj(solidName, tolerance) || ""
 }
 
 export async function solidToStepAsync(solidName: string): Promise<string> {
-  if (isTauri) {
-    const { invoke } = await import("@tauri-apps/api/core")
-    return await invoke<string>("solid_to_step", { solidName })
-  }
+  if (isTauri) return tauriInvoke<string>("solid_to_step", { solidName })
   return wasmRealization?.solid_to_step(solidName) || ""
 }
 
