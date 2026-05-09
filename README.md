@@ -1,5 +1,7 @@
 # Trition3D
 
+[中文](README_zh.md) | English
+
 A parametric 3D CAD application. Build models with sketches and extrusions, run in browser or as a native desktop app.
 
 ## Quick Start
