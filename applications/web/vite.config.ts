@@ -15,9 +15,6 @@ export default defineConfig({
   build: {
     outDir: "dist",
     target: "esnext",
-    rollupOptions: {
-      external: ["@tauri-apps/plugin-shell"],
-    },
   },
   test: {
     include: ["src/**/*.{test,spec}.{js,ts}", "../../packages/shared/**/*.{test,spec}.{js,ts}"],
