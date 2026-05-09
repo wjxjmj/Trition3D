@@ -286,17 +286,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cadmium-native"
-version = "0.2.0"
-dependencies = [
- "cadmium",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
-]
-
-[[package]]
 name = "cairo-rs"
 version = "0.18.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4154,6 +4143,17 @@ dependencies = [
  "serde",
  "thiserror 2.0.18",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "trition3d-native"
+version = "0.2.0"
+dependencies = [
+ "cadmium",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
 ]
 
 [[package]]

@@ -1,4 +1,4 @@
-# CADmium
+# Trition3D
 
 A parametric CAD program that runs in the browser. Build 3D models with sketches and extrusions, export to OBJ/STEP.
 

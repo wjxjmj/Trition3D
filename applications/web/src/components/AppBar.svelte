@@ -45,7 +45,7 @@
     <div class="shrink-0 select-none">
       <img class="object-cover h-10 w-10 ml-4" alt="logo" src="{base}/cadmium_logo_min.svg" />
     </div>
-    <div class="select-none">CADmium</div>
+    <div class="select-none">Trition3D</div>
     {#if renaming}
       <input
         class="bg-gray-300 text-gray-700 py-2 px-4 font-medium"
@@ -144,7 +144,7 @@
         </a>
       </div>
       <div>
-        <a href="https://github.com/CADmium-Co/CADmium" target="_blank">
+        <a href="https://github.com/Trition3D-Co/Trition3D" target="_blank">
           <span class="h-6 w-6 block">{@html CodeXml}</span>
         </a>
       </div>

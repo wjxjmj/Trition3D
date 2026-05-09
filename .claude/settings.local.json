@@ -24,7 +24,12 @@
       "Bash(cargo update *)",
       "Bash(cargo build *)",
       "Bash(pnpm build *)",
-      "Bash(pnpm tauri *)"
+      "Bash(pnpm tauri *)",
+      "Bash(sed -i 's/CADmium/Trition3D/g' README.md CLAUDE.md)",
+      "Bash(sed -i 's/CADmium/Trition3D/g' applications/web/index.html)",
+      "Bash(sed -i 's/CADmium/Trition3D/g' applications/web/src/components/AppBar.svelte)",
+      "Bash(sed -i 's/\"CADmium\"/\"Trition3D\"/g' applications/tauri/tauri.conf.json)",
+      "Bash(sed -i 's/com.cadmium.dev/com.trition3d.dev/g' applications/tauri/tauri.conf.json)"
     ]
   }
 }

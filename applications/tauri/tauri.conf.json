@@ -1,7 +1,7 @@
 {
-  "productName": "CADmium",
+  "productName": "Trition3D",
   "version": "0.0.1",
-  "identifier": "com.cadmium.dev",
+  "identifier": "com.trition3d.dev",
   "build": {
     "frontendDist": "../web/dist",
     "devUrl": "http://localhost:5173",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "CADmium",
+        "title": "Trition3D",
         "width": 800,
         "height": 600,
         "resizable": true,
