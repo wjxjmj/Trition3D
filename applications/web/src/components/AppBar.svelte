@@ -105,8 +105,7 @@
     <div
       class="hover:bg-gray-300 dark:hover:bg-gray-600 rounded p-1"
       onclick={() => {
-        let asString = JSON.stringify(store.messageHistory)
-        fileDownload(asString, `${project.name}.history.json`)
+        window.open("https://github.com/wjxjmj/Trition3D/issues", "_blank")
       }}
     >
       <span class="h-6 w-6 block">{@html Bug}</span>
@@ -138,13 +137,11 @@
     </div>
 
     <div class="flex-grow flex flex-row-reverse gap-4 mr-4">
-      <div>
-        <a href="https://discord.com/invite/qJCsKJeyZv" target="_blank">
-          <span class="h-6 w-6 block">{@html MessageCircle}</span>
-        </a>
+      <div class="opacity-30 cursor-not-allowed" title="Coming soon">
+        <span class="h-6 w-6 block">{@html MessageCircle}</span>
       </div>
       <div>
-        <a href="https://github.com/Trition3D-Co/Trition3D" target="_blank">
+        <a href="https://github.com/wjxjmj/Trition3D" target="_blank">
           <span class="h-6 w-6 block">{@html CodeXml}</span>
         </a>
       </div>
