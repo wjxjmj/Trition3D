@@ -19,7 +19,9 @@
       "Bash(pnpm dev *)",
       "Bash(npx vite *)",
       "WebFetch(domain:127.0.0.1)",
-      "Bash(npx kill-port *)"
+      "Bash(npx kill-port *)",
+      "Bash(cargo tree *)",
+      "Bash(cargo update *)"
     ]
   }
 }

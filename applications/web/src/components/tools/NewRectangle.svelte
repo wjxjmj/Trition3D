@@ -133,8 +133,8 @@
         })
       }
       // @ts-ignore todo make factory functions so type is EntityType
-      store.previewGeometry = previewGeoms
-    } else store.previewGeometry = []
+      store.previewGeometry[sketchIndex] = previewGeoms
+    } else store.previewGeometry[sketchIndex] = []
   }
 
   export function onKeyDown(event: KeyboardEvent) {
@@ -147,7 +147,7 @@
 
   function clearStack() {
     anchorPoint = null
-    store.previewGeometry = []
+    store.previewGeometry[sketchIndex] = []
     store.snapPoints = []
     stack = []
   }

@@ -26,9 +26,11 @@ import {
 const log = (function () { const context = "[stores.svelte.ts]"; const color = "hotpink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`) })()
 
 // Reusable setter helper for tool components
-export function resetToolState() {
+export function resetToolState(sketchId?: string) {
   store.sketchTool = "select"
-  store.previewGeometry = []
+  if (sketchId) {
+    delete store.previewGeometry[sketchId]
+  }
   store.snapPoints = []
 }
 
@@ -61,6 +63,7 @@ export const store = $state({
   realizationIsStale: false,
 
   hiddenSketches: [] as string[],
+  hiddenSolids: [] as string[],
   sketchBeingEdited: "",
   sketchTool: "",
 
@@ -71,7 +74,7 @@ export const store = $state({
   currentlyMousedOver: [] as SnapEntity[],
   currentlySelected: [] as Entity[],
   snapPoints: [] as PointLikeById[],
-  previewGeometry: [] as PreviewGeometry[],
+  previewGeometry: {} as Record<string, PreviewGeometry[]>,
 
   messageHistory: [] as MessageHistory[],
 })

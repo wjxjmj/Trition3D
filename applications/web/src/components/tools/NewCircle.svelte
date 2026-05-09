@@ -81,7 +81,7 @@
       }
       const radius = snappedTo ? calcDeltas(snappedTo.twoD, centerPoint.twoD) : calcDeltas(projected, centerPoint.twoD)
 
-      store.previewGeometry = [
+      store.previewGeometry[sketchIndex] = [
         {
           type: "circle",
           center: centerPoint,
@@ -96,7 +96,7 @@
         },
       ]
     } else {
-      store.previewGeometry = []
+      store.previewGeometry[sketchIndex] = []
     }
   }
 
@@ -110,7 +110,7 @@
 
   function clearStack() {
     centerPoint = null
-    store.previewGeometry = []
+    store.previewGeometry[sketchIndex] = []
     store.snapPoints = []
     stack = []
   }

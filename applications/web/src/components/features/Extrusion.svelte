@@ -2,6 +2,7 @@
   import {store} from "shared/stores.svelte"
   import {slide} from "svelte/transition"
   import {quintOut} from "svelte/easing"
+  import {X} from "lucide-static"
   import {arraysEqual, renameStep, updateExtrusion} from "shared/projectUtils"
   import {base} from "../../base"
 
@@ -39,6 +40,8 @@
 
   function sendUpdate(specificFaceIds?: string[]) {
     if (updating) return
+    // Guard against empty face ID updates that would delete the solid
+    if (specificFaceIds !== undefined && specificFaceIds.length === 0) return
     updating = true
     try {
       if (specificFaceIds) {
@@ -65,7 +68,8 @@
       .map(e => e.id)
       .sort()
 
-    if (arraysEqual(faceIdsFromInputs, faceIdsFromSelection)) {
+    if (faceIdsFromSelection.length === 0) { /* skip empty selection */ }
+    else if (arraysEqual(faceIdsFromInputs, faceIdsFromSelection)) {
       // same, no update
     } else {
       sendUpdate(faceIdsFromSelection)
@@ -152,7 +156,7 @@
               onclick={(e) => {
                 e.preventDefault()
                 store.currentlySelected = store.currentlySelected.filter(item => !(item.id === faceId && item.type === "face"))
-              }}><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" /></svg></button
+              }}><span class="h-[18px] w-[18px] block">{@html X}</span></button
             >
           </div>
         {/each}

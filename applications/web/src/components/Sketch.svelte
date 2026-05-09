@@ -24,7 +24,7 @@
   function setTool(tool: string): void {
     store.sketchTool = tool
     store.currentlySelected = []
-    store.previewGeometry = []
+    delete store.previewGeometry[uniqueId]
   }
 
   function onKeyDown(event: KeyboardEvent) {

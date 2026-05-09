@@ -2,6 +2,7 @@
   import fileDownload from "js-file-download"
   
   import {store} from "shared/stores.svelte"
+  import {Download, Eye, EyeOff} from "lucide-static"
   import {getObjectString} from "shared/projectUtils"
   import type {WithTarget} from "shared/types"
   import {base} from "../base"
@@ -81,6 +82,23 @@
 >
   <img class="h-8 w-8 px-1" src={source} alt={name} />
   {name}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="ml-auto mr-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-500 px-1 py-1 rounded"
+    onclick={() => {
+      if (store.hiddenSolids.includes(name)) {
+        store.hiddenSolids = store.hiddenSolids.filter(s => s !== name)
+      } else {
+        store.hiddenSolids = [...store.hiddenSolids, name]
+      }
+    }}
+  >
+    {#if store.hiddenSolids.includes(name)}
+      <span class="h-[18px] w-[18px] block">{@html EyeOff}</span>
+    {:else}
+      <span class="h-[18px] w-[18px] block">{@html Eye}</span>
+    {/if}
+  </div>
 </div>
 
 {#if contextMenuVisible}
@@ -92,7 +110,7 @@
             class="text-base text-[#222] w-full h-[30px] text-left bg-white dark:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-300 dark:hover:bg-gray-600 border-0 hover:text-black hover:text-left hover:bg-[#eee] rounded-[5px] flex"
             onclick={exportSolidOBJ}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm37.66-85.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L120,148.69V88a8,8,0,0,1,16,0v60.69l18.34-18.35A8,8,0,0,1,165.66,130.34Z" /></svg> Download as OBJ
+            <span class="h-6 w-6 block">{@html Download}</span> Download as OBJ
           </button>
         </li>
 
@@ -101,7 +119,7 @@
             class="text-base text-[#222] w-full h-[30px] text-left bg-white dark:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-300 dark:hover:bg-gray-600 border-0 hover:text-black hover:text-left hover:bg-[#eee] rounded-[5px] flex"
             onclick={exportSolidSTEP}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm37.66-85.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L120,148.69V88a8,8,0,0,1,16,0v60.69l18.34-18.35A8,8,0,0,1,165.66,130.34Z" /></svg>Download as STEP
+            <span class="h-6 w-6 block">{@html Download}</span>Download as STEP
           </button>
         </li>
       </ul>

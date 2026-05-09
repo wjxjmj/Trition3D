@@ -34,15 +34,14 @@
       let jsonToLoad = newFileContent
       try {
         const parsed = JSON.parse(newFileContent)
-        if (parsed.__cadmium_hiddenSketches) {
-          store.hiddenSketches = parsed.__cadmium_hiddenSketches
-          delete parsed.__cadmium_hiddenSketches
-          jsonToLoad = JSON.stringify(parsed)
-        } else {
-          store.hiddenSketches = []
-        }
+        store.hiddenSketches = parsed.__cadmium_hiddenSketches || []
+        store.hiddenSolids = parsed.__cadmium_hiddenSolids || []
+        delete parsed.__cadmium_hiddenSketches
+        delete parsed.__cadmium_hiddenSolids
+        jsonToLoad = JSON.stringify(parsed)
       } catch {
         store.hiddenSketches = []
+        store.hiddenSolids = []
       }
       const newWasmProject = WasmProject.from_json(jsonToLoad)
       store.wasmProject = newWasmProject

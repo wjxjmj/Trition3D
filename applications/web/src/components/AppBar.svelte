@@ -85,6 +85,7 @@
       onclick={() => {
         let json = JSON.parse(store.wasmProject.to_json())
         json["__cadmium_hiddenSketches"] = store.hiddenSketches
+        json["__cadmium_hiddenSolids"] = store.hiddenSolids
         fileDownload(JSON.stringify(json), `${project.name}.cadmium`)
       }}
     >

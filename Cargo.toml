@@ -1,6 +1,7 @@
 [workspace]
-members = ["packages/cadmium"] # "applications/tauri" disabled — uncomment to re-enable native builds
-resolver = "2"
+members = ["packages/cadmium", "applications/tauri"]
 
 [patch.crates-io]
 tsify = { git = "https://github.com/siefkenj/tsify" }
+resolver = "2"
+

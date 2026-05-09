@@ -272,7 +272,7 @@
       />
     {/each}
 
-    {#each store.previewGeometry as geom (geom.uuid)}
+    {#each store.previewGeometry[uniqueId] || [] as geom (geom.uuid)}
       {#if isGeomType(geom, "line")}
         <Line
           start={geom.start}
