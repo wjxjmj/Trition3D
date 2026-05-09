@@ -8,7 +8,8 @@
     "test": "turbo run test",
     "clean": "turbo run clean",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{js,cjs,mjs,ts,tsx,json,svelte,md}\""
+    "format": "prettier --write \"**/*.{js,cjs,mjs,ts,tsx,json,svelte,md}\"",
+    "tauri": "tauri"
   },
   "devDependencies": {
     "@playwright/test": "~1.52.0",

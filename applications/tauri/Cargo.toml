@@ -10,10 +10,10 @@ name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = "2.0"
+tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
-tauri = "2.0"
+tauri = { version = "2.0", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 cadmium = { path = "../../packages/cadmium" }

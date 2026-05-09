@@ -23,7 +23,8 @@
       "Bash(cargo tree *)",
       "Bash(cargo update *)",
       "Bash(cargo build *)",
-      "Bash(pnpm build *)"
+      "Bash(pnpm build *)",
+      "Bash(pnpm tauri *)"
     ]
   }
 }
