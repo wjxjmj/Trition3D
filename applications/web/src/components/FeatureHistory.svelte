@@ -58,6 +58,7 @@
     gap: 2px;
     padding: 4px 8px;
     overflow-x: auto;
+    scrollbar-color: transparent transparent;
     user-select: none;
     font-size: 13px;
     line-height: 1.6;
@@ -89,7 +90,17 @@
     background: transparent;
   }
   .timeline-row::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.06);
+    background: transparent;
     border-radius: 2px;
+    transition: background 0.15s ease;
+  }
+  .timeline-row:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.08);
+  }
+  .timeline-row::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.18);
+  }
+  .timeline-row:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
   }
 </style>
