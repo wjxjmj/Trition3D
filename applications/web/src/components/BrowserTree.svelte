@@ -291,12 +291,12 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: rgba(0, 0, 0, 0.45);
+    color: #000;
     text-shadow: var(--text-glow);
-    transition: color 0.12s ease;
+    transition: opacity 0.12s ease;
   }
   .section-header:hover {
-    color: rgba(0, 0, 0, 0.70);
+    opacity: 0.85;
   }
 
   .chevron {
