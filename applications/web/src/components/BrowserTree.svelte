@@ -419,7 +419,7 @@
   }
 
   .browser-tree::-webkit-scrollbar {
-    width: 1px;
+    width: 2px;
   }
   .browser-tree::-webkit-scrollbar-track {
     background: transparent;
