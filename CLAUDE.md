@@ -4,11 +4,9 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Goal
 
-**Trition3D** — a parametric CAD application targeting simple 3D printing modeling. Native desktop app.
+**Trition3D** — a parametric CAD application targeting simple 3D printing modeling. Native desktop app (Tauri).
 
-Inspired by [CADmium](https://github.com/CADmium-Co/CADmium), the pioneering project that first proved a parametric CAD kernel could be built in Rust+WASM. Trition3D starts from CADmium's codebase and will incrementally replace the kernel with a self-built implementation purpose-built for 3D printing workflows.
-
-**Current:** CADmium kernel (truck-based). **Target:** Self-built kernel (b-rep, constraint solver, mesh export).
+Inspired by [CADmium](https://github.com/CADmium-Co/CADmium), the pioneering project that first proved a parametric CAD kernel could be built in Rust+WASM. Trition3D starts from CADmium's codebase and integrates existing Rust CAD kernels (truck), focusing development effort on the application layer — UX, 3D printing workflow, and native desktop polish — rather than kernel engineering.
 
 ## Environment
 
@@ -57,21 +55,6 @@ pnpm monorepo + Cargo workspace
     └── capabilities/default.json
 ```
 
-## Future Architecture (target)
-
-The current codebase is a starting point forked from CADmium. The long-term plan is to replace the CAD kernel incrementally:
-
-```
-Native Tauri desktop app (primary target)
-├── trition3d-kernel/          Self-built Rust CAD kernel
-│   ├── brep/                  Boundary representation (half-edge data structure)
-│   ├── sketch/                Sketch constraint solver
-│   ├── ops/                   Extrude, revolve, fillet, chamfer, boolean ops
-│   └── mesh/                  STL/3MF mesh export for 3D printing
-├── trition3d-ui/              Svelte 5 UI (rendering + interaction)
-└── trition3d-app/             Tauri 2.0 native shell
-```
-
 ## Core Patterns
 
 **Staleness sync** (App.svelte $effects):
@@ -90,4 +73,4 @@ All WASM calls are synchronous. Store is a single `$state` object.
 - Tauri native backend ready but not wired (async IPC incompatible with sync toolchain)
 - Web Worker infrastructure ready but not wired (same async issue)
 - No assembly/component hierarchy (linear step history only)
-- Current 3D kernel (truck) is a temporary dependency, to be replaced
+- 3D kernel (truck via CADmium) is an external dependency

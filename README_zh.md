@@ -4,17 +4,15 @@
 
 参数化 CAD 应用，专为 3D 打印设计。草图、拉伸、导出 STL——纯原生桌面，不依赖云端。
 
-## 灵感与路线
+## 灵感与思路
 
-[CADmium](https://github.com/CADmium-Co/CADmium) 率先证明了参数化 CAD 内核可以用 Rust+WASM 从零构建——边界表示、约束求解、网格生成，全部在浏览器中运行。这是一个了不起的项目，也是 Trition3D 的直接灵感来源。
+[CADmium](https://github.com/CADmium-Co/CADmium) 率先证明了参数化 CAD 内核可以用 Rust+WASM 构建——边界表示、约束求解、网格生成，全部在浏览器中运行。这是一个了不起的项目，也是 Trition3D 的直接灵感来源。
 
-**当前状态：** Trition3D 从 CADmium 的代码起步——同样的内核，同样的架构。这让我们立即拥有一个可用的参数化 CAD 基础来快速迭代。
-
-**未来方向：** 逐步用自研内核替换现有内核，专为 3D 打印工作流打造。目标是 **一款原生桌面参数化建模工具，建模管线的每一环都掌握在自己手中。**
+Trition3D 走务实路线：**整合已有的 Rust CAD 内核，而非从零自研。**我们没有资源去卷内核开发。精力放在 3D 打印真正需要的地方——干净的原生桌面体验、STL 直出、不碍事的建模流程。
 
 ## 项目目标
 
-市面上的 CAD 软件要么太复杂（SolidWorks、Fusion 360），要么太玩具（Tinkercad）。Trition3D 的定位是：**为 3D 打印爱好者打造的参数化建模工具，最终内核自研，建模管线完全可控。**
+市面上的 CAD 软件要么太复杂（SolidWorks、Fusion 360），要么太玩具（Tinkercad）。Trition3D 的定位是：**为 3D 打印爱好者打造的参数化建模工具，整合经过验证的开源内核，打磨成好用的原生桌面应用。**
 
 ## 环境准备
 
@@ -64,7 +62,7 @@ pnpm tauri build      # 打包 .exe，产物在 target/release/trition3d-native.
 
 | 层级 | 技术 |
 |------|------|
-| 3D 内核 | truck（当前）→ 自研（规划中） |
+| 3D 内核 | truck（基于 CADmium） |
 | 核心计算 | Rust → WASM |
 | 前端界面 | Svelte 5 + Vite 7 + Tailwind |
 | 3D 渲染 | Threlte 8 + Three.js 0.175 |
@@ -128,7 +126,7 @@ pnpm tauri build  # 打包 .exe + .msi 安装包
 
 ## 致谢
 
-从 [CADmium](https://github.com/CADmium-Co/CADmium) 起步——这个项目第一个证明了 Rust+WASM 参数化 CAD 的可行性。我们站在前人的肩膀上，走出自己的路。
+从 [CADmium](https://github.com/CADmium-Co/CADmium) 起步——这个项目第一个证明了 Rust+WASM 参数化 CAD 的可行性。我们站在这个基础上，把精力聚焦在 3D 打印体验上。
 
 ## 开源协议
 
