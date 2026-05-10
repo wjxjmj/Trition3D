@@ -91,7 +91,7 @@
   </div>
 
   <!-- Label always visible -->
-  <div class="timeline-label">{tr().history} <span class="timeline-count">({visible.length})</span></div>
+  <div class="timeline-label">{tr().history}<span class="timeline-count"> ({visible.length})</span></div>
 
   {#if !collapsed}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -193,9 +193,10 @@
     user-select: none;
   }
   .timeline-count {
-    font-weight: 400;
+    font-weight: 700;
     font-size: 10px;
     opacity: 0.35;
+    margin-left: 2px;
   }
   .timeline-row {
     display: flex;
