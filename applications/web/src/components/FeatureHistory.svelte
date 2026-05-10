@@ -10,15 +10,25 @@
 
   const log = (function () { const context = "[FeatureHistory.svelte]"; const color="pink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
+  const basePlanes = new Set(["Front", "Top", "Right"])
   let history = $derived(store.workbench.history ?? [])
+  // Skip the origin point and the three default base planes
+  let visible = $derived(
+    history.filter((s, i) => {
+      if (isPoint(s) && i === 0) return false
+      if (isPlane(s) && basePlanes.has(s.name)) return false
+      return true
+    })
+  )
 
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
 </script>
 
 <div class="timeline-row">
-  <div class="timeline-label">{tr().history} ({history.length})</div>
+  <div class="timeline-label">{tr().history} ({visible.length})</div>
 
-  {#each history as feature, featureIdx (feature.data.type + ":" + feature.unique_id)}
+  {#each visible as feature (feature.data.type + ":" + feature.unique_id)}
+    {@const featureIdx = history.indexOf(feature)}
     <div class="shrink-0">
       {#if isPoint(feature)}
         <PointFeature name={feature.name} index={featureIdx} />
