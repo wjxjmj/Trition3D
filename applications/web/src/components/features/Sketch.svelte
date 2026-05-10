@@ -12,6 +12,9 @@
 
   const source = `${base}/actions/sketch_min.svg`
   let open = $derived(store.featureIndex === index)
+  $effect(() => {
+    console.log("[SketchFeature] open:", open, "featureIndex:", store.featureIndex, "index:", index, "name:", name)
+  })
 
   let surface: Entity | null = $state(null)
   let selectingForSketchPlane = $state(false)

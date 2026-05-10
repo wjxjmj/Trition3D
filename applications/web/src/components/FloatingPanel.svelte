@@ -19,6 +19,7 @@
   let originY = 0
 
   $effect(() => {
+    console.log("[FloatingPanel] show:", show, "title:", title)
     if (show) {
       posX = Math.max(100, (window.innerWidth - 300) / 2)
       posY = 100
