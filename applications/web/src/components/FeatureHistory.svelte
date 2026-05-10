@@ -142,11 +142,7 @@
 
 <style>
   .timeline-toggle {
-    position: absolute;
-    right: auto;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
+    flex-shrink: 0;
     z-index: 2;
     display: flex;
     align-items: center;
