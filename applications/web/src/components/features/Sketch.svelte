@@ -4,6 +4,7 @@
   import {quintOut} from "svelte/easing"
   import {Eye, EyeOff, X} from "lucide-static"
   import {renameStep, setSketchPlane} from "shared/projectUtils"
+  import {tr} from "shared/i18n.svelte"
   import {base} from "../../base"
 
   const log = (function () { const context = "[SketchFeature.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -145,7 +146,7 @@
       autocomplete="off"
     >
       <label>
-        Name
+        {tr().name}
         <input
           autocomplete="off"
           data-1p-ignore
@@ -155,7 +156,7 @@
       </label>
 
       <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      Surface
+      {tr().surface}
       <div
         tabindex="0"
         class="bg-gray-50 rounded flex shadow border focus:ring focus:border-blue-500 min-h-8 flex-wrap"
@@ -181,11 +182,11 @@
           onclick={() => {
             // This is a form button so remember that it triggers the form's onsubmit
             renameStep(index, name)
-          }}>Done</button
+          }}>{tr().done}</button
         >
 
         <button class="bg-transparent hover:bg-sky-700 text-sky-500 font-semibold hover:text-white py-1.5 px-4 border border-sky-500 hover:border-transparent"
-          >Cancel</button
+          >{tr().cancel}</button
         >
       </div>
     </form>

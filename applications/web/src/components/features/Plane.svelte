@@ -4,6 +4,7 @@
   import {quintOut} from "svelte/easing"
   import {Search} from "lucide-static"
   import {renameStep} from "shared/projectUtils"
+  import {tr} from "shared/i18n.svelte"
   import {base} from "../../base"
 
   const log = (function () { const context = "[PlaneFeature.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -65,7 +66,7 @@
       autocomplete="off"
     >
       <label>
-        Name
+        {tr().name}
         <input
           autocomplete="off"
           data-1p-ignore
@@ -79,11 +80,11 @@
           class="flex-grow bg-sky-500 hover:bg-sky-700 text-white font-bold py-1.5 px-1 shadow"
           onclick={() => {
             renameStep(index, name)
-          }}>Done</button
+          }}>{tr().done}</button
         >
 
         <button class="bg-transparent hover:bg-sky-700 text-sky-500 font-semibold hover:text-white py-1.5 px-4 border border-sky-500 hover:border-transparent"
-          >Cancel</button
+          >{tr().cancel}</button
         >
       </div>
     </form>

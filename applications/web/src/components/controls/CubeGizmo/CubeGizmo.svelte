@@ -22,6 +22,7 @@
     type Object3DEventMap,
   } from "three"
 
+  import {tr, langState} from "shared/i18n.svelte"
   import type {SetCameraFocus} from "shared/types"
   import type {CubeGizmoProps} from "./CubeGizmo"
 
@@ -513,8 +514,10 @@
     return texture
   }
 
-  const getCubeSpriteTexture = (size: number, text = "") => {
-    const key = `cube-${text}`
+  const getCubeSpriteTexture = (size: number, faceKey: string) => {
+    const t = tr()
+    const label = (t as any)[faceKey.toLowerCase()] ?? faceKey
+    const key = `cube-${faceKey}-${langState.code}`
     if (textures[key]) {
       textures[key].dispose()
     }
@@ -529,23 +532,21 @@
     context.fillStyle = fillColor.convertSRGBToLinear().getStyle()
     context.fillRect(0, 0, canvas.width, canvas.height)
 
-    if (text) {
-      const textSize = Math.abs(size * (16 / 64))
-      context.font = `${textSize}px Arial`
-      context.textAlign = "center"
-      const textColor = new Color(black)
-      context.fillStyle = textColor.convertSRGBToLinear().getStyle()
-      const textXPos = size / 2
-      const textYPos = size * (41 / 64)
-      context.fillText(text, textXPos, textYPos)
-    }
+    const textSize = Math.abs(size * (16 / 64))
+    context.font = `${textSize}px Arial`
+    context.textAlign = "center"
+    const textColor = new Color(black)
+    context.fillStyle = textColor.convertSRGBToLinear().getStyle()
+    const textXPos = size / 2
+    const textYPos = size * (41 / 64)
+    context.fillText(label, textXPos, textYPos)
 
     const texture = new CanvasTexture(canvas)
     texture.generateMipmaps = false // makes text sharper
 
     // Rotate text.
     texture.center = new Vector2(0.5, 0.5)
-    switch (text) {
+    switch (faceKey) {
       case "Right":
         texture.rotation = Math.PI / 2 // 90 deg
         break

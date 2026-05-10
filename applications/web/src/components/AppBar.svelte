@@ -199,7 +199,7 @@
     </div>
 
     <div class="flex-grow flex flex-row-reverse gap-4 mr-4">
-      <div class="opacity-30 cursor-not-allowed" title="Coming soon">
+      <div class="opacity-30 cursor-not-allowed" title={tr().comingSoon}>
         <span class="h-6 w-6 block pointer-events-none">{@html MessageCircle}</span>
       </div>
       <div

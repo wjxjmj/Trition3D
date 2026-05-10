@@ -4,6 +4,7 @@
   import {store} from "shared/stores.svelte"
   import {Download, Eye, EyeOff} from "lucide-static"
   import {getObjectString} from "shared/projectUtils"
+  import {tr} from "shared/i18n.svelte"
   import type {WithTarget} from "shared/types"
   import {base} from "../base"
 
@@ -110,7 +111,7 @@
             class="text-base text-[#222] w-full h-[30px] text-left bg-white dark:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-300 dark:hover:bg-gray-600 border-0 hover:text-black hover:text-left hover:bg-[#eee] rounded-[5px] flex"
             onclick={exportSolidOBJ}
           >
-            <span class="h-6 w-6 block">{@html Download}</span> Download as OBJ
+            <span class="h-6 w-6 block">{@html Download}</span> {tr().downloadOBJ}
           </button>
         </li>
 
@@ -119,7 +120,7 @@
             class="text-base text-[#222] w-full h-[30px] text-left bg-white dark:bg-gray-700 dark:text-gray-300 dark:hover:text-gray-300 dark:hover:bg-gray-600 border-0 hover:text-black hover:text-left hover:bg-[#eee] rounded-[5px] flex"
             onclick={exportSolidSTEP}
           >
-            <span class="h-6 w-6 block">{@html Download}</span>Download as STEP
+            <span class="h-6 w-6 block">{@html Download}</span>{tr().downloadSTEP}
           </button>
         </li>
       </ul>

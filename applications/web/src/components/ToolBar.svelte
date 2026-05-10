@@ -1,6 +1,7 @@
 <script>
   import {store} from "shared/stores.svelte"
   import {newExtrusion, newSketchOnPlane} from "shared/projectUtils"
+  import {tr} from "shared/i18n.svelte"
   import {base} from "../base"
 
   const log = (function () { const context = "[ToolBar.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -10,36 +11,32 @@
   const solveSketch = () => {}
   const createNewExtrusion = () => {
     newExtrusion()
-    // New extrusion will be at index = current length (added after sync)
     store.featureIndex = store.workbench.history.length
   }
   const createNewSketch = () => {
-    // log('Create new sketch')
     newSketchOnPlane()
-    // New sketch will be at index = current length (added after sync)
     store.featureIndex = store.workbench.history.length
   }
   const stepSketch = () => {}
   const debugging = false
 
-  const actions = [
+  let actions = $derived([
     {
       alt: "new sketch",
       src: `${base}/actions/sketch_min.svg`,
-      text: "New Sketch",
+      text: tr().newSketch,
       handler: createNewSketch,
     },
     {alt: "extrude", src: `${base}/actions/extrude_min.svg`, handler: createNewExtrusion},
-    // { alt: 'plane', src: '/actions/plane_min.svg' }
-  ]
+  ])
 
-  const sketchActions = [
-    {alt: "solve", src: `${base}/actions/solve_min.svg`, text: "Solve", handler: solveSketch},
-    {alt: "step", src: `${base}/actions/step_min.svg`, text: "Step", handler: stepSketch},
+  let sketchActions = $derived([
+    {alt: "solve", src: `${base}/actions/solve_min.svg`, text: tr().solve, handler: solveSketch},
+    {alt: "step", src: `${base}/actions/step_min.svg`, text: tr().step, handler: stepSketch},
     {alt: "line", src: `${base}/actions/line.svg`, handler: () => (store.sketchTool = "line")},
     {alt: "circle", src: `${base}/actions/circle.svg`, handler: () => (store.sketchTool = "circle")},
     {alt: "rectangle", src: `${base}/actions/rectangle.svg`, handler: () => (store.sketchTool = "rectangle")},
-  ]
+  ])
 </script>
 
 <div class="col-span-2 flex flex-none items-center gap-1 bg-gray-100 dark:bg-gray-800 dark:text-gray-300 h-[45px] select-none">
