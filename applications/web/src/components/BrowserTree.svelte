@@ -288,7 +288,7 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(0, 0, 0, 0.45);
