@@ -24,13 +24,12 @@
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
 </script>
 
-<div
-  class="timeline-row"
-  onwheel={(e) => {
-    e.currentTarget.scrollLeft += e.deltaY
-    e.preventDefault()
-  }}
->
+<!-- direction:rtl flips scrollbar to the top; inner ltr restores content flow -->
+<div class="timeline-scroll" onwheel={(e) => {
+  e.currentTarget.scrollLeft += e.deltaY
+  e.preventDefault()
+}}>
+<div class="timeline-row">
   <div class="timeline-label">{tr().history} ({visible.length})</div>
 
   {#each visible as feature (feature.data.type + ":" + feature.unique_id)}
@@ -50,16 +49,21 @@
     </div>
   {/each}
 </div>
+</div>
 
 <style>
+  .timeline-scroll {
+    overflow-x: auto;
+    direction: rtl;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
   .timeline-row {
     display: flex;
     align-items: center;
     gap: 2px;
     padding: 4px 8px;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    direction: ltr;
     user-select: none;
     font-size: 13px;
     line-height: 1.6;
@@ -84,24 +88,24 @@
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
   }
 
-  .timeline-row::-webkit-scrollbar {
+  .timeline-scroll::-webkit-scrollbar {
     height: 3px;
   }
-  .timeline-row::-webkit-scrollbar-track {
+  .timeline-scroll::-webkit-scrollbar-track {
     background: transparent;
   }
-  .timeline-row::-webkit-scrollbar-thumb {
+  .timeline-scroll::-webkit-scrollbar-thumb {
     background: transparent;
     border-radius: 2px;
     transition: background 0.15s ease;
   }
-  .timeline-row:hover::-webkit-scrollbar-thumb {
+  .timeline-scroll:hover::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.08);
   }
-  .timeline-row::-webkit-scrollbar-thumb:hover {
+  .timeline-scroll::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.18);
   }
-  .timeline-row:hover {
+  .timeline-scroll:hover {
     scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
   }
 </style>
