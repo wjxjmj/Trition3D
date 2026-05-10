@@ -170,19 +170,21 @@
 {/each}
 
 {#each solids as [solidName, solid] (`${store.workbench.name}-${solidName}-${solid.crc32}`)}
-  <Solid
-    name={solidName}
-    indices={solid.indices}
-    vertices={solid.vertices}
-    normals={solid.normals}
-    truckSolid={solid.truck_solid}
-    {solidLineMaterial}
-    {solidHoveredMaterial}
-    {solidSelectedMaterial}
-    {dashedHoveredMaterial}
-    {dashedLineMaterial}
-    {collisionLineMaterial}
-  />
+  {#if !store.hiddenSolids.includes(solidName)}
+    <Solid
+      name={solidName}
+      indices={solid.indices}
+      vertices={solid.vertices}
+      normals={solid.normals}
+      truckSolid={solid.truck_solid}
+      {solidLineMaterial}
+      {solidHoveredMaterial}
+      {solidSelectedMaterial}
+      {dashedHoveredMaterial}
+      {dashedLineMaterial}
+      {collisionLineMaterial}
+    />
+  {/if}
 {/each}
 
 <CubeGizmo verticalPlacement={"top"} size={140} paddingX={20} paddingY={20} {setCameraFocus} />
