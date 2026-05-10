@@ -61,7 +61,7 @@
       </button>
     </div>
     <div class="panel-body">
-      {#if children}
+      {#if children !== undefined}
         {@render children()}
       {/if}
     </div>

@@ -31,7 +31,6 @@
 </div>
 
 <FloatingPanel show={open} title={tr().plane} onclose={closeAndRefresh}>
-  {#snippet children()}
     <form
       onsubmit={(e) => { e.preventDefault(); closeAndRefresh() }}
       class="flex flex-col space-y-2"
@@ -55,5 +54,4 @@
         >{tr().cancel}</button>
       </div>
     </form>
-  {/snippet}
 </FloatingPanel>
