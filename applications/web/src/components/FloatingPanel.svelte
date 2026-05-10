@@ -18,12 +18,12 @@
   let originX = 0
   let originY = 0
 
-  function initPosition() {
-    // Place near right side of viewport, below the toolbar
-    posX = Math.max(200, window.innerWidth - 420)
-    posY = 100 + Math.random() * 120
-  }
-  $effect(() => { if (show) initPosition() })
+  $effect(() => {
+    if (show) {
+      posX = Math.max(100, (window.innerWidth - 300) / 2)
+      posY = 100
+    }
+  })
 
   function onDragStart(e: MouseEvent) {
     dragging = true
