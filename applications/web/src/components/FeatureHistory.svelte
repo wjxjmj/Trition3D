@@ -58,8 +58,6 @@
     gap: 2px;
     padding: 4px 8px;
     overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
     user-select: none;
     font-size: 13px;
     line-height: 1.6;
@@ -100,8 +98,5 @@
   }
   .timeline-row::-webkit-scrollbar-thumb:hover {
     background: rgba(249, 115, 22, 0.85);
-  }
-  .timeline-row:hover {
-    scrollbar-color: rgba(249, 115, 22, 0.6) transparent;
   }
 </style>

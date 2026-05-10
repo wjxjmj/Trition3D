@@ -270,8 +270,6 @@
     left: 16px;
     bottom: 48px;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
 
 
     z-index: 20;
@@ -436,8 +434,5 @@
   }
   .browser-tree::-webkit-scrollbar-thumb:hover {
     background: rgba(249, 115, 22, 0.85);
-  }
-  .browser-tree:hover {
-    scrollbar-color: rgba(249, 115, 22, 0.6) transparent;
   }
 </style>
