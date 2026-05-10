@@ -291,6 +291,7 @@ export function renameStep(stepIdx: number, newName: string): void {
   }
   checkWasmMessage(message)
   sendWasmMessage(message)
+  store.workbenchIsStale = true
 }
 
 export function renameWorkbench(newName: string): void {
@@ -303,6 +304,7 @@ export function renameWorkbench(newName: string): void {
   }
   checkWasmMessage(message)
   sendWasmMessage(message)
+  store.workbenchIsStale = true
 }
 
 export function renameProject(newName: string): void {
@@ -314,6 +316,7 @@ export function renameProject(newName: string): void {
   }
   checkWasmMessage(message)
   sendWasmMessage(message)
+  store.workbenchIsStale = true
 }
 
 export function getObjectString(solidId: string): string {
