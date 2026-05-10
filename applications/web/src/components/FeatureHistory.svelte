@@ -32,6 +32,7 @@
   // Nav visible only when content overflows
   let overflow = $state(false)
   let hover = $state(false)
+  let fadeTimer: ReturnType<typeof setTimeout>
   function checkOverflow() {
     if (!rowEl) return
     overflow = rowEl.scrollWidth > rowEl.clientWidth + 1
@@ -71,8 +72,8 @@
 
 <div
   class="timeline-wrapper"
-  onmouseenter={() => { hover = true; checkOverflow() }}
-  onmouseleave={() => hover = false}
+  onmouseenter={() => { hover = true; clearTimeout(fadeTimer); checkOverflow() }}
+  onmouseleave={() => { fadeTimer = setTimeout(() => hover = false, 5000) }}
 >
   <div class="timeline-label">{tr().history} ({visible.length})</div>
 
@@ -164,7 +165,8 @@
   /* Nav bar — floating above the timeline */
   .timeline-nav {
     position: absolute;
-    right: 4px;
+    left: 50%;
+    transform: translateX(-50%);
     bottom: calc(100% + 2px);
     z-index: 2;
     display: flex;
