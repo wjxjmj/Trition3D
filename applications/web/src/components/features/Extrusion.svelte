@@ -1,7 +1,6 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
-  import {slide} from "svelte/transition"
-  import {quintOut} from "svelte/easing"
+  import FloatingPanel from "../FloatingPanel.svelte"
   import {X} from "lucide-static"
   import {arraysEqual, renameStep, updateExtrusion} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
@@ -11,37 +10,25 @@
 
   let { name, index, id, data }: { name: string; index: number; id: string; data: ExtrusionData["data"]["extrusion"] } = $props()
 
-  // $: data, log("[props]", "name:", name, "index:", index, "id:", id, "data:", data)
-  // $: data, log("[props]", "typeof id:", typeof id, "id:", id)
-  // $: data, log("[props]", "typeof data.face_ids[0]:", typeof data.face_ids[0], "data.face_ids:", data.face_ids)
-
-  // coerce from number[] to string[] for frontend as we use strings for ids here
   let faceIdsFromInputs = $state(data.face_ids.sort().map(e => e + ""))
-
-  // reactive update of selected faces
   $effect(() => { if (data && data.face_ids) faceIdsFromInputs = data.face_ids.map(e => e + "").sort() })
 
   let length = $state(data.length)
+  let open = $derived(store.featureIndex === index)
 
   const closeAndRefresh = () => {
-    // log("[closeAndRefresh] extrusion feature closing")
     store.featureIndex = 1000
     store.currentlySelected = []
     store.selectingFor = []
-    // hide the sketch that this extrusion uses
     if (!store.hiddenSketches.includes(data.sketch_id)) {
-      // log("[closeAndRefresh] Oh, we're hiding the sketch that this extrusion uses")
       store.hiddenSketches = [...store.hiddenSketches, data.sketch_id]
     }
-
     store.workbenchIsStale = true
   }
 
   let updating = false
-
   function sendUpdate(specificFaceIds?: string[]) {
     if (updating) return
-    // Guard against empty face ID updates that would delete the solid
     if (specificFaceIds !== undefined && specificFaceIds.length === 0) return
     updating = true
     try {
@@ -63,22 +50,11 @@
     const selected = store.currentlySelected
     if (store.featureIndex !== index) return
     if (updating) return
-
-    const faceIdsFromSelection = selected
-      .filter(e => e.type === "face")
-      .map(e => e.id)
-      .sort()
-
-    if (faceIdsFromSelection.length === 0) { /* skip empty selection */ }
-    else if (arraysEqual(faceIdsFromInputs, faceIdsFromSelection)) {
-      // same, no update
-    } else {
+    const faceIdsFromSelection = selected.filter(e => e.type === "face").map(e => e.id).sort()
+    if (faceIdsFromSelection.length > 0 && !arraysEqual(faceIdsFromInputs, faceIdsFromSelection)) {
       sendUpdate(faceIdsFromSelection)
     }
   })
-
-  // $: log(store.currentlySelected)
-  // $: faceIds = store.currentlySelected.filter((e) => e.type === 'face').map((e) => e.id)
 
   const source = `${base}/actions/extrude_min.svg`
 
@@ -86,69 +62,49 @@
     if (store.featureIndex === index) {
       store.selectingFor = ["face", "meshFace"]
       store.currentlySelected = faceIdsFromInputs.map(id => ({type: "face", id}))
-      // log("[store.currentlySelected]", store.currentlySelected)
     }
   })
 </script>
 
 <div
-  class="flex items-center text-sm hover:bg-sky-200 dark:hover:bg-gray-600"
+  class="flex items-center text-sm hover:bg-sky-200 dark:hover:bg-gray-600 rounded px-1 py-0.5 shrink-0"
   role="button"
   tabindex="0"
   ondblclick={() => {
-    if (store.featureIndex === index) {
-      closeAndRefresh()
-    } else {
-      store.featureIndex = index
-      // store.selectingFor = []
-    }
+    store.featureIndex = open ? 1000 : index
   }}
 >
-  {#if store.featureIndex < index}
-    <img class="h-8 w-8 px-1 opacity-50" src={source} alt={name} />
-    <span class="italic opacity-50">{name}</span>
-  {:else}
-    <img class="h-8 w-8 px-1" src={source} alt={name} />
-    <span>{name}</span>
-  {/if}
+  <img class="h-6 w-6 px-0.5" src={source} alt={name} />
+  <span class:text-gray-400={store.featureIndex > index}>{name}</span>
 </div>
 
-{#if store.featureIndex === index}
-  <div transition:slide={{delay: 0, duration: 400, easing: quintOut, axis: "y"}}>
+<FloatingPanel show={open} title={tr().extrusion} onclose={closeAndRefresh}>
+  {#snippet children()}
     <form
-      onsubmit={(e) => {
-        e.preventDefault()
-        closeAndRefresh()
-      }}
-      class="px-3 py-2 bg-gray-100 dark:bg-gray-600 flex flex-col space-y-2"
+      onsubmit={(e) => { e.preventDefault(); closeAndRefresh() }}
+      class="flex flex-col space-y-2"
       autocomplete="off"
     >
-      <label>
+      <label class="text-xs opacity-70">
         {tr().name}
         <input
-          autocomplete="off"
-          data-1p-ignore
-          class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:border focus:border-sky-500"
+          autocomplete="off" data-1p-ignore
+          class="shadow appearance-none border w-full py-1.5 px-2 text-sm text-gray-700 leading-tight focus:border focus:border-sky-500 rounded"
           bind:value={name}
         />
       </label>
-
-      <label>
+      <label class="text-xs opacity-70">
         {tr().length}
         <input
-          autocomplete="off"
-          data-1p-ignore
-          class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:border focus:border-sky-500"
+          autocomplete="off" data-1p-ignore
+          class="shadow appearance-none border w-full py-1.5 px-2 text-sm text-gray-700 leading-tight focus:border focus:border-sky-500 rounded"
           type="number"
           bind:value={length}
-          oninput={() => {
-            sendUpdate()
-          }}
+          oninput={() => sendUpdate()}
         />
       </label>
-
-      {tr().faces}
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+      <span class="text-xs opacity-70">{tr().faces}</span>
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <div tabindex="0" class="bg-gray-50 rounded flex shadow border focus:ring focus:border-blue-500 min-h-8 flex-wrap">
         <div class="h-8"></div>
         {#each faceIdsFromInputs as faceId}
@@ -157,24 +113,18 @@
               onclick={(e) => {
                 e.preventDefault()
                 store.currentlySelected = store.currentlySelected.filter(item => !(item.id === faceId && item.type === "face"))
-              }}><span class="h-[18px] w-[18px] block">{@html X}</span></button
-            >
+              }}><span class="h-[16px] w-[16px] block">{@html X}</span></button>
           </div>
         {/each}
       </div>
-
       <div class="flex space-x-1.5">
         <button
-          class="flex-grow bg-sky-500 hover:bg-sky-700 text-white font-bold py-1.5 px-1 shadow"
-          onclick={() => {
-            renameStep(index, name)
-          }}>{tr().done}</button
-        >
-
-        <button class="bg-transparent hover:bg-sky-700 text-sky-500 font-semibold hover:text-white py-1.5 px-4 border border-sky-500 hover:border-transparent"
-          >{tr().cancel}</button
-        >
+          class="flex-grow bg-sky-500 hover:bg-sky-700 text-white font-bold py-1.5 px-1 shadow rounded text-sm"
+          onclick={() => renameStep(index, name)}
+        >{tr().done}</button>
+        <button class="bg-transparent hover:bg-sky-700 text-sky-500 font-semibold hover:text-white py-1.5 px-4 border border-sky-500 hover:border-transparent rounded text-sm"
+        >{tr().cancel}</button>
       </div>
     </form>
-  </div>
-{/if}
+  {/snippet}
+</FloatingPanel>
