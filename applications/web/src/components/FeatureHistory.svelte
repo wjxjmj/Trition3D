@@ -176,7 +176,7 @@
   .timeline-wrapper {
     position: relative;
     height: 100%;
-    min-height: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
   }
