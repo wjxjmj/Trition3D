@@ -30,10 +30,16 @@
   }
 
   function commitRename(oldName: string) {
+    if (!renamingBody) return // guard: already committed via Enter, blur fires again
     const trimmed = newBodyName.trim()
     if (trimmed && trimmed !== oldName) {
       const idx = store.workbench.history.findIndex(s => s.name === oldName)
-      if (idx !== -1) renameStep(idx, trimmed)
+      if (idx !== -1) {
+        log("renaming step", idx, oldName, "→", trimmed)
+        renameStep(idx, trimmed)
+      } else {
+        log("no history step found for", oldName)
+      }
     }
     renamingBody = null
   }
@@ -147,10 +153,10 @@
                 type="text"
                 bind:value={newBodyName}
                 onkeydown={(e) => {
-                  if (e.key === "Enter") commitRename(name)
-                  if (e.key === "Escape") cancelRename()
+                  if (e.key === "Enter") { e.preventDefault(); commitRename(name) }
+                  if (e.key === "Escape") { e.preventDefault(); cancelRename() }
                 }}
-                onblur={() => commitRename(name)}
+                onblur={() => setTimeout(() => commitRename(name), 0)}
                 autofocus
               />
             {:else}
