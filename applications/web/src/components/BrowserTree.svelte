@@ -269,7 +269,7 @@
     max-height: calc(100% - 32px);
     overflow-y: auto;
     /* Ensure last item can scroll above the timeline at the bottom */
-    padding-bottom: 42px;
+    padding-bottom: 80px;
     z-index: 20;
     padding: 0;
     min-width: 200px;
