@@ -165,7 +165,7 @@
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
         class="hover:bg-gray-300 dark:hover:bg-gray-600 rounded p-1"
-        onclick={() => langOpen = !langOpen}
+        onclick={(e: MouseEvent) => { e.stopPropagation(); langOpen = !langOpen }}
         title="Language"
       >
         <span class="h-6 w-6 block">{@html Languages}</span>
