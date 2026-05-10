@@ -270,12 +270,12 @@
     overflow-y: auto;
     z-index: 20;
     padding: 0;
-    min-width: 180px;
-    max-width: 250px;
+    min-width: 200px;
+    max-width: 280px;
     user-select: none;
     font-family: "Manrope", system-ui, sans-serif;
-    font-size: 11.5px;
-    line-height: 1.65;
+    font-size: 13px;
+    line-height: 1.7;
 
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.45);
   }
@@ -284,10 +284,10 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 1px 2px;
+    padding: 2px 3px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 10px;
+    font-size: 11.5px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(0, 0, 0, 0.45);
@@ -299,30 +299,30 @@
   }
 
   .chevron {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     display: block;
     flex-shrink: 0;
     transition: transform 0.12s ease;
     opacity: 0.35;
   }
   .chevron :global(svg) {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
   .chevron.rotated {
     transform: rotate(90deg);
   }
 
   .section-icon {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     display: block;
     flex-shrink: 0;
   }
   .section-icon :global(svg) {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
 
   .section-label {
@@ -332,17 +332,17 @@
   .section-count {
     font-variant-numeric: tabular-nums;
     opacity: 0.35;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .section-items {
-    padding-left: 10px;
+    padding-left: 12px;
   }
 
   .tree-item {
     display: flex;
     align-items: center;
-    padding: 1px 2px;
+    padding: 2px 3px;
     cursor: pointer;
     color: rgba(0, 0, 0, 0.78);
     text-shadow: var(--text-glow);
@@ -394,15 +394,15 @@
   }
 
   .icon-block {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     display: block;
     opacity: 0.40;
     transition: opacity 0.10s ease;
   }
   .icon-block :global(svg) {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
   }
   .icon-block:hover {
     opacity: 0.80;
