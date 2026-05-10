@@ -195,8 +195,7 @@
     align-items: center;
     gap: 2px;
     padding: 4px 8px;
-    padding-left: 80px;
-    padding-right: 60px;
+    padding-right: 40px;
     overflow-x: auto;
     cursor: grab;
     user-select: none;
@@ -205,8 +204,8 @@
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.4);
     text-shadow: var(--text-glow);
     color: rgba(0, 0, 0, 0.78);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 40px), transparent 100%);
   }
   .timeline-row img {
     pointer-events: none;
