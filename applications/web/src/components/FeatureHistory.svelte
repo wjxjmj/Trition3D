@@ -7,7 +7,7 @@
   import {isPoint, isPlane, isExtrusion, isSketch} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
   import type {SetCameraFocus} from "shared/types"
-  import {ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Minus, Plus} from "lucide-static"
+  import {ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Minus, Plus} from "lucide-static"
 
   const log = (function () { const context = "[FeatureHistory.svelte]"; const color="pink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
