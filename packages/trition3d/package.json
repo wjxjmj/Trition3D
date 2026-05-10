@@ -19,12 +19,12 @@
     "url": "https://github.com/mattferraro/cadmium"
   },
   "files": [
-    "pkg/cadmium_bg.wasm",
-    "pkg/cadmium.js",
-    "pkg/cadmium.d.ts"
+    "pkg/trition3d_bg.wasm",
+    "pkg/trition3d.js",
+    "pkg/trition3d.d.ts"
   ],
-  "module": "pkg/cadmium.js",
-  "types": "pkg/cadmium.d.ts",
+  "module": "pkg/trition3d.js",
+  "types": "pkg/trition3d.d.ts",
   "type": "module",
   "devDependencies": {
     "onchange": "^7.1.0"

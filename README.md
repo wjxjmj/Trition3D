@@ -4,22 +4,48 @@
 
 A parametric 3D CAD application. Build models with sketches and extrusions, run in browser or as a native desktop app.
 
+## Prerequisites
+
+| Tool | Version | Install |
+|------|---------|---------|
+| Node | >= 24 | [nodejs.org](https://nodejs.org) or `nvm install 24` |
+| pnpm | >= 10 | `corepack enable && corepack prepare pnpm@latest` |
+| Rust | latest stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| wasm-pack | latest | `cargo install wasm-pack` |
+| wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
+
+**Additional for Tauri desktop (Windows):**
+- Visual Studio Build Tools or Visual Studio with "Desktop development with C++"
+- Windows 10 SDK
+
 ## Quick Start
 
 ```shell
-# Prerequisites: Node >= 24, pnpm >= 10, Rust
+# 1. Install dependencies
 pnpm install
-pnpm dev          # Browser: http://127.0.0.1:5173
-pnpm tauri dev    # Desktop app
-pnpm tauri build  # Package .exe/.msi for distribution
+
+# 2. Compile Rust kernel to WASM (only needed once, or when Rust code changes)
+cd packages/trition3d
+wasm-pack build --target web --no-pack --release
+cd ../..
+
+# 3. Start the app
+pnpm dev              # Browser: http://127.0.0.1:5173
+```
+
+```shell
+# Desktop app (includes web + native wrapper)
+pnpm tauri dev        # Dev mode with hot reload
+pnpm tauri build      # Release .exe at target/release/trition3d-native.exe
 ```
 
 ## Features
 
 - **Sketches**: 2D drawing on planes — line, circle, rectangle
-- **Extrusions**: Convert sketches to 3D solids
+- **Extrusions**: Convert sketches to 3D solids (new, add, remove)
 - **Navigation**: Orbit/pan/zoom + Gizmo cube
 - **Export**: OBJ, STEP, `.tri` (project file)
+- **Import**: Open `.tri` project files
 - **Dark mode**: Toggle in toolbar
 - **Native desktop**: Tauri 2.0, runs WASM in webview
 
@@ -46,12 +72,53 @@ Project → Workbench → history: Step[]
 
 UI sends `Message` commands to Rust core, which mutates project state. Workbench history is "realized" into 3D geometry for rendering.
 
-## Building WASM (WSL required on Windows)
+## Build pipeline
+
+There are two compilation steps; both are required before running for the first time:
+
+### 1. WASM (Rust → WebAssembly)
+
+This compiles the CAD kernel into a `.wasm` file the browser can load.
 
 ```shell
 cd packages/trition3d
 wasm-pack build --target web --no-pack --release
 ```
+
+The output lands in `packages/trition3d/pkg/`. Release mode is ~5x faster than dev for heavy operations like circle extrusion.
+
+> **Windows note:** On native Windows, the first build may need you to run `npx pnpm approve-builds` in the repo root to allow esbuild / @swc/core native modules.
+
+### 2. Web frontend (Vite + Svelte)
+
+```shell
+pnpm dev          # Dev server at http://127.0.0.1:5173
+pnpm build        # Production build → applications/web/dist/
+```
+
+### 3. Desktop app (Tauri)
+
+```shell
+pnpm tauri dev    # Dev window with hot reload
+pnpm tauri build  # Bundled .exe + .msi installer
+```
+
+## Troubleshooting
+
+**`Failed to resolve entry for package "trition3d"`**
+→ The WASM pkg hasn't been built. Run step 1 above (`wasm-pack build` in `packages/trition3d`).
+
+**`wasm32-unknown-unknown` target not found**
+→ `rustup target add wasm32-unknown-unknown`
+
+**`wasm-pack: command not found`**
+→ `cargo install wasm-pack`
+
+**`pnpm install` skips esbuild / @swc/core**
+→ Run `pnpm approve-builds` in the repo root, select esbuild and @swc/core, then `pnpm install` again.
+
+**Tauri build fails on Windows**
+→ Install "Desktop development with C++" workload from Visual Studio Installer.
 
 ## License
 
