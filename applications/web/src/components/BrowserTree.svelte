@@ -14,6 +14,13 @@
   let sketchesOpen = $state(true)
   let planesOpen = $state(false)
   let treeVisible = $state(true)
+  let showBottomFade = $state(false)
+  let treeEl = $state<HTMLElement | null>(null)
+
+  function onTreeScroll() {
+    if (!treeEl) return
+    showBottomFade = treeEl.scrollTop + treeEl.clientHeight < treeEl.scrollHeight - 8
+  }
 
   // Inline rename state
   let renamingBody = $state<string | null>(null)
@@ -87,6 +94,9 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="browser-tree group"
+    class:fade-bottom={showBottomFade}
+    bind:this={treeEl}
+    onscroll={onTreeScroll}
     oncontextmenu={(e) => e.preventDefault()}
   >
     <!-- Section: Planes -->
@@ -270,8 +280,8 @@
     left: 16px;
     bottom: 48px;
     overflow-y: auto;
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 48px), transparent 100%);
-    mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 48px), transparent 100%);
+
+
 
 
     z-index: 20;
@@ -284,6 +294,10 @@
     line-height: 1.7;
 
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.45);
+  }
+  .browser-tree.fade-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 48px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 48px), transparent 100%);
   }
 
   .section-header {
