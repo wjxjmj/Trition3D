@@ -189,67 +189,62 @@
 {/if}
 
 <style>
+  /*
+   * Browser tree — fully transparent, text floating directly on the 3D scene.
+   * No panel background, no blur, no border. Just text with shadow for readability.
+   */
   .browser-tree {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    max-height: calc(100% - 24px);
+    top: 16px;
+    left: 16px;
+    max-height: calc(100% - 32px);
     overflow-y: auto;
     z-index: 20;
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    background: rgba(17, 17, 17, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 10px;
-    padding: 6px 0;
+    padding: 0;
     min-width: 190px;
     max-width: 260px;
     user-select: none;
     font-family: "Manrope", system-ui, sans-serif;
     font-size: 12px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.88);
-    transition: background 0.3s ease;
-  }
-  .browser-tree:hover {
-    background: rgba(17, 17, 17, 0.22);
+    line-height: 1.6;
+
+    /* The glow that makes text readable against any 3D background */
+    --text-glow: 0 0 6px rgba(0, 0, 0, 0.55), 0 0 2px rgba(0, 0, 0, 0.7);
   }
 
   .section-header {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 4px 8px;
+    padding: 2px 4px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 11px;
+    font-size: 10.5px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: rgba(255, 255, 255, 0.55);
-    background: transparent;
-    border: none;
-    width: 100%;
-    text-align: left;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.48);
+    text-shadow: var(--text-glow);
+    transition: color 0.12s ease;
   }
   .section-header:hover {
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, 0.72);
   }
 
   .chevron {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     display: block;
     flex-shrink: 0;
-    transition: transform 0.15s ease;
-    opacity: 0.5;
+    transition: transform 0.12s ease;
+    opacity: 0.45;
   }
   .chevron.rotated {
     transform: rotate(90deg);
   }
 
   .section-icon {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     display: block;
     flex-shrink: 0;
   }
@@ -260,35 +255,34 @@
 
   .section-count {
     font-variant-numeric: tabular-nums;
-    opacity: 0.4;
+    opacity: 0.35;
     font-size: 10px;
   }
 
   .section-items {
-    padding-left: 14px;
+    padding-left: 12px;
   }
 
   .tree-item {
     display: flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 1px 4px;
     cursor: pointer;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.82);
-    border-radius: 3px;
-    transition: background 0.08s ease, color 0.08s ease;
+    color: rgba(255, 255, 255, 0.78);
+    text-shadow: var(--text-glow);
+    transition: color 0.10s ease;
     white-space: nowrap;
   }
   .tree-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(255, 255, 255, 0.97);
   }
   .tree-item.selected {
-    background: rgba(66, 133, 244, 0.20);
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(130, 180, 255);
+    text-shadow: 0 0 8px rgba(66, 133, 244, 0.5), var(--text-glow);
   }
   .tree-item.hidden-item {
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.28);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
   }
 
   .item-text {
@@ -304,42 +298,34 @@
   }
 
   .icon-block {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     display: block;
-    opacity: 0.5;
+    opacity: 0.45;
+    transition: opacity 0.10s ease;
   }
   .icon-block:hover {
     opacity: 0.85;
   }
 
   .divider {
-    height: 1px;
-    margin: 4px 8px;
-    background: rgba(255, 255, 255, 0.05);
+    height: 0;
+    margin: 2px 4px;
+    /* no visible divider — spacing only */
   }
 
-  /* Scrollbar */
+  /* Scrollbar — phantom-thin, barely there */
   .browser-tree::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
   }
   .browser-tree::-webkit-scrollbar-track {
     background: transparent;
   }
   .browser-tree::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 2px;
   }
   .browser-tree::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
   }
-
-  /* Light mode override */
-  :global(.dark) .browser-tree {
-    /* default is dark, handled above */
-  }
-
-  /* If the app supports light mode, these would need adjustment.
-     For now, the browser tree is designed for dark contexts since
-     the 3D viewport background is typically dark. */
 </style>
