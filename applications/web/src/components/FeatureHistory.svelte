@@ -24,7 +24,13 @@
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
 </script>
 
-<div class="timeline-row">
+<div
+  class="timeline-row"
+  onwheel={(e) => {
+    e.currentTarget.scrollLeft += e.deltaY
+    e.preventDefault()
+  }}
+>
   <div class="timeline-label">{tr().history} ({visible.length})</div>
 
   {#each visible as feature (feature.data.type + ":" + feature.unique_id)}
@@ -51,7 +57,7 @@
     align-items: center;
     height: 100%;
     gap: 2px;
-    padding: 0 12px;
+    padding: 0 8px;
     overflow-x: auto;
     user-select: none;
     font-size: 13px;

@@ -87,10 +87,11 @@
     overflow: hidden;
   }
   .timeline-handle {
-    height: 5px;
+    height: 4px;
     cursor: row-resize;
+    margin-bottom: 0;
   }
   .timeline-handle:hover {
-    background: rgba(128, 128, 128, 0.15);
+    background: rgba(128, 128, 128, 0.12);
   }
 </style>

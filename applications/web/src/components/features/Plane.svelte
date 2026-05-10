@@ -1,7 +1,7 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
   import FloatingPanel from "../FloatingPanel.svelte"
-  import {Search} from "lucide-static"
+
   import {renameStep} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
   import {base} from "../../base"
@@ -27,18 +27,7 @@
     store.featureIndex = open ? 1000 : index
   }}
 >
-  <img class="h-6 w-6 px-0.5" src={source} alt={name} />
-  <span class:text-gray-400={store.featureIndex > index}>{name}</span>
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="ml-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-500 px-0.5 py-0.5 rounded"
-    onmousedown={(e) => {
-      e.stopPropagation()
-      setCameraFocus?.(plane.tertiary, plane.origin, plane.secondary)
-    }}
-  >
-    <span class="h-[14px] w-[14px] block">{@html Search}</span>
-  </div>
+  <img class="h-6 w-6" src={source} alt={name} title={name} />
 </div>
 
 <FloatingPanel show={open} title={tr().plane} onclose={closeAndRefresh}>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
   import FloatingPanel from "../FloatingPanel.svelte"
-  import {Eye, EyeOff, X} from "lucide-static"
+  import {X} from "lucide-static"
   import {renameStep, setSketchPlane} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
   import {base} from "../../base"
@@ -78,26 +78,7 @@
     if (!open) store.sketchTool = "select"
   }}
 >
-  <img class="h-6 w-6 px-0.5" src={source} alt={name} />
-  <span class:text-gray-400={store.featureIndex > index}>{name}</span>
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="ml-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-500 px-0.5 py-0.5 rounded"
-    onclick={(e) => {
-      e.stopPropagation()
-      if (store.hiddenSketches.includes(id)) {
-        store.hiddenSketches = store.hiddenSketches.filter(s => s !== id)
-      } else {
-        store.hiddenSketches = [...store.hiddenSketches, id]
-      }
-    }}
-  >
-    {#if store.hiddenSketches.includes(id)}
-      <span class="h-[14px] w-[14px] block">{@html EyeOff}</span>
-    {:else}
-      <span class="h-[14px] w-[14px] block">{@html Eye}</span>
-    {/if}
-  </div>
+  <img class="h-6 w-6" src={source} alt={name} title={name} />
 </div>
 
 <FloatingPanel show={open} title={tr().sketch} onclose={closeAndRefresh}>

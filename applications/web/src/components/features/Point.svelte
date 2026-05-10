@@ -26,8 +26,7 @@
     store.featureIndex = open ? 1000 : index
   }}
 >
-  <img class="h-6 w-6 px-0.5" src={source} alt={name} />
-  <span class:text-gray-400={store.featureIndex > index}>{name}</span>
+  <img class="h-6 w-6" src={source} alt={name} title={name} />
 </div>
 
 <FloatingPanel show={open} title="Point" onclose={closeAndRefresh}>
