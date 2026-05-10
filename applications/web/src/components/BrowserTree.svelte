@@ -94,7 +94,7 @@
           </div>
         {/each}
         {#if bodies.length === 0}
-          <div class="tree-item text-gray-500 dark:text-gray-500">No solids yet</div>
+          <div class="tree-item empty-item">No solids yet</div>
         {/if}
       </div>
     {/if}
@@ -144,7 +144,7 @@
           </div>
         {/each}
         {#if sketches.length === 0}
-          <div class="tree-item text-gray-500 dark:text-gray-500">No sketches yet</div>
+          <div class="tree-item empty-item">No sketches yet</div>
         {/if}
       </div>
     {/if}
@@ -181,7 +181,7 @@
           </div>
         {/each}
         {#if planes.length === 0}
-          <div class="tree-item text-gray-500 dark:text-gray-500">No planes yet</div>
+          <div class="tree-item empty-item">No planes yet</div>
         {/if}
       </div>
     {/if}
@@ -190,8 +190,7 @@
 
 <style>
   /*
-   * Browser tree — fully transparent, text floating directly on the 3D scene.
-   * No panel background, no blur, no border. Just text with shadow for readability.
+   * Browser tree — fully transparent, dark text floating directly on the 3D scene.
    */
   .browser-tree {
     position: absolute;
@@ -201,50 +200,49 @@
     overflow-y: auto;
     z-index: 20;
     padding: 0;
-    min-width: 190px;
-    max-width: 260px;
+    min-width: 180px;
+    max-width: 250px;
     user-select: none;
     font-family: "Manrope", system-ui, sans-serif;
-    font-size: 12px;
-    line-height: 1.6;
+    font-size: 11.5px;
+    line-height: 1.65;
 
-    /* The glow that makes text readable against any 3D background */
-    --text-glow: 0 0 6px rgba(0, 0, 0, 0.55), 0 0 2px rgba(0, 0, 0, 0.7);
+    --text-glow: 0 0 5px rgba(255, 255, 255, 0.45);
   }
 
   .section-header {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 4px;
+    gap: 3px;
+    padding: 1px 2px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 10.5px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: rgba(255, 255, 255, 0.48);
+    color: rgba(0, 0, 0, 0.45);
     text-shadow: var(--text-glow);
     transition: color 0.12s ease;
   }
   .section-header:hover {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(0, 0, 0, 0.70);
   }
 
   .chevron {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     display: block;
     flex-shrink: 0;
     transition: transform 0.12s ease;
-    opacity: 0.45;
+    opacity: 0.40;
   }
   .chevron.rotated {
     transform: rotate(90deg);
   }
 
   .section-icon {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     display: block;
     flex-shrink: 0;
   }
@@ -256,33 +254,37 @@
   .section-count {
     font-variant-numeric: tabular-nums;
     opacity: 0.35;
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .section-items {
-    padding-left: 12px;
+    padding-left: 10px;
   }
 
   .tree-item {
     display: flex;
     align-items: center;
-    padding: 1px 4px;
+    padding: 1px 2px;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(0, 0, 0, 0.78);
     text-shadow: var(--text-glow);
     transition: color 0.10s ease;
     white-space: nowrap;
   }
   .tree-item:hover {
-    color: rgba(255, 255, 255, 0.97);
+    color: rgba(0, 0, 0, 0.95);
   }
   .tree-item.selected {
-    color: rgb(130, 180, 255);
-    text-shadow: 0 0 8px rgba(66, 133, 244, 0.5), var(--text-glow);
+    color: rgb(30, 100, 220);
+    text-shadow: 0 0 6px rgba(66, 133, 244, 0.35), var(--text-glow);
   }
   .tree-item.hidden-item {
-    color: rgba(255, 255, 255, 0.28);
-    text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    color: rgba(0, 0, 0, 0.25);
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+  }
+  .tree-item.empty-item {
+    color: rgba(0, 0, 0, 0.32);
+    cursor: default;
   }
 
   .item-text {
@@ -298,23 +300,21 @@
   }
 
   .icon-block {
-    width: 13px;
-    height: 13px;
+    width: 11px;
+    height: 11px;
     display: block;
-    opacity: 0.45;
+    opacity: 0.40;
     transition: opacity 0.10s ease;
   }
   .icon-block:hover {
-    opacity: 0.85;
+    opacity: 0.80;
   }
 
   .divider {
     height: 0;
-    margin: 2px 4px;
-    /* no visible divider — spacing only */
+    margin: 2px 2px;
   }
 
-  /* Scrollbar — phantom-thin, barely there */
   .browser-tree::-webkit-scrollbar {
     width: 3px;
   }
@@ -322,10 +322,10 @@
     background: transparent;
   }
   .browser-tree::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.06);
     border-radius: 2px;
   }
   .browser-tree::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.15);
   }
 </style>
