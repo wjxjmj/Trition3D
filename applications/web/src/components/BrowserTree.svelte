@@ -257,8 +257,7 @@
     {/if}
   </div>
 
-  <!-- Spacer so the last item can scroll above the timeline -->
-  <div style="height: 80px; flex-shrink: 0;"></div>
+
 {/if}
 
 <style>
@@ -269,7 +268,7 @@
     position: absolute;
     top: 16px;
     left: 16px;
-    max-height: calc(100% - 32px);
+    bottom: 48px;
     overflow-y: auto;
 
 
