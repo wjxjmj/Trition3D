@@ -1,7 +1,7 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
   import fileDownload from "js-file-download"
-  import {Download, Upload, Bug, Sun, Moon, MessageCircle} from "lucide-static"
+  import {Download, Upload, Bug, Sun, Moon, MessageCircle, Languages} from "lucide-static"
   import type {WithTarget} from "shared/types"
   import {isProject} from "shared/typeGuards"
   import {base} from "../base"
@@ -33,6 +33,18 @@
   } = $props()
 
   let isDarkMode = $state(localStorage.getItem("theme") === "dark")
+  let lang = $state(localStorage.getItem("lang") || "en")
+  let langOpen = $state(false)
+
+  function setLang(l: string) {
+    lang = l
+    localStorage.setItem("lang", l)
+    langOpen = false
+  }
+
+  function closeLangMenu() {
+    if (langOpen) langOpen = false
+  }
 
   $effect(() => {
     project
@@ -147,6 +159,48 @@
       </span>
     </div>
 
+    <!-- Language -->
+    <div class="relative">
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <div
+        class="hover:bg-gray-300 dark:hover:bg-gray-600 rounded p-1"
+        onclick={() => langOpen = !langOpen}
+        title="Language"
+      >
+        <span class="h-6 w-6 block">{@html Languages}</span>
+      </div>
+      {#if langOpen}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg py-1 z-50 min-w-[90px]"
+          onclick={closeLangMenu}
+          role="menu"
+        >
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {lang === 'en' ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}"
+            class:font-semibold={lang === 'en'}
+            onclick={() => setLang('en')}
+            role="menuitem"
+            tabindex="0"
+          >
+            English
+          </div>
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {lang === 'zh' ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}"
+            class:font-semibold={lang === 'zh'}
+            onclick={() => setLang('zh')}
+            role="menuitem"
+            tabindex="0"
+          >
+            中文
+          </div>
+        </div>
+      {/if}
+    </div>
+
     <div class="flex-grow flex flex-row-reverse gap-4 mr-4">
       <div class="opacity-30 cursor-not-allowed" title="Coming soon">
         <span class="h-6 w-6 block pointer-events-none">{@html MessageCircle}</span>
@@ -160,3 +214,5 @@
     </div>
   </div>
 </div>
+
+<svelte:window onclick={closeLangMenu} />
