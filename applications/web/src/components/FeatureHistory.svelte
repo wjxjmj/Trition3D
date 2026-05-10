@@ -148,12 +148,13 @@
     align-items: center;
     cursor: pointer;
     padding: 2px;
-    color: rgba(0, 0, 0, 0.4);
+    margin-left: 6px;
+    color: #000;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-    transition: color 0.12s;
+    transition: opacity 0.12s;
   }
   .timeline-toggle:hover {
-    color: rgba(0, 0, 0, 0.75);
+    opacity: 0.7;
   }
   .toggle-icon {
     width: 12px;
@@ -165,11 +166,11 @@
     height: 12px;
   }
   :global(.dark) .timeline-toggle {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.88);
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
   }
   :global(.dark) .timeline-toggle:hover {
-    color: rgba(255, 255, 255, 0.75);
+    opacity: 0.7;
   }
 
   .timeline-wrapper {
