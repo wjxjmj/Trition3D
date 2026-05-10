@@ -10,7 +10,7 @@
 
   let bodiesOpen = $state(true)
   let sketchesOpen = $state(true)
-  let planesOpen = $state(true)
+  let planesOpen = $state(false)
   let treeVisible = $state(true)
 
   function selectBody(name: string) {
@@ -51,6 +51,43 @@
     class="browser-tree group"
     oncontextmenu={(e) => e.preventDefault()}
   >
+    <!-- Section: Planes -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="section-header"
+      onclick={() => planesOpen = !planesOpen}
+      role="button"
+      tabindex="0"
+    >
+      <span class="chevron" class:rotated={planesOpen}>{@html ChevronRight}</span>
+      <span class="section-icon text-green-300">{@html Square}</span>
+      <span class="section-label">Planes</span>
+      <span class="section-count">{planes.length}</span>
+    </div>
+    {#if planesOpen}
+      <div class="section-items">
+        {#each planes as [id, plane]}
+          {@const selected = store.currentlySelected.some(e => e.id === id)}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="tree-item"
+            class:selected
+            onclick={() => selectPlane(id)}
+            role="button"
+            tabindex="0"
+          >
+            <span class="item-text">{plane.name}</span>
+          </div>
+        {/each}
+        {#if planes.length === 0}
+          <div class="tree-item empty-item">No planes yet</div>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
     <!-- Section: Bodies -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
@@ -117,7 +154,7 @@
     </div>
     {#if sketchesOpen}
       <div class="section-items">
-        {#each sketches as [id, _sketch]}
+        {#each sketches as [id, sketch]}
           {@const hidden = store.hiddenSketches.includes(id)}
           {@const selected = store.currentlySelected.some(e => e.id === id)}
           <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -129,7 +166,7 @@
             role="button"
             tabindex="0"
           >
-            <span class="item-text">Sketch {id.slice(0, 4)}</span>
+            <span class="item-text">{sketch[2]}</span>
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <span
               class="item-action opacity-0 group-hover:opacity-100"
@@ -145,43 +182,6 @@
         {/each}
         {#if sketches.length === 0}
           <div class="tree-item empty-item">No sketches yet</div>
-        {/if}
-      </div>
-    {/if}
-
-    <!-- Divider -->
-    <div class="divider"></div>
-
-    <!-- Section: Planes -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="section-header"
-      onclick={() => planesOpen = !planesOpen}
-      role="button"
-      tabindex="0"
-    >
-      <span class="chevron" class:rotated={planesOpen}>{@html ChevronRight}</span>
-      <span class="section-icon text-green-300">{@html Square}</span>
-      <span class="section-label">Planes</span>
-      <span class="section-count">{planes.length}</span>
-    </div>
-    {#if planesOpen}
-      <div class="section-items">
-        {#each planes as [id, _plane]}
-          {@const selected = store.currentlySelected.some(e => e.id === id)}
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div
-            class="tree-item"
-            class:selected
-            onclick={() => selectPlane(id)}
-            role="button"
-            tabindex="0"
-          >
-            <span class="item-text">Plane {id.slice(0, 4)}</span>
-          </div>
-        {/each}
-        {#if planes.length === 0}
-          <div class="tree-item empty-item">No planes yet</div>
         {/if}
       </div>
     {/if}
