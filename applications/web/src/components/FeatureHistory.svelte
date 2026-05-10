@@ -7,12 +7,12 @@
   import {isPoint, isPlane, isExtrusion, isSketch} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
   import type {SetCameraFocus} from "shared/types"
+  import {ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight} from "lucide-static"
 
   const log = (function () { const context = "[FeatureHistory.svelte]"; const color="pink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
   const basePlanes = new Set(["Front", "Top", "Right"])
   let history = $derived(store.workbench.history ?? [])
-  // Skip the origin point and the three default base planes
   let visible = $derived(
     history.filter((s, i) => {
       if (isPoint(s) && i === 0) return false
@@ -22,18 +22,60 @@
   )
 
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
+
+  // Drag-to-scroll
+  let dragging = $state(false)
+  let startX = 0
+  let startScroll = 0
+  let rowEl = $state<HTMLElement | null>(null)
+
+  // Nav visibility
+  let showNav = $state(false)
+  function checkNav() {
+    if (!rowEl) return
+    showNav = rowEl.scrollWidth > rowEl.clientWidth + 1
+  }
+
+  function onMouseDown(e: MouseEvent) {
+    if (!rowEl) return
+    dragging = true
+    startX = e.clientX
+    startScroll = rowEl.scrollLeft
+    rowEl.style.cursor = "grabbing"
+    e.preventDefault()
+  }
+
+  function onMouseMove(e: MouseEvent) {
+    if (!dragging || !rowEl) return
+    rowEl.scrollLeft = startScroll + (startX - e.clientX)
+    checkNav()
+  }
+
+  function onMouseUp() {
+    if (!dragging) return
+    dragging = false
+    if (rowEl) rowEl.style.cursor = ""
+  }
+
+  function scrollTo(pos: "start" | "end" | "pageLeft" | "pageRight") {
+    if (!rowEl) return
+    const w = rowEl.clientWidth
+    if (pos === "start") rowEl.scrollLeft = 0
+    else if (pos === "end") rowEl.scrollLeft = rowEl.scrollWidth
+    else if (pos === "pageLeft") rowEl.scrollLeft -= w * 0.8
+    else if (pos === "pageRight") rowEl.scrollLeft += w * 0.8
+    requestAnimationFrame(() => checkNav())
+  }
 </script>
 
 <div class="timeline-wrapper">
-  <!-- Fixed label — stays visible, icons scroll behind it and fade out -->
   <div class="timeline-label">{tr().history} ({visible.length})</div>
 
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
+    bind:this={rowEl}
     class="timeline-row"
-    onwheel={(e) => {
-      e.currentTarget.scrollLeft += e.deltaY
-      e.preventDefault()
-    }}
+    onmousedown={onMouseDown}
   >
     {#each visible as feature (feature.data.type + ":" + feature.unique_id)}
       {@const featureIdx = history.indexOf(feature)}
@@ -52,7 +94,27 @@
       </div>
     {/each}
   </div>
+
+  <!-- Floating nav — visible when timeline overflows -->
+  {#if showNav}
+    <div class="timeline-nav">
+      <button class="nav-btn" onclick={() => scrollTo("start")} title="Start">
+        <span class="nav-icon">{@html ChevronsLeft}</span>
+      </button>
+      <button class="nav-btn" onclick={() => scrollTo("pageLeft")} title="Page left">
+        <span class="nav-icon">{@html ChevronLeft}</span>
+      </button>
+      <button class="nav-btn" onclick={() => scrollTo("pageRight")} title="Page right">
+        <span class="nav-icon">{@html ChevronRight}</span>
+      </button>
+      <button class="nav-btn" onclick={() => scrollTo("end")} title="End">
+        <span class="nav-icon">{@html ChevronsRight}</span>
+      </button>
+    </div>
+  {/if}
 </div>
+
+<svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} />
 
 <style>
   .timeline-wrapper {
@@ -78,8 +140,9 @@
     gap: 2px;
     padding: 4px 8px;
     padding-left: 80px;
-    padding-right: 32px;
+    padding-right: 60px;
     overflow-x: auto;
+    cursor: grab;
     user-select: none;
     font-size: 13px;
     line-height: 1.6;
@@ -89,6 +152,45 @@
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
     mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
   }
+
+  /* Nav bar — floating above the timeline */
+  .timeline-nav {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    gap: 1px;
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 20px;
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    border-radius: 3px;
+    color: rgba(0, 0, 0, 0.45);
+    transition: color 0.1s, background 0.1s;
+  }
+  .nav-btn:hover {
+    color: rgba(0, 0, 0, 0.85);
+    background: rgba(255, 255, 255, 0.75);
+  }
+  .nav-icon {
+    width: 12px;
+    height: 12px;
+    display: block;
+  }
+  .nav-icon :global(svg) {
+    width: 12px;
+    height: 12px;
+  }
+
   :global(.dark) .timeline-label {
     color: rgba(255, 255, 255, 0.88);
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
@@ -97,22 +199,17 @@
     color: rgba(255, 255, 255, 0.78);
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
   }
+  :global(.dark) .nav-btn {
+    background: rgba(30, 30, 30, 0.5);
+    color: rgba(255, 255, 255, 0.4);
+  }
+  :global(.dark) .nav-btn:hover {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(40, 40, 40, 0.75);
+  }
 
+  /* Hidden scrollbar */
   .timeline-row::-webkit-scrollbar {
-    height: 2px;
-  }
-  .timeline-row::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .timeline-row::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 2px;
-    transition: background 0.15s ease;
-  }
-  .timeline-row:hover::-webkit-scrollbar-thumb {
-    background: rgba(249, 115, 22, 0.6);
-  }
-  .timeline-row::-webkit-scrollbar-thumb:hover {
-    background: rgba(249, 115, 22, 0.85);
+    height: 0;
   }
 </style>
