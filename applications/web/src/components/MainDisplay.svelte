@@ -16,7 +16,7 @@
   let initialMouseY = 0
   let innerWidth = $state(0)
   let innerHeight = $state(0)
-  let viewportHeight = $derived(Math.max(100, innerHeight - 45 * 3))
+  let viewportHeight = $derived(Math.max(100, innerHeight - 45 * 2))
 
   let setCameraFocus: SetCameraFocus
   let sceneRef: any = $state()

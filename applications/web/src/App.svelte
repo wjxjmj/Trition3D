@@ -2,7 +2,8 @@
   import {store} from "shared/stores.svelte"
   import {default as init, Project as WasmProject} from "trition3d"
   import AppBar from "./components/AppBar.svelte"
-  import BottomBar from "./components/BottomBar.svelte"
+
+
   import MainDisplay from "./components/MainDisplay.svelte"
   import ToolBar from "./components/ToolBar.svelte"
 
@@ -79,7 +80,7 @@
   <AppBar {userName} project={store.project} onnewFileContent={(v) => newFileContent = v} />
   <ToolBar />
   <MainDisplay />
-  <BottomBar />
+
 </div>
 
 <style>
