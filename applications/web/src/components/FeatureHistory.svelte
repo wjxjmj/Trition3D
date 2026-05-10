@@ -86,8 +86,8 @@
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.4);
     text-shadow: var(--text-glow);
     color: rgba(0, 0, 0, 0.78);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 90%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 6%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
   }
   :global(.dark) .timeline-label {
     color: rgba(255, 255, 255, 0.88);
