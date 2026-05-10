@@ -85,7 +85,7 @@
   }
 
   .timeline-row::-webkit-scrollbar {
-    height: 3px;
+    height: 1px;
   }
   .timeline-row::-webkit-scrollbar-track {
     background: transparent;
