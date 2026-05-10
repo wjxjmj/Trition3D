@@ -274,8 +274,8 @@
 
     z-index: 20;
     padding: 0;
-    min-width: 200px;
-    max-width: 280px;
+    min-width: 160px;
+    max-width: 220px;
     user-select: none;
     font-family: "Manrope", system-ui, sans-serif;
     font-size: 13px;
