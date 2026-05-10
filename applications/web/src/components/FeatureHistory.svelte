@@ -24,39 +24,60 @@
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
 </script>
 
-<div
-  class="timeline-row"
-  onwheel={(e) => {
-    e.currentTarget.scrollLeft += e.deltaY
-    e.preventDefault()
-  }}
->
+<div class="timeline-wrapper">
+  <!-- Fixed label — stays visible, icons scroll behind it and fade out -->
   <div class="timeline-label">{tr().history} ({visible.length})</div>
 
-  {#each visible as feature (feature.data.type + ":" + feature.unique_id)}
-    {@const featureIdx = history.indexOf(feature)}
-    <div class="shrink-0">
-      {#if isPoint(feature)}
-        <PointFeature name={feature.name} index={featureIdx} />
-      {:else if isPlane(feature)}
-        <PlaneFeature name={feature.name} index={featureIdx} plane={feature.data.plane} {setCameraFocus} />
-      {:else if isSketch(feature)}
-        <SketchFeature name={feature.name} index={featureIdx} id={feature.unique_id} plane_id={feature.data.plane_description.PlaneId} />
-      {:else if isExtrusion(feature)}
-        <ExtrusionFeature name={feature.name} index={featureIdx} data={feature.data.extrusion} id={feature.unique_id} />
-      {:else}
-        <span class="text-xs opacity-40">?</span>
-      {/if}
-    </div>
-  {/each}
+  <div
+    class="timeline-row"
+    onwheel={(e) => {
+      e.currentTarget.scrollLeft += e.deltaY
+      e.preventDefault()
+    }}
+  >
+    {#each visible as feature (feature.data.type + ":" + feature.unique_id)}
+      {@const featureIdx = history.indexOf(feature)}
+      <div class="shrink-0">
+        {#if isPoint(feature)}
+          <PointFeature name={feature.name} index={featureIdx} />
+        {:else if isPlane(feature)}
+          <PlaneFeature name={feature.name} index={featureIdx} plane={feature.data.plane} {setCameraFocus} />
+        {:else if isSketch(feature)}
+          <SketchFeature name={feature.name} index={featureIdx} id={feature.unique_id} plane_id={feature.data.plane_description.PlaneId} />
+        {:else if isExtrusion(feature)}
+          <ExtrusionFeature name={feature.name} index={featureIdx} data={feature.data.extrusion} id={feature.unique_id} />
+        {:else}
+          <span class="text-xs opacity-40">?</span>
+        {/if}
+      </div>
+    {/each}
+  </div>
 </div>
 
 <style>
+  .timeline-wrapper {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .timeline-label {
+    position: absolute;
+    left: 8px;
+    z-index: 1;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 0 4px;
+    color: #000;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+  }
   .timeline-row {
     display: flex;
     align-items: center;
     gap: 2px;
     padding: 4px 8px;
+    padding-left: 80px;
     padding-right: 32px;
     overflow-x: auto;
     user-select: none;
@@ -65,16 +86,8 @@
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.4);
     text-shadow: var(--text-glow);
     color: rgba(0, 0, 0, 0.78);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 92%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 4%, black 92%, transparent 100%);
-  }
-  .timeline-label {
-    font-weight: 700;
-    font-size: 13px;
-    padding: 0 4px;
-    flex-shrink: 0;
-    color: #000;
-    text-shadow: var(--text-glow);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 6%, black 90%, transparent 100%);
   }
   :global(.dark) .timeline-label {
     color: rgba(255, 255, 255, 0.88);
