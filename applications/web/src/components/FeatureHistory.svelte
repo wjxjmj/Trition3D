@@ -55,9 +55,8 @@
   .timeline-row {
     display: flex;
     align-items: center;
-    height: 100%;
     gap: 2px;
-    padding: 0 8px;
+    padding: 4px 8px;
     overflow-x: auto;
     user-select: none;
     font-size: 13px;

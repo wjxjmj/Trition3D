@@ -8,12 +8,6 @@
   import Scene from "./Scene.svelte"
   import type {SetCameraFocus} from "shared/types"
 
-  const minTimelineH = 48
-  const maxTimelineH = 350
-  let timelineHeight = $state(130)
-  let resizing = $state(false)
-  let initialTimelineH = timelineHeight
-  let initialMouseY = 0
   let innerWidth = $state(0)
   let innerHeight = $state(0)
   let viewportHeight = $derived(Math.max(100, innerHeight - 45 * 2))
@@ -23,25 +17,6 @@
 
   function doSetCameraFocus(goTo: any, lookAt: any, up: any) {
     sceneRef?.setCameraFocus?.(goTo, lookAt, up)
-  }
-
-  function onMouseDown(event: MouseEvent) {
-    initialMouseY = event.pageY
-    initialTimelineH = timelineHeight
-    resizing = true
-    event.preventDefault()
-  }
-
-  function onMouseUp(_event: MouseEvent) {
-    resizing = false
-  }
-
-  function onMouseMove(event: MouseEvent) {
-    if (!resizing) return
-    const delta = initialMouseY - event.pageY
-    timelineHeight = initialTimelineH + delta
-    if (timelineHeight < minTimelineH) timelineHeight = minTimelineH
-    if (timelineHeight > maxTimelineH) timelineHeight = maxTimelineH
   }
 </script>
 
@@ -59,23 +34,13 @@
   </Canvas>
   <BrowserTree />
 
-  <!-- Floating timeline at the bottom of the viewport -->
-  <div
-    class="timeline-overlay"
-    style="height:{timelineHeight}px"
-    onmousedown={(e) => e.stopPropagation()}
-  >
-    <!-- Resize handle on top edge of timeline -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="timeline-handle"
-      onmousedown={onMouseDown}
-    ></div>
+  <!-- Timeline — fixed height, flush to bottom, no resize -->
+  <div class="timeline-overlay">
     <FeatureHistory setCameraFocus={doSetCameraFocus} />
   </div>
 </div>
 
-<svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} bind:innerWidth bind:innerHeight />
+<svelte:window bind:innerWidth bind:innerHeight />
 
 <style>
   .timeline-overlay {
@@ -84,14 +49,5 @@
     left: 0;
     right: 0;
     z-index: 20;
-    overflow: hidden;
-  }
-  .timeline-handle {
-    height: 4px;
-    cursor: row-resize;
-    margin-bottom: 0;
-  }
-  .timeline-handle:hover {
-    background: rgba(128, 128, 128, 0.12);
   }
 </style>
