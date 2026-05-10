@@ -131,6 +131,4 @@
   {/snippet}
 </FloatingPanel>
 
-{#if open}
-  <svelte:window onkeydown={onKeydown} />
-{/if}
+<svelte:window onkeydown={(e) => { if (open) onKeydown(e) }} />
