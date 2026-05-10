@@ -179,6 +179,7 @@
     height: 32px;
     display: flex;
     align-items: center;
+    user-select: none;
   }
   .timeline-label {
     flex-shrink: 0;
@@ -189,6 +190,7 @@
     color: #000;
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
     pointer-events: none;
+    user-select: none;
   }
   .timeline-row {
     display: flex;
