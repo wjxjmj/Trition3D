@@ -57,6 +57,7 @@
     align-items: center;
     gap: 2px;
     padding: 4px 8px;
+    padding-right: 32px;
     overflow-x: auto;
     user-select: none;
     font-size: 13px;
@@ -64,6 +65,8 @@
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.4);
     text-shadow: var(--text-glow);
     color: rgba(0, 0, 0, 0.78);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 92%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 4%, black 92%, transparent 100%);
   }
   .timeline-label {
     font-weight: 700;
