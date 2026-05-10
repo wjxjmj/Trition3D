@@ -2,13 +2,15 @@
 
 [中文](README_zh.md) | English
 
-A self-built parametric CAD application for 3D printing. Sketch, extrude, export STL — all in a native desktop app, no cloud needed.
+A parametric CAD application for 3D printing. Sketch, extrude, export STL — all in a native desktop app, no cloud needed.
 
-## Inspiration
+## Inspiration & Roadmap
 
 [CADmium](https://github.com/CADmium-Co/CADmium) proved that a parametric CAD kernel can be built from scratch in Rust+WASM — boundary representation, constraint solving, mesh generation, all running in the browser. That project is a remarkable achievement and the direct inspiration for Trition3D.
 
-Trition3D takes that vision in a different direction: **a native desktop parametric modeler focused on 3D printing workflows.** We're building our own kernel from scratch, learning from CADmium's architecture but implementing each subsystem independently.
+**Current state:** Trition3D starts from CADmium's codebase — same kernel, same architecture. This gives us a working parametric CAD foundation to iterate on immediately.
+
+**Where we're going:** Incrementally replace the CAD kernel with our own implementation, purpose-built for 3D printing workflows. The goal is **a native desktop parametric modeler where we own every piece of the modeling pipeline.**
 
 ## Goal
 
@@ -63,7 +65,7 @@ pnpm tauri build      # Release .exe at target/release/trition3d-native.exe
 
 | Layer | Technology |
 |-------|-----------|
-| 3D Kernel | Self-built (Rust) |
+| 3D Kernel | truck (current) → self-built (planned) |
 | Core | Rust → WASM |
 | Frontend | Svelte 5 + Vite 7 + Tailwind |
 | Rendering | Threlte 8 + Three.js 0.175 |
@@ -127,7 +129,7 @@ pnpm tauri build  # Bundled .exe + .msi installer
 
 ## Acknowledgments
 
-Built with insights from [CADmium](https://github.com/CADmium-Co/CADmium), the project that showed parametric CAD in Rust+WASM is possible.
+Starting from [CADmium](https://github.com/CADmium-Co/CADmium) — the project that first proved parametric CAD in Rust+WASM is possible. We stand on their shoulders while building our own path forward.
 
 ## License
 

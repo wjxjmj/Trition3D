@@ -4,9 +4,11 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Goal
 
-**Trition3D** — a self-built parametric CAD application targeting simple 3D printing modeling. Native desktop app, no browser dependency. The CAD kernel (boundary representation, constraint solver, mesh generation) is implemented from scratch in Rust.
+**Trition3D** — a parametric CAD application targeting simple 3D printing modeling. Native desktop app.
 
-Inspired by [CADmium](https://github.com/CADmium-Co/CADmium), the pioneering project that first proved a parametric CAD kernel could be built in Rust+WASM. Trition3D learns from CADmium's architecture but implements its own kernel independently, focused on 3D printing workflows rather than general-purpose CAD.
+Inspired by [CADmium](https://github.com/CADmium-Co/CADmium), the pioneering project that first proved a parametric CAD kernel could be built in Rust+WASM. Trition3D starts from CADmium's codebase and will incrementally replace the kernel with a self-built implementation purpose-built for 3D printing workflows.
+
+**Current:** CADmium kernel (truck-based). **Target:** Self-built kernel (b-rep, constraint solver, mesh export).
 
 ## Environment
 
