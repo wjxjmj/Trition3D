@@ -287,7 +287,8 @@
     padding: 2px 3px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 11.5px;
+    font-size: 13px;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(0, 0, 0, 0.45);
