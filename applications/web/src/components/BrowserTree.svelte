@@ -100,7 +100,7 @@
       <span class="chevron" class:rotated={planesOpen}>{@html ChevronRight}</span>
       <span class="section-icon text-green-300">{@html Square}</span>
       <span class="section-label">{tr().planes}</span>
-      <span class="section-count">{planes.length}</span>
+      <span class="section-count">({planes.length})</span>
     </div>
     {#if planesOpen}
       <div class="section-items">
@@ -137,7 +137,7 @@
       <span class="chevron" class:rotated={bodiesOpen}>{@html ChevronRight}</span>
       <span class="section-icon text-blue-300">{@html Box}</span>
       <span class="section-label">{tr().bodies}</span>
-      <span class="section-count">{bodies.length}</span>
+      <span class="section-count">({bodies.length})</span>
     </div>
     {#if bodiesOpen}
       <div class="section-items">
@@ -203,7 +203,7 @@
       <span class="chevron" class:rotated={sketchesOpen}>{@html ChevronRight}</span>
       <span class="section-icon text-yellow-300">{@html Pencil}</span>
       <span class="section-label">{tr().sketches}</span>
-      <span class="section-count">{sketches.length}</span>
+      <span class="section-count">({sketches.length})</span>
     </div>
     {#if sketchesOpen}
       <div class="section-items">
@@ -331,13 +331,13 @@
   }
 
   .section-label {
-    flex: 1;
   }
 
   .section-count {
     font-variant-numeric: tabular-nums;
     opacity: 0.35;
     font-size: 10px;
+    margin-left: 2px;
   }
 
   .section-items {
