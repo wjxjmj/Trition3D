@@ -430,9 +430,9 @@
     transition: background 0.15s ease;
   }
   .browser-tree:hover::-webkit-scrollbar-thumb {
-    background: rgba(249, 115, 22, 0.6);
+    background: rgba(128, 128, 128, 0.6);
   }
   .browser-tree::-webkit-scrollbar-thumb:hover {
-    background: rgba(249, 115, 22, 0.85);
+    background: rgba(128, 128, 128, 0.85);
   }
 </style>
