@@ -4,6 +4,7 @@
   // It had to be done this way to manage the resizing of the feature history and viewport
   import {store} from "shared/stores.svelte"
   import FeatureHistory from "./FeatureHistory.svelte"
+  import BrowserTree from "./BrowserTree.svelte"
   import {Canvas} from "@threlte/core"
   import Scene from "./Scene.svelte"
   import type {SetCameraFocus} from "shared/types"
@@ -71,6 +72,7 @@
   <Canvas>
     <Scene bind:this={sceneRef} />
   </Canvas>
+  <BrowserTree />
   <div class="dark:text-gray-300 absolute bottom-1 right-1">{GIT_BRANCH} {GIT_HASH}</div>
 </div>
 
