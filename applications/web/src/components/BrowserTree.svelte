@@ -17,25 +17,28 @@
 
   // Inline rename state
   let renamingBody = $state<string | null>(null)
-  let newBodyName = $state("")
+  let renamingSketch = $state<string | null>(null)
+  let newName = $state("")
 
   function selectBody(name: string) {
     store.currentlySelected = [{id: name, type: "face"}]
     log("selected body:", name)
   }
 
-  function startRename(fullName: string) {
+  function startBodyRename(fullName: string) {
     renamingBody = fullName
-    // Strip ":N" suffix from display name for editing
-    newBodyName = fullName.replace(/:(\d+)$/, "")
+    newName = fullName.replace(/:(\d+)$/, "")
+  }
+
+  function startSketchRename(oldName: string) {
+    renamingSketch = oldName
+    newName = oldName
   }
 
   function commitRename(oldName: string) {
-    if (!renamingBody) return // guard: already committed via Enter, blur fires again
-    const trimmed = newBodyName.trim()
+    if (renamingBody !== oldName && renamingSketch !== oldName) return
+    const trimmed = newName.trim()
     if (trimmed && trimmed !== oldName) {
-      // Solid names may have a ":N" suffix (e.g. "Extrusion 1:0")
-      // while history step names don't (e.g. "Extrusion 1").
       const idx = store.workbench.history.findIndex(s => s.name === oldName || oldName.startsWith(s.name + ":"))
       if (idx !== -1) {
         log("renaming step", idx, oldName, "→", trimmed)
@@ -45,10 +48,12 @@
       }
     }
     renamingBody = null
+    renamingSketch = null
   }
 
   function cancelRename() {
     renamingBody = null
+    renamingSketch = null
   }
 
   function selectSketch(id: string) {
@@ -146,7 +151,7 @@
             class:selected
             class:hidden-item={hidden}
             onclick={() => selectBody(name)}
-            ondblclick={() => startRename(name)}
+            ondblclick={() => startBodyRename(name)}
             role="button"
             tabindex="0"
           >
@@ -154,7 +159,7 @@
               <input
                 class="rename-input"
                 type="text"
-                bind:value={newBodyName}
+                bind:value={newName}
                 onkeydown={(e) => {
                   if (e.key === "Enter") { e.preventDefault(); commitRename(name) }
                   if (e.key === "Escape") { e.preventDefault(); cancelRename() }
@@ -203,18 +208,35 @@
     {#if sketchesOpen}
       <div class="section-items">
         {#each sketches as [id, sketch]}
+          {@const sketchName = sketch[2]}
           {@const hidden = store.hiddenSketches.includes(id)}
           {@const selected = store.currentlySelected.some(e => e.id === id)}
+          {@const isRenaming = renamingSketch === sketchName}
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
             class="tree-item"
             class:selected
             class:hidden-item={hidden}
             onclick={() => selectSketch(id)}
+            ondblclick={() => startSketchRename(sketchName)}
             role="button"
             tabindex="0"
           >
-            <span class="item-text">{sketch[2]}</span>
+            {#if isRenaming}
+              <input
+                class="rename-input"
+                type="text"
+                bind:value={newName}
+                onkeydown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); commitRename(sketchName) }
+                  if (e.key === "Escape") { e.preventDefault(); cancelRename() }
+                }}
+                onblur={() => setTimeout(() => commitRename(sketchName), 0)}
+                autofocus
+              />
+            {:else}
+              <span class="item-text">{sketchName}</span>
+            {/if}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <span
               class="item-action opacity-0 group-hover:opacity-100"
