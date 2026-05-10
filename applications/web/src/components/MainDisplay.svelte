@@ -59,7 +59,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-  class="bg-white dark:bg-gray-700 {store.sketchTool === 'line' || store.sketchTool === 'circle' || store.sketchTool === 'rectangle' ? 'cursor-crosshair' : ''}"
+  class="bg-white dark:bg-gray-700 relative {store.sketchTool === 'line' || store.sketchTool === 'circle' || store.sketchTool === 'rectangle' ? 'cursor-crosshair' : ''}"
   style="width:{viewportWidth}px; height:{height}px"
   onmousedown={e => {
     if (store.selectingFor.length > 0) {
