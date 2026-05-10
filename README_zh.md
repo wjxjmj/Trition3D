@@ -2,7 +2,13 @@
 
 [English](README.md) | 中文
 
-一个参数化 3D CAD 应用。通过草图和拉伸构建模型，支持浏览器和原生桌面运行。
+自研参数化 CAD 应用，专为 3D 打印设计。草图、拉伸、导出 STL——纯原生桌面，不依赖云端。
+
+## 项目目标
+
+市面上的 CAD 软件要么太复杂（SolidWorks、Fusion 360），要么太玩具（Tinkercad）。Trition3D 的定位是：**为 3D 打印爱好者打造的参数化建模工具，内核自研，建模管线完全可控。**
+
+CAD 内核——边界表示、约束求解、网格生成——全部用 Rust 从零实现，不依赖第三方 CAD 库。
 
 ## 环境准备
 
@@ -35,29 +41,28 @@ pnpm dev              # 浏览器打开: http://127.0.0.1:5173
 ```shell
 # 桌面应用
 pnpm tauri dev        # 开发模式，热更新
-pnpm tauri build      # 打包 .exe 安装包，在 target/release/trition3d-native.exe
+pnpm tauri build      # 打包 .exe，产物在 target/release/trition3d-native.exe
 ```
 
-## 功能
+## 功能规划
 
-- **草图绘制**: 在平面上绘制 2D 图形 — 直线、圆、矩形
-- **拉伸成型**: 将草图转换为 3D 实体（新建/添加/切除）
-- **视角操作**: 旋转/平移/缩放 + Gizmo 导航立方体
-- **文件导出**: OBJ（网格）、STEP（边界表示）、.tri（项目文件）
-- **文件导入**: 打开 .tri 项目文件
-- **暗色模式**: 工具栏一键切换
-- **原生桌面**: Tauri 2.0，WASM 在 WebView 中运行
+- **草图绘制**: 在平面上绘制 2D 图形 — 直线、圆、矩形、圆弧
+- **拉伸成型**: 推拉草图生成 3D 实体
+- **布尔运算**: 实体之间的合并、相减、相交
+- **倒角圆角**: 边线修整，适合打印件的边缘处理
+- **参数化历史**: 完整步骤记录，随时修改任意参数
+- **STL 导出**: 直接导入切片软件（Cura、PrusaSlicer 等）
+- **原生桌面**: Tauri 2.0，日常工作无需浏览器
 
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
-| 3D 内核 | truck (Rust b-rep 引擎) |
+| 3D 内核 | 自研（Rust） |
 | 核心计算 | Rust → WASM |
-| 前端界面 | Svelte 5.55 + Vite 7 + Tailwind |
-| 3D 渲染 | Threlte 8.5 + Three.js 0.175 |
+| 前端界面 | Svelte 5 + Vite 7 + Tailwind |
+| 3D 渲染 | Threlte 8 + Three.js 0.175 |
 | 桌面端 | Tauri 2.0 |
-| 图标库 | lucide-static |
 
 ## 架构
 
@@ -69,24 +74,20 @@ Project → Workbench → history: Step[]
                          └── Extrusion (拉伸)
 ```
 
-前端发送 `Message` 指令到 Rust 核心，核心修改项目状态。工作台历史被"具象化"（realize）为 3D 几何体用于渲染。
+前端发送指令到 Rust 核心，核心修改项目状态。工作台历史被"具象化"（realize）为 3D 几何体用于渲染。参数化历史意味着每一步都可编辑——修改草图尺寸，整个模型自动重建。
 
 ## 构建流程
 
-首次运行需要两步编译：
-
 ### 1. WASM（Rust → WebAssembly）
-
-将 CAD 内核编译为浏览器可加载的 `.wasm` 文件。
 
 ```shell
 cd packages/trition3d
 wasm-pack build --target web --no-pack --release
 ```
 
-产物在 `packages/trition3d/pkg/`。Release 模式下圆拉伸等重计算场景比 dev 快约 5 倍。
+产物在 `packages/trition3d/pkg/`。Release 模式比 dev 快约 5 倍。
 
-> **Windows 注意：** 首次 `pnpm install` 后可能需要在项目根目录执行 `pnpm approve-builds`，手动勾选 esbuild 和 @swc/core，然后重新 `pnpm install`。
+> **Windows 注意：** 首次 `pnpm install` 后可能需要在项目根目录执行 `pnpm approve-builds`，勾选 esbuild 和 @swc/core，再重新 `pnpm install`。
 
 ### 2. Web 前端（Vite + Svelte）
 
@@ -105,7 +106,7 @@ pnpm tauri build  # 打包 .exe + .msi 安装包
 ## 常见问题
 
 **`Failed to resolve entry for package "trition3d"`**
-→ 还没编译 WASM，先执行第 1 步：在 `packages/trition3d` 中 `wasm-pack build`。
+→ 还没编译 WASM，先在 `packages/trition3d` 中执行 `wasm-pack build`。
 
 **找不到 `wasm32-unknown-unknown` 编译目标**
 → `rustup target add wasm32-unknown-unknown`
@@ -122,7 +123,3 @@ pnpm tauri build  # 打包 .exe + .msi 安装包
 ## 开源协议
 
 [Elastic License 2.0](LICENSE.md) — 可自由使用、修改、分发。禁止作为第三方服务提供。
-
----
-
-派生自 [CADmium](https://github.com/CADmium-Co/CADmium)，独立升级维护。
