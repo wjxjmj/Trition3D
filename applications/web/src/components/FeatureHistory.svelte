@@ -76,7 +76,7 @@
 <div
   class="timeline-wrapper"
   onmouseenter={() => { hover = true; clearTimeout(fadeTimer); checkOverflow() }}
-  onmouseleave={() => { fadeTimer = setTimeout(() => hover = false, 5000) }}
+  onmouseleave={() => { fadeTimer = setTimeout(() => hover = false, 1000) }}
 >
   <!-- Collapse toggle — always visible -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
