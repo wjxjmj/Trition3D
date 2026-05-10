@@ -4,11 +4,15 @@
 
 A self-built parametric CAD application for 3D printing. Sketch, extrude, export STL — all in a native desktop app, no cloud needed.
 
+## Inspiration
+
+[CADmium](https://github.com/CADmium-Co/CADmium) proved that a parametric CAD kernel can be built from scratch in Rust+WASM — boundary representation, constraint solving, mesh generation, all running in the browser. That project is a remarkable achievement and the direct inspiration for Trition3D.
+
+Trition3D takes that vision in a different direction: **a native desktop parametric modeler focused on 3D printing workflows.** We're building our own kernel from scratch, learning from CADmium's architecture but implementing each subsystem independently.
+
 ## Goal
 
 Most CAD software is either too complex (SolidWorks, Fusion 360) or too limiting (Tinkercad). Trition3D targets the middle ground: **parametric modeling simple enough for 3D printing hobbyists, with a self-built kernel that gives full control over the modeling pipeline.**
-
-The CAD kernel — boundary representation, constraint solver, mesh generation — is implemented from scratch in Rust. No dependency on external CAD libraries.
 
 ## Prerequisites
 
@@ -120,6 +124,10 @@ pnpm tauri build  # Bundled .exe + .msi installer
 
 **Tauri build fails on Windows**
 → Install "Desktop development with C++" workload from Visual Studio Installer.
+
+## Acknowledgments
+
+Built with insights from [CADmium](https://github.com/CADmium-Co/CADmium), the project that showed parametric CAD in Rust+WASM is possible.
 
 ## License
 

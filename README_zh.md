@@ -4,11 +4,15 @@
 
 自研参数化 CAD 应用，专为 3D 打印设计。草图、拉伸、导出 STL——纯原生桌面，不依赖云端。
 
+## 灵感来源
+
+[CADmium](https://github.com/CADmium-Co/CADmium) 率先证明了参数化 CAD 内核可以用 Rust+WASM 从零构建——边界表示、约束求解、网格生成，全部在浏览器中运行。这是一个了不起的项目，也是 Trition3D 的直接灵感来源。
+
+Trition3D 将这个方向延伸到了不同的场景：**一款专注于 3D 打印工作流的原生桌面参数化建模工具。**我们在 CADmium 的启发下，独立实现自己的内核。
+
 ## 项目目标
 
 市面上的 CAD 软件要么太复杂（SolidWorks、Fusion 360），要么太玩具（Tinkercad）。Trition3D 的定位是：**为 3D 打印爱好者打造的参数化建模工具，内核自研，建模管线完全可控。**
-
-CAD 内核——边界表示、约束求解、网格生成——全部用 Rust 从零实现，不依赖第三方 CAD 库。
 
 ## 环境准备
 
@@ -119,6 +123,10 @@ pnpm tauri build  # 打包 .exe + .msi 安装包
 
 **Tauri 编译报错（Windows）**
 → 安装 Visual Studio Installer，勾选"使用 C++ 的桌面开发"工作负载。
+
+## 致谢
+
+受 [CADmium](https://github.com/CADmium-Co/CADmium) 启发——这个项目证明了 Rust+WASM 参数化 CAD 的可行性。
 
 ## 开源协议
 
