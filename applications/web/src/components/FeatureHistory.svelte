@@ -29,11 +29,12 @@
   let startScroll = 0
   let rowEl = $state<HTMLElement | null>(null)
 
-  // Nav visibility
-  let showNav = $state(false)
-  function checkNav() {
+  // Nav visible only when content overflows
+  let overflow = $state(false)
+  let hover = $state(false)
+  function checkOverflow() {
     if (!rowEl) return
-    showNav = rowEl.scrollWidth > rowEl.clientWidth + 1
+    overflow = rowEl.scrollWidth > rowEl.clientWidth + 1
   }
 
   function onMouseDown(e: MouseEvent) {
@@ -48,7 +49,7 @@
   function onMouseMove(e: MouseEvent) {
     if (!dragging || !rowEl) return
     rowEl.scrollLeft = startScroll + (startX - e.clientX)
-    checkNav()
+    checkOverflow()
   }
 
   function onMouseUp() {
@@ -64,11 +65,15 @@
     else if (pos === "end") rowEl.scrollLeft = rowEl.scrollWidth
     else if (pos === "pageLeft") rowEl.scrollLeft -= w * 0.8
     else if (pos === "pageRight") rowEl.scrollLeft += w * 0.8
-    requestAnimationFrame(() => checkNav())
+    requestAnimationFrame(() => checkOverflow())
   }
 </script>
 
-<div class="timeline-wrapper">
+<div
+  class="timeline-wrapper"
+  onmouseenter={() => { hover = true; checkOverflow() }}
+  onmouseleave={() => hover = false}
+>
   <div class="timeline-label">{tr().history} ({visible.length})</div>
 
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -96,7 +101,7 @@
   </div>
 
   <!-- Floating nav — visible when timeline overflows -->
-  {#if showNav}
+  {#if overflow && hover}
     <div class="timeline-nav">
       <button class="nav-btn" onclick={() => scrollTo("start")} title="Start">
         <span class="nav-icon">{@html ChevronsLeft}</span>
@@ -160,8 +165,7 @@
   .timeline-nav {
     position: absolute;
     right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: calc(100% + 2px);
     z-index: 2;
     display: flex;
     gap: 1px;
