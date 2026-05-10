@@ -270,6 +270,7 @@
     left: 16px;
     bottom: 48px;
     overflow-y: auto;
+    scrollbar-color: transparent transparent;
 
 
     z-index: 20;
@@ -425,10 +426,17 @@
     background: transparent;
   }
   .browser-tree::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.06);
+    background: transparent;
     border-radius: 2px;
+    transition: background 0.15s ease;
+  }
+  .browser-tree:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.08);
   }
   .browser-tree::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.18);
+  }
+  .browser-tree:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
   }
 </style>
