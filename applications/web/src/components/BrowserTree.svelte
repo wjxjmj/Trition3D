@@ -270,6 +270,8 @@
     left: 16px;
     bottom: 48px;
     overflow-y: auto;
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 48px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 48px), transparent 100%);
 
 
     z-index: 20;
