@@ -1,6 +1,7 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
   import {tr} from "shared/i18n.svelte"
+  import {renameStep} from "shared/projectUtils"
   import {Box, Pencil, Square, ChevronRight, Eye, EyeOff} from "lucide-static"
 
   const log = (function () { const context = "[BrowserTree.svelte]"; const color="cyan"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -14,9 +15,31 @@
   let planesOpen = $state(false)
   let treeVisible = $state(true)
 
+  // Inline rename state
+  let renamingBody = $state<string | null>(null)
+  let newBodyName = $state("")
+
   function selectBody(name: string) {
     store.currentlySelected = [{id: name, type: "face"}]
     log("selected body:", name)
+  }
+
+  function startRename(name: string) {
+    renamingBody = name
+    newBodyName = name
+  }
+
+  function commitRename(oldName: string) {
+    const trimmed = newBodyName.trim()
+    if (trimmed && trimmed !== oldName) {
+      const idx = store.workbench.history.findIndex(s => s.name === oldName)
+      if (idx !== -1) renameStep(idx, trimmed)
+    }
+    renamingBody = null
+  }
+
+  function cancelRename() {
+    renamingBody = null
   }
 
   function selectSketch(id: string) {
@@ -107,17 +130,32 @@
         {#each bodies as [name, _solid]}
           {@const hidden = store.hiddenSolids.includes(name)}
           {@const selected = store.currentlySelected.some(e => e.id === name)}
+          {@const isRenaming = renamingBody === name}
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
             class="tree-item"
             class:selected
             class:hidden-item={hidden}
             onclick={() => selectBody(name)}
-            ondblclick={() => toggleBody(name)}
+            ondblclick={() => startRename(name)}
             role="button"
             tabindex="0"
           >
-            <span class="item-text">{name}</span>
+            {#if isRenaming}
+              <input
+                class="rename-input"
+                type="text"
+                bind:value={newBodyName}
+                onkeydown={(e) => {
+                  if (e.key === "Enter") commitRename(name)
+                  if (e.key === "Escape") cancelRename()
+                }}
+                onblur={() => commitRename(name)}
+                autofocus
+              />
+            {:else}
+              <span class="item-text">{name}</span>
+            {/if}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <span
               class="item-action opacity-0 group-hover:opacity-100"
@@ -290,6 +328,22 @@
   .tree-item.hidden-item {
     color: rgba(0, 0, 0, 0.25);
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+  }
+  .rename-input {
+    font-family: inherit;
+    font-size: inherit;
+    color: rgba(0, 0, 0, 0.85);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+    padding: 0 2px;
+    width: 100%;
+    outline: none;
+    text-shadow: var(--text-glow);
+  }
+  .rename-input:focus {
+    border-color: rgba(66, 133, 244, 0.5);
+    background: rgba(255, 255, 255, 0.7);
   }
   .tree-item.empty-item {
     color: rgba(0, 0, 0, 0.32);
