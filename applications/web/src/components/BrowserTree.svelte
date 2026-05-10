@@ -292,6 +292,7 @@
     font-family: "Manrope", system-ui, sans-serif;
     font-size: 13px;
     line-height: 1.7;
+    padding-right: 6px;
 
     --text-glow: 0 0 5px rgba(255, 255, 255, 0.45);
   }
@@ -435,7 +436,7 @@
   }
 
   .browser-tree::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   .browser-tree::-webkit-scrollbar-track {
     background: transparent;
@@ -446,9 +447,9 @@
     transition: background 0.15s ease;
   }
   .browser-tree:hover::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.6);
+    background: rgba(128, 128, 128, 0.35);
   }
   .browser-tree::-webkit-scrollbar-thumb:hover {
-    background: rgba(128, 128, 128, 0.85);
+    background: rgba(128, 128, 128, 0.5);
   }
 </style>
