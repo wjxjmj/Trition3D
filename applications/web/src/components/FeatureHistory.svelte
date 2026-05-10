@@ -90,9 +90,10 @@
     </span>
   </div>
 
-  {#if !collapsed}
-    <div class="timeline-label">{tr().history} ({visible.length})</div>
+  <!-- Label always visible -->
+  <div class="timeline-label">{tr().history} ({visible.length})</div>
 
+  {#if !collapsed}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       bind:this={rowEl}
@@ -182,8 +183,7 @@
     align-items: center;
   }
   .timeline-label {
-    position: absolute;
-    left: 26px;
+    flex-shrink: 0;
     z-index: 1;
     font-weight: 700;
     font-size: 13px;
