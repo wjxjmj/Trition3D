@@ -37,6 +37,12 @@
 
   $effect(() => { if (store.featureIndex === index) store.sketchBeingEdited = id })
 
+  function onKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape" && store.featureIndex === index) {
+      closeAndRefresh()
+    }
+  }
+
   const engageSearchForPlane = () => {
     store.sketchTool = ""
     store.selectingFor = ["plane", "meshFace"]
@@ -74,8 +80,9 @@
   role="button"
   tabindex="0"
   ondblclick={() => {
-    store.featureIndex = open ? 1000 : index
-    if (!open) store.sketchTool = "select"
+    // Always open the panel when sketch tool is active (don't toggle)
+    store.featureIndex = index
+    store.sketchTool = "select"
   }}
 >
   <img class="h-6 w-6" src={source} alt={name} title={name} />
@@ -123,3 +130,7 @@
     </form>
   {/snippet}
 </FloatingPanel>
+
+{#if open}
+  <svelte:window onkeydown={onKeydown} />
+{/if}
