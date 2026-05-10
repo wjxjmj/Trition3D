@@ -1,7 +1,6 @@
 <script lang="ts">
-  // The main display includes the feature history, parts manager, and 3D viewport
-  // It is all contained in this file, which is imported by the main page
-  // It had to be done this way to manage the resizing of the feature history and viewport
+  // Fusion 360 layout: 3D viewport on top, horizontal timeline at the bottom.
+  // Browser tree floats inside the viewport. Left panel removed entirely.
   import {store} from "shared/stores.svelte"
   import FeatureHistory from "./FeatureHistory.svelte"
   import BrowserTree from "./BrowserTree.svelte"
@@ -9,16 +8,15 @@
   import Scene from "./Scene.svelte"
   import type {SetCameraFocus} from "shared/types"
 
-  const minWidth = 150
-  const maxWidth = 600
-  let width = $state(250) // px
-  let initialWidth = width
-  let initialPosition = {x: 0, y: 0}
+  const minTimelineH = 60
+  const maxTimelineH = 400
+  let timelineHeight = $state(160) // px
   let resizing = $state(false)
+  let initialTimelineH = timelineHeight
+  let initialMouseY = 0
   let innerWidth = $state(0)
   let innerHeight = $state(0)
-  let viewportWidth = $derived(innerWidth - width - 10)
-  let height = $derived(innerHeight > 135 ? innerHeight - 45 * 3 : 300)
+  let viewportHeight = $derived(Math.max(100, innerHeight - timelineHeight - 12 - 45 * 3))
 
   let setCameraFocus: SetCameraFocus
   let sceneRef: any = $state()
@@ -28,8 +26,8 @@
   }
 
   function onMouseDown(event: MouseEvent) {
-    initialPosition = {x: event.pageX, y: event.pageY}
-    initialWidth = width
+    initialMouseY = event.pageY
+    initialTimelineH = timelineHeight
     resizing = true
   }
 
@@ -39,34 +37,21 @@
 
   function onMouseMove(event: MouseEvent) {
     if (!resizing) return
-
-    const delta = event.pageX - initialPosition.x
-    width = initialWidth + delta
-
-    if (width < minWidth) width = minWidth
-    if (width > maxWidth) width = maxWidth
-
+    const delta = initialMouseY - event.pageY
+    timelineHeight = initialTimelineH + delta
+    if (timelineHeight < minTimelineH) timelineHeight = minTimelineH
+    if (timelineHeight > maxTimelineH) timelineHeight = maxTimelineH
     event.preventDefault()
   }
 </script>
-
-<div style="width:{width}px; height:{height}px" class="dark:bg-gray-700">
-  <FeatureHistory setCameraFocus={doSetCameraFocus} />
-</div>
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="w-[12px] cursor-col-resize border-r-gray-300 dark:bg-gray-700 border-r-2" onmousedown={onMouseDown}></div>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
   class="bg-white dark:bg-gray-700 relative {store.sketchTool === 'line' || store.sketchTool === 'circle' || store.sketchTool === 'rectangle' ? 'cursor-crosshair' : ''}"
-  style="width:{viewportWidth}px; height:{height}px"
+  style="width:100%; height:{viewportHeight}px"
   onmousedown={e => {
-    if (store.selectingFor.length > 0) {
-      // If the user is selecting shapes, then click events on the 3D screen
-      // should not steal focus away from form inputs
-      e.preventDefault()
-    }
+    if (store.selectingFor.length > 0) e.preventDefault()
   }}
 >
   <Canvas>
@@ -74,6 +59,13 @@
   </Canvas>
   <BrowserTree />
   <div class="dark:text-gray-300 absolute bottom-1 right-1">{GIT_BRANCH} {GIT_HASH}</div>
+</div>
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="h-[12px] cursor-row-resize border-t-2 border-t-gray-300 dark:border-t-gray-600 dark:bg-gray-800" onmousedown={onMouseDown}></div>
+
+<div style="height:{timelineHeight}px" class="dark:bg-gray-800 overflow-hidden">
+  <FeatureHistory setCameraFocus={doSetCameraFocus} />
 </div>
 
 <svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} bind:innerWidth bind:innerHeight />

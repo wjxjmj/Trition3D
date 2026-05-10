@@ -4,85 +4,33 @@
   import PlaneFeature from "./features/Plane.svelte"
   import SketchFeature from "./features/Sketch.svelte"
   import ExtrusionFeature from "./features/Extrusion.svelte"
-  import SolidItem from "./SolidItem.svelte"
   import {isPoint, isPlane, isExtrusion, isSketch} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
   import type {SetCameraFocus} from "shared/types"
 
   const log = (function () { const context = "[FeatureHistory.svelte]"; const color="pink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
-  const minHeight = 30
-  const maxHeight = 1200
-  let height = 450
-  let initialHeight = height
-  let resizing = false
-  let initialPosition = {x: 0, y: 0}
-  let innerWidth = 0
-  let innerHeight = 0
-  let overallHeight = $derived(innerHeight > 10 ? innerHeight - 45 * 3 : 300)
-  let partsHeight = $derived(overallHeight - height - 12)
-
   let history = $derived(store.workbench.history ?? [])
-  let solids = $derived(store.realization.solids ?? {})
-
-  $effect(() => { store.workbench; log("[store.workbench]", store.workbench) })
-  $effect(() => { store.workbench.history; log("[store.workbench.history]", store.workbench.history) })
-  $effect(() => { store.realization; log("[store.realization]", store.realization) })
 
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
-
-  function onMouseDown(event: MouseEvent) {
-    initialPosition = {x: event.pageX, y: event.pageY}
-    initialHeight = height
-    resizing = true
-  }
-
-  function onMouseUp() {
-    resizing = false
-  }
-
-  function onMouseMove(event: MouseEvent) {
-    if (!resizing) return
-
-    const delta = event.pageY - initialPosition.y
-    height = initialHeight + delta
-
-    if (height < minHeight) height = minHeight
-    if (height > maxHeight) height = maxHeight
-
-    event.preventDefault()
-  }
 </script>
 
-<div class="flex flex-col select-none dark:text-gray-300">
-  <div style="height:{Math.min(height, overallHeight - 12)}px" class="overflow-y-auto">
-    <div id="history" class="font-bold text-sm px-2 py-2">{tr().history} ({history.length})</div>
-    {#each history as feature, featureIdx (feature.data.type + ":" + feature.unique_id)}
-      <div>
-        {#if isPoint(feature)}
-          <PointFeature name={feature.name} index={featureIdx} />
-        {:else if isPlane(feature)}
-          <PlaneFeature name={feature.name} index={featureIdx} plane={feature.data.plane} {setCameraFocus} />
-        {:else if isSketch(feature)}
-          <SketchFeature name={feature.name} index={featureIdx} id={feature.unique_id} plane_id={feature.data.plane_description.PlaneId} />
-        {:else if isExtrusion(feature)}
-          <ExtrusionFeature name={feature.name} index={featureIdx} data={feature.data.extrusion} id={feature.unique_id} />
-        {:else}
-          TODO: {feature.name} {feature.data.type}
-        {/if}
-      </div>
-    {/each}
-  </div>
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="h-[12px] cursor-row-resize border-b-2 border-b-gray-300" onmousedown={onMouseDown}></div>
-  <div style="height:{partsHeight}px" class="overflow-y-auto">
-    <div class="font-bold text-sm px-2 py-2">
-      {tr().solids} ({solids ? Object.keys(solids).length : 0})
-    </div>
-    {#each Object.keys(solids) as name (name)}
-      <SolidItem {name} />
-    {/each}
-  </div>
-</div>
+<div class="flex items-center h-full gap-1 px-3 py-2 overflow-x-auto select-none dark:text-gray-300">
+  <div class="font-bold text-sm px-2 shrink-0 opacity-60">{tr().history} ({history.length})</div>
 
-<svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} bind:innerWidth bind:innerHeight />
+  {#each history as feature, featureIdx (feature.data.type + ":" + feature.unique_id)}
+    <div class="shrink-0">
+      {#if isPoint(feature)}
+        <PointFeature name={feature.name} index={featureIdx} />
+      {:else if isPlane(feature)}
+        <PlaneFeature name={feature.name} index={featureIdx} plane={feature.data.plane} {setCameraFocus} />
+      {:else if isSketch(feature)}
+        <SketchFeature name={feature.name} index={featureIdx} id={feature.unique_id} plane_id={feature.data.plane_description.PlaneId} />
+      {:else if isExtrusion(feature)}
+        <ExtrusionFeature name={feature.name} index={featureIdx} data={feature.data.extrusion} id={feature.unique_id} />
+      {:else}
+        <span class="text-xs opacity-40">?</span>
+      {/if}
+    </div>
+  {/each}
+</div>

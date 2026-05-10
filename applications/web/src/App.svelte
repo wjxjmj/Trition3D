@@ -78,8 +78,6 @@
 <div class="w-[100vw] h-[100vh] block" style="overflow: hidden;">
   <AppBar {userName} project={store.project} onnewFileContent={(v) => newFileContent = v} />
   <ToolBar />
-  <div class="flex">
-    <MainDisplay />
-  </div>
+  <MainDisplay />
   <BottomBar />
 </div>
