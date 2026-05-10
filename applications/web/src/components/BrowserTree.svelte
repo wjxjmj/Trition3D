@@ -213,7 +213,7 @@
   .section-header {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 5px;
     padding: 1px 2px;
     cursor: pointer;
     font-weight: 600;
@@ -229,22 +229,30 @@
   }
 
   .chevron {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     display: block;
     flex-shrink: 0;
     transition: transform 0.12s ease;
-    opacity: 0.40;
+    opacity: 0.35;
+  }
+  .chevron :global(svg) {
+    width: 8px;
+    height: 8px;
   }
   .chevron.rotated {
     transform: rotate(90deg);
   }
 
   .section-icon {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     display: block;
     flex-shrink: 0;
+  }
+  .section-icon :global(svg) {
+    width: 8px;
+    height: 8px;
   }
 
   .section-label {
@@ -300,11 +308,15 @@
   }
 
   .icon-block {
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
     display: block;
     opacity: 0.40;
     transition: opacity 0.10s ease;
+  }
+  .icon-block :global(svg) {
+    width: 10px;
+    height: 10px;
   }
   .icon-block:hover {
     opacity: 0.80;
