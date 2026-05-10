@@ -24,16 +24,19 @@
     log("selected body:", name)
   }
 
-  function startRename(name: string) {
-    renamingBody = name
-    newBodyName = name
+  function startRename(fullName: string) {
+    renamingBody = fullName
+    // Strip ":N" suffix from display name for editing
+    newBodyName = fullName.replace(/:(\d+)$/, "")
   }
 
   function commitRename(oldName: string) {
     if (!renamingBody) return // guard: already committed via Enter, blur fires again
     const trimmed = newBodyName.trim()
     if (trimmed && trimmed !== oldName) {
-      const idx = store.workbench.history.findIndex(s => s.name === oldName)
+      // Solid names may have a ":N" suffix (e.g. "Extrusion 1:0")
+      // while history step names don't (e.g. "Extrusion 1").
+      const idx = store.workbench.history.findIndex(s => s.name === oldName || oldName.startsWith(s.name + ":"))
       if (idx !== -1) {
         log("renaming step", idx, oldName, "→", trimmed)
         renameStep(idx, trimmed)
