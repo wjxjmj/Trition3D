@@ -8,6 +8,14 @@ This file provides guidance to Claude Code when working in this repository.
 
 Inspired by [CADmium](https://github.com/CADmium-Co/CADmium), the pioneering project that first proved a parametric CAD kernel could be built in Rust+WASM. Trition3D starts from CADmium's codebase and integrates existing Rust CAD kernels (truck), focusing development effort on the application layer — UX, 3D printing workflow, and native desktop polish — rather than kernel engineering.
 
+## Repos
+
+- **Gitea** (primary): `http://127.0.0.1:3333/wjxjmj/Trition3D`
+- **GitHub** (mirror): `https://github.com/wjxjmj/Trition3D`
+- Remote names: `gitea` (Gitea), `origin` (GitHub)
+- **Default push target is Gitea.** Use `origin` only when explicitly asked to push to GitHub.
+- GitHub push often needs proxy: `export https_proxy=http://127.0.0.1:10808`
+
 ## Environment
 
 - Develop on **Windows 11** with **WSL** available
