@@ -7,7 +7,7 @@
   import {isPoint, isPlane, isExtrusion, isSketch} from "shared/projectUtils"
   import {tr} from "shared/i18n.svelte"
   import type {SetCameraFocus} from "shared/types"
-  import {ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp} from "lucide-static"
+  import {ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Minus, Plus} from "lucide-static"
 
   const log = (function () { const context = "[FeatureHistory.svelte]"; const color="pink"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
@@ -81,10 +81,13 @@
   <!-- Collapse toggle — always visible -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="timeline-toggle" onclick={() => collapsed = !collapsed}>
-    <span class="toggle-chevron" class:rotated={!collapsed}>{@html ChevronUp}</span>
-    {#if collapsed}
-      <span class="toggle-label">{tr().history} ({visible.length})</span>
-    {/if}
+    <span class="toggle-icon">
+      {#if collapsed}
+        {@html Plus}
+      {:else}
+        {@html Minus}
+      {/if}
+    </span>
   </div>
 
   {#if !collapsed}
@@ -139,42 +142,32 @@
 <style>
   .timeline-toggle {
     position: absolute;
-    left: 8px;
+    right: 6px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
     display: flex;
     align-items: center;
-    gap: 4px;
     cursor: pointer;
     padding: 2px;
-    color: rgba(0, 0, 0, 0.45);
+    color: rgba(0, 0, 0, 0.4);
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
     transition: color 0.12s;
   }
   .timeline-toggle:hover {
     color: rgba(0, 0, 0, 0.75);
   }
-  .toggle-chevron {
-    width: 14px;
-    height: 14px;
+  .toggle-icon {
+    width: 12px;
+    height: 12px;
     display: block;
-    flex-shrink: 0;
-    transition: transform 0.15s ease;
   }
-  .toggle-chevron :global(svg) {
-    width: 14px;
-    height: 14px;
-  }
-  .toggle-chevron.rotated {
-    transform: rotate(180deg);
-  }
-  .toggle-label {
-    font-weight: 700;
-    font-size: 13px;
+  .toggle-icon :global(svg) {
+    width: 12px;
+    height: 12px;
   }
   :global(.dark) .timeline-toggle {
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.4);
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
   }
   :global(.dark) .timeline-toggle:hover {
