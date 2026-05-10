@@ -196,7 +196,8 @@
     font-weight: 700;
     font-size: 10px;
     opacity: 0.35;
-    margin-left: 4px;
+    display: inline-block;
+    margin-left: 8px;
   }
   .timeline-row {
     display: flex;
