@@ -150,6 +150,10 @@
     text-shadow: var(--text-glow);
     color: rgba(0, 0, 0, 0.78);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
+  }
+  .timeline-row img {
+    pointer-events: none;
+  }
     mask-image: linear-gradient(to right, transparent 0%, black 70px, black calc(100% - 40px), transparent 100%);
   }
 
