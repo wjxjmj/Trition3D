@@ -270,6 +270,7 @@
     left: 16px;
     bottom: 48px;
     overflow-y: auto;
+    scrollbar-width: thin;
     scrollbar-color: transparent transparent;
 
 

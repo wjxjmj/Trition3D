@@ -58,6 +58,7 @@
     gap: 2px;
     padding: 4px 8px;
     overflow-x: auto;
+    scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     user-select: none;
     font-size: 13px;
