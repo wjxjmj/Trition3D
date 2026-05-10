@@ -96,12 +96,12 @@
     transition: background 0.15s ease;
   }
   .timeline-row:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(249, 115, 22, 0.6);
   }
   .timeline-row::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.18);
+    background: rgba(249, 115, 22, 0.85);
   }
   .timeline-row:hover {
-    scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
+    scrollbar-color: rgba(249, 115, 22, 0.6) transparent;
   }
 </style>
