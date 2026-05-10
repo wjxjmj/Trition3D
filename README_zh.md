@@ -8,7 +8,7 @@
 
 [CADmium](https://github.com/CADmium-Co/CADmium) 率先证明了参数化 CAD 内核可以用 Rust+WASM 构建——边界表示、约束求解、网格生成，全部在浏览器中运行。这是一个了不起的项目，也是 Trition3D 的直接灵感来源。
 
-Trition3D 走务实路线：**整合已有的 Rust CAD 内核，而非从零自研。**我们没有资源去卷内核开发。精力放在 3D 打印真正需要的地方——干净的原生桌面体验、STL 直出、不碍事的建模流程。
+Trition3D 走务实路线：**整合多个开源 CAD 内核，各取所长。**我们没有资源从零自研内核。取而代之的是，通过统一的中转格式（三角面片 + 面组归属）把经过验证的库缝合起来——约束求解器、B-Rep 引擎、网格布尔——各自做各自最擅长的事。完整的内核调研见 [docs/KERNEL_SURVEY.md](docs/KERNEL_SURVEY.md)。
 
 ## 项目目标
 
@@ -58,15 +58,31 @@ pnpm tauri build      # 打包 .exe，产物在 target/release/trition3d-native.
 - **STL 导出**: 直接导入切片软件（Cura、PrusaSlicer 等）
 - **原生桌面**: Tauri 2.0，日常工作无需浏览器
 
+## 内核策略
+
+Trition3D 不走单一巨型内核路线，而是为 CAD 管线的每一层选择最合适的专用库：
+
+| 层级 | 当前 | 目标 | 原因 |
+|------|------|------|------|
+| **约束求解** | CADmium（弹簧法） | arael-sketch-solver 或 solverang | 约束类型更多，LM 求解器，纯 Rust |
+| **B-Rep 构造** | truck（基于 CADmium） | OpenGeometry | 更好的挤出/扫掠，自由编辑（推/拉面） |
+| **布尔运算** | truck-shapeops | Manifold | 保证流形输出，OpenSCAD/Blender 验证 |
+| **网格修复** | — | MeshLib（C++ FFI） | 修复导入的破损 STL |
+| **STL/3MF 导出** | 通过 OBJ | 直出 + lib3mf | 原生 binary STL，官方 3MF 支持 |
+| **STEP 导出** | truck-stepio | STEPcode 或 ruststep | 不依赖 OpenCASCADE |
+
+跨内核的中转格式是 **MeshGL**——一个扁平三角面片数组加上面/实体 ID 追踪，所有内核都能消费或产出。
+
 ## 技术栈
 
-| 层级 | 技术 |
-|------|------|
-| 3D 内核 | truck（基于 CADmium） |
-| 核心计算 | Rust → WASM |
-| 前端界面 | Svelte 5 + Vite 7 + Tailwind |
-| 3D 渲染 | Threlte 8 + Three.js 0.175 |
-| 桌面端 | Tauri 2.0 |
+| 层级 | 当前 | 规划 |
+|------|------|------|
+| 3D 内核 | truck（基于 CADmium） | OpenGeometry + Manifold |
+| 约束求解器 | CADmium（弹簧法） | arael-sketch-solver / solverang |
+| 核心计算 | Rust → WASM | Rust → WASM |
+| 前端界面 | Svelte 5 + Vite 7 + Tailwind | 不变 |
+| 3D 渲染 | Threlte 8 + Three.js 0.175 | 不变 |
+| 桌面端 | Tauri 2.0 | 不变 |
 
 ## 架构
 

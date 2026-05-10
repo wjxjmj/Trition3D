@@ -8,7 +8,7 @@ A parametric CAD application for 3D printing. Sketch, extrude, export STL — al
 
 [CADmium](https://github.com/CADmium-Co/CADmium) proved that a parametric CAD kernel can be built in Rust+WASM — boundary representation, constraint solving, mesh generation, all running in the browser. It's a remarkable project and the direct inspiration for Trition3D.
 
-Trition3D takes a pragmatic approach: **integrate existing Rust CAD kernels rather than building one from scratch.** We don't have the resources to compete on kernel engineering. Instead, we focus on what matters for 3D printing — a clean native desktop experience, STL-ready output, and a modeling workflow that doesn't get in the way.
+Trition3D takes a pragmatic approach: **integrate multiple open-source CAD kernels, each doing what it does best.** We don't have the resources to build a kernel from scratch. Instead, we stitch together battle-tested libraries — constraint solvers, B-Rep engines, mesh booleans — through a common intermediate format (triangle soup + face grouping). See [docs/KERNEL_SURVEY.md](docs/KERNEL_SURVEY.md) for the full survey of evaluated libraries.
 
 ## Goal
 
@@ -59,15 +59,31 @@ pnpm tauri build      # Release .exe at target/release/trition3d-native.exe
 - **STL export**: Direct export for slicers (Cura, PrusaSlicer, etc.)
 - **Native desktop**: Tauri 2.0, no browser required for daily use
 
+## Kernel Strategy
+
+Rather than relying on a single monolithic kernel, Trition3D integrates specialized libraries for each layer of the CAD pipeline:
+
+| Layer | Current | Target | Why |
+|-------|---------|--------|-----|
+| **Constraint solving** | CADmium (spring-based) | arael-sketch-solver or solverang | More constraint types, LM solver, pure Rust |
+| **B-Rep construction** | truck (via CADmium) | OpenGeometry | Better extrude/sweep, freeform editing (push/pull) |
+| **Boolean operations** | truck-shapeops | Manifold | Guaranteed manifold output, production-proven |
+| **Mesh repair** | — | MeshLib (C++ FFI) | Fix broken imported STLs |
+| **STL/3MF export** | via OBJ | Direct + lib3mf | Native binary STL, official 3MF support |
+| **STEP export** | truck-stepio | STEPcode or ruststep | No OCCT dependency |
+
+The intermediate format crossing all kernel boundaries is **MeshGL** — a flat triangle soup with face/original-ID tracking that every kernel can consume or produce.
+
 ## Technology
 
-| Layer | Technology |
-|-------|-----------|
-| 3D Kernel | truck (via CADmium) |
-| Core | Rust → WASM |
-| Frontend | Svelte 5 + Vite 7 + Tailwind |
-| Rendering | Threlte 8 + Three.js 0.175 |
-| Desktop | Tauri 2.0 |
+| Layer | Current | Planned |
+|-------|---------|---------|
+| 3D Kernel | truck (via CADmium) | OpenGeometry + Manifold |
+| Constraint Solver | CADmium (spring-based) | arael-sketch-solver / solverang |
+| Core | Rust → WASM | Rust → WASM |
+| Frontend | Svelte 5 + Vite 7 + Tailwind | Same |
+| Rendering | Threlte 8 + Three.js 0.175 | Same |
+| Desktop | Tauri 2.0 | Same |
 
 ## Architecture
 
