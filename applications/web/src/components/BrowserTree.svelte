@@ -1,5 +1,6 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
+  import {tr} from "shared/i18n.svelte"
   import {Box, Pencil, Square, ChevronRight, Eye, EyeOff} from "lucide-static"
 
   const log = (function () { const context = "[BrowserTree.svelte]"; const color="cyan"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -61,7 +62,7 @@
     >
       <span class="chevron" class:rotated={planesOpen}>{@html ChevronRight}</span>
       <span class="section-icon text-green-300">{@html Square}</span>
-      <span class="section-label">Planes</span>
+      <span class="section-label">{tr().planes}</span>
       <span class="section-count">{planes.length}</span>
     </div>
     {#if planesOpen}
@@ -80,7 +81,7 @@
           </div>
         {/each}
         {#if planes.length === 0}
-          <div class="tree-item empty-item">No planes yet</div>
+          <div class="tree-item empty-item">{tr().noPlanes}</div>
         {/if}
       </div>
     {/if}
@@ -98,7 +99,7 @@
     >
       <span class="chevron" class:rotated={bodiesOpen}>{@html ChevronRight}</span>
       <span class="section-icon text-blue-300">{@html Box}</span>
-      <span class="section-label">Bodies</span>
+      <span class="section-label">{tr().bodies}</span>
       <span class="section-count">{bodies.length}</span>
     </div>
     {#if bodiesOpen}
@@ -131,7 +132,7 @@
           </div>
         {/each}
         {#if bodies.length === 0}
-          <div class="tree-item empty-item">No solids yet</div>
+          <div class="tree-item empty-item">{tr().noSolids}</div>
         {/if}
       </div>
     {/if}
@@ -149,7 +150,7 @@
     >
       <span class="chevron" class:rotated={sketchesOpen}>{@html ChevronRight}</span>
       <span class="section-icon text-yellow-300">{@html Pencil}</span>
-      <span class="section-label">Sketches</span>
+      <span class="section-label">{tr().sketches}</span>
       <span class="section-count">{sketches.length}</span>
     </div>
     {#if sketchesOpen}
@@ -181,7 +182,7 @@
           </div>
         {/each}
         {#if sketches.length === 0}
-          <div class="tree-item empty-item">No sketches yet</div>
+          <div class="tree-item empty-item">{tr().noSketches}</div>
         {/if}
       </div>
     {/if}

@@ -6,6 +6,7 @@
   import {isProject} from "shared/typeGuards"
   import {base} from "../base"
   import {renameProject} from "shared/projectUtils"
+  import {langState, setLang, tr} from "shared/i18n.svelte"
 
   const log = (function () { const context = "[AppBar.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
 
@@ -33,12 +34,10 @@
   } = $props()
 
   let isDarkMode = $state(localStorage.getItem("theme") === "dark")
-  let lang = $state(localStorage.getItem("lang") || "en")
   let langOpen = $state(false)
 
-  function setLang(l: string) {
-    lang = l
-    localStorage.setItem("lang", l)
+  function pickLang(code: "en" | "zh") {
+    setLang(code)
     langOpen = false
   }
 
@@ -166,7 +165,7 @@
       <div
         class="hover:bg-gray-300 dark:hover:bg-gray-600 rounded p-1"
         onclick={(e: MouseEvent) => { e.stopPropagation(); langOpen = !langOpen }}
-        title="Language"
+        title={tr().language}
       >
         <span class="h-6 w-6 block">{@html Languages}</span>
       </div>
@@ -179,9 +178,8 @@
         >
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
-            class="px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {lang === 'en' ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}"
-            class:font-semibold={lang === 'en'}
-            onclick={() => setLang('en')}
+            class="px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {langState.code === 'en' ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}"
+            onclick={() => pickLang('en')}
             role="menuitem"
             tabindex="0"
           >
@@ -189,9 +187,8 @@
           </div>
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
-            class="px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {lang === 'zh' ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}"
-            class:font-semibold={lang === 'zh'}
-            onclick={() => setLang('zh')}
+            class="px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {langState.code === 'zh' ? 'font-semibold text-blue-600 dark:text-blue-400' : ''}"
+            onclick={() => pickLang('zh')}
             role="menuitem"
             tabindex="0"
           >
