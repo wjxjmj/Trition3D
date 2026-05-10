@@ -1,6 +1,6 @@
 <script lang="ts">
-  // Fusion 360 layout: 3D viewport on top, horizontal timeline at the bottom.
-  // Browser tree floats inside the viewport. Left panel removed entirely.
+  // Fusion 360 layout: full-viewport 3D canvas with floating overlays.
+  // BrowserTree floats top-left, history timeline floats at the bottom.
   import {store} from "shared/stores.svelte"
   import FeatureHistory from "./FeatureHistory.svelte"
   import BrowserTree from "./BrowserTree.svelte"
@@ -8,15 +8,15 @@
   import Scene from "./Scene.svelte"
   import type {SetCameraFocus} from "shared/types"
 
-  const minTimelineH = 60
-  const maxTimelineH = 400
-  let timelineHeight = $state(160) // px
+  const minTimelineH = 48
+  const maxTimelineH = 350
+  let timelineHeight = $state(130)
   let resizing = $state(false)
   let initialTimelineH = timelineHeight
   let initialMouseY = 0
   let innerWidth = $state(0)
   let innerHeight = $state(0)
-  let viewportHeight = $derived(Math.max(100, innerHeight - timelineHeight - 12 - 45 * 3))
+  let viewportHeight = $derived(Math.max(100, innerHeight - 45 * 3))
 
   let setCameraFocus: SetCameraFocus
   let sceneRef: any = $state()
@@ -29,6 +29,7 @@
     initialMouseY = event.pageY
     initialTimelineH = timelineHeight
     resizing = true
+    event.preventDefault()
   }
 
   function onMouseUp(_event: MouseEvent) {
@@ -41,7 +42,6 @@
     timelineHeight = initialTimelineH + delta
     if (timelineHeight < minTimelineH) timelineHeight = minTimelineH
     if (timelineHeight > maxTimelineH) timelineHeight = maxTimelineH
-    event.preventDefault()
   }
 </script>
 
@@ -58,14 +58,39 @@
     <Scene bind:this={sceneRef} />
   </Canvas>
   <BrowserTree />
-  <div class="dark:text-gray-300 absolute bottom-1 right-1">{GIT_BRANCH} {GIT_HASH}</div>
-</div>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="h-[12px] cursor-row-resize border-t-2 border-t-gray-300 dark:border-t-gray-600 dark:bg-gray-800" onmousedown={onMouseDown}></div>
-
-<div style="height:{timelineHeight}px" class="dark:bg-gray-800 overflow-hidden">
-  <FeatureHistory setCameraFocus={doSetCameraFocus} />
+  <!-- Floating timeline at the bottom of the viewport -->
+  <div
+    class="timeline-overlay"
+    style="height:{timelineHeight}px"
+    onmousedown={(e) => e.stopPropagation()}
+  >
+    <!-- Resize handle on top edge of timeline -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="timeline-handle"
+      onmousedown={onMouseDown}
+    ></div>
+    <FeatureHistory setCameraFocus={doSetCameraFocus} />
+  </div>
 </div>
 
 <svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} bind:innerWidth bind:innerHeight />
+
+<style>
+  .timeline-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    overflow: hidden;
+  }
+  .timeline-handle {
+    height: 5px;
+    cursor: row-resize;
+  }
+  .timeline-handle:hover {
+    background: rgba(128, 128, 128, 0.15);
+  }
+</style>

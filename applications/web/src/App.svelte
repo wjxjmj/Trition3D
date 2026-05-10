@@ -81,3 +81,28 @@
   <MainDisplay />
   <BottomBar />
 </div>
+
+<style>
+  :global(.feature-pill) {
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    padding: 1px 4px;
+    flex-shrink: 0;
+    font-size: 13px;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.78);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+    transition: background 0.08s ease;
+  }
+  :global(.feature-pill:hover) {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  :global(.dark .feature-pill) {
+    color: rgba(255, 255, 255, 0.78);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+  }
+  :global(.dark .feature-pill:hover) {
+    background: rgba(255, 255, 255, 0.06);
+  }
+</style>

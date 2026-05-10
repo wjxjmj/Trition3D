@@ -15,8 +15,8 @@
   let { setCameraFocus }: { setCameraFocus: SetCameraFocus } = $props()
 </script>
 
-<div class="flex items-center h-full gap-1 px-3 py-2 overflow-x-auto select-none dark:text-gray-300">
-  <div class="font-bold text-sm px-2 shrink-0 opacity-60">{tr().history} ({history.length})</div>
+<div class="timeline-row">
+  <div class="timeline-label">{tr().history} ({history.length})</div>
 
   {#each history as feature, featureIdx (feature.data.type + ":" + feature.unique_id)}
     <div class="shrink-0">
@@ -34,3 +34,47 @@
     </div>
   {/each}
 </div>
+
+<style>
+  .timeline-row {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 2px;
+    padding: 0 12px;
+    overflow-x: auto;
+    user-select: none;
+    font-size: 13px;
+    line-height: 1.6;
+    --text-glow: 0 0 5px rgba(255, 255, 255, 0.4);
+    text-shadow: var(--text-glow);
+    color: rgba(0, 0, 0, 0.78);
+  }
+  .timeline-label {
+    font-weight: 700;
+    font-size: 13px;
+    padding: 0 4px;
+    flex-shrink: 0;
+    color: #000;
+    text-shadow: var(--text-glow);
+  }
+  :global(.dark) .timeline-label {
+    color: rgba(255, 255, 255, 0.88);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+  }
+  :global(.dark) .timeline-row {
+    color: rgba(255, 255, 255, 0.78);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+  }
+
+  .timeline-row::-webkit-scrollbar {
+    height: 3px;
+  }
+  .timeline-row::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .timeline-row::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 2px;
+  }
+</style>

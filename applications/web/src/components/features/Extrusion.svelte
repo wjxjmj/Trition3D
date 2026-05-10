@@ -67,7 +67,7 @@
 </script>
 
 <div
-  class="flex items-center text-sm hover:bg-sky-200 dark:hover:bg-gray-600 rounded px-1 py-0.5 shrink-0"
+  class="feature-pill"
   role="button"
   tabindex="0"
   ondblclick={() => {
