@@ -142,7 +142,8 @@
 <style>
   .timeline-toggle {
     position: absolute;
-    right: 6px;
+    right: auto;
+    left: 8px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
@@ -182,7 +183,7 @@
   }
   .timeline-label {
     position: absolute;
-    left: 8px;
+    left: 26px;
     z-index: 1;
     font-weight: 700;
     font-size: 13px;
