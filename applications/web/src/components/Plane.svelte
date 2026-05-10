@@ -1,5 +1,6 @@
 <script lang="ts">
   import {store} from "shared/stores.svelte"
+  import {tr} from "shared/i18n.svelte"
   import {Matrix4, Euler, MeshStandardMaterial, DoubleSide, Vector2, Vector3, type Vector3Like} from "three"
   import {T, extend, useThrelte} from "@threlte/core"
   import {Text, Suspense} from "@threlte/extras"
@@ -94,6 +95,13 @@
   const type: EntityType = "plane"
 
   let hovered = $state(false)
+  // Map kernel plane names to i18n keys
+  const planeNameKeys: Record<string, keyof ReturnType<typeof tr>> = {
+    Front: "front", Top: "top", Right: "right",
+    Back: "back", Bottom: "bottom", Left: "left",
+  }
+  let displayName = $derived((planeNameKeys as any)[name] ? tr()[(planeNameKeys as any)[name]] : name)
+
   let selected = $derived(store.currentlySelected.some(e => e.id === id && e.type === type) ? true : false)
   // store.currentlySelected.subscribe(() => {
   // 	// if (!id) return
@@ -195,7 +203,7 @@
 
   <T.Group position.x={(-width / 2) * 0.99} position.y={(height / 2) * 0.99}>
     <Suspense>
-      <Text text={name} color="#42a7eb" fontSize={5} anchorX="0%" anchorY="0%" />
+      <Text text={displayName} color="#42a7eb" fontSize={5} anchorX="0%" anchorY="0%" />
     </Suspense>
   </T.Group>
 </T.Group>
