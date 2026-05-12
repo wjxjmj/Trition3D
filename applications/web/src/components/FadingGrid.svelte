@@ -1,14 +1,8 @@
 <script lang="ts">
   import {T, useThrelte, useTask} from "@threlte/core"
-  import {GridHelper, LineSegments, BufferGeometry, Float32BufferAttribute, LineBasicMaterial} from "three"
-  import {Line2} from "three/addons/lines/Line2.js"
-  import {LineMaterial} from "three/addons/lines/LineMaterial.js"
-  import {LineGeometry} from "three/addons/lines/LineGeometry.js"
-  import {extend} from "@threlte/core"
+  import {GridHelper} from "three"
 
-  extend({Line2})
-
-  const {camera, size, dpr} = useThrelte()
+  const {camera} = useThrelte()
 
   let z = $state(5)
   useTask(() => { z = camera.current.zoom })
@@ -20,55 +14,32 @@
     return {major, minor}
   })
 
-  // Fine grid: standard GridHelper (thin 1px lines, low opacity)
-  function makeFineGrid(cellSize: number): GridHelper {
+  // Fine grid: barely-there background lattice
+  function fineGrid(cellSize: number) {
     const s = 800
-    const divs = Math.max(1, Math.round(s / cellSize))
-    const g = new GridHelper(s, divs, "#666666", "#666666")
+    const g = new GridHelper(s, Math.round(s / cellSize), "#bbbbbb", "#bbbbbb")
     g.rotation.x = -Math.PI / 2
     g.children.forEach((c: any) => {
-      c.material.transparent = true
-      c.material.opacity = 0.08
-      c.material.depthTest = false
-      c.material.depthWrite = false
+      c.material.transparent = true; c.material.opacity = 0.06
+      c.material.depthTest = false; c.material.depthWrite = false
     })
     return g
   }
 
-  // Major grid: Line2 with actual thick lines
-  function makeCoarseGrid(cellSize: number) {
+  // Coarse grid: darker, every 10 cells — dominates visually
+  function coarseGrid(cellSize: number) {
     const s = 800
-    const half = s / 2
-    const points: number[] = []
-
-    for (let i = -half; i <= half; i += cellSize) {
-      // X-aligned lines
-      points.push(-half, i, 0.01, half, i, 0.01)
-      // Y-aligned lines
-      points.push(i, -half, 0.01, i, half, 0.01)
-    }
-
-    const geom = new LineGeometry()
-    geom.setPositions(points)
-
-    const mat = new LineMaterial({
-      color: 0x000000,
-      linewidth: 1.8 * dpr,
-      transparent: true,
-      opacity: 0.25,
-      depthTest: false,
-      depthWrite: false,
-      resolution: [size.width * dpr, size.height * dpr],
-      worldUnits: false,
+    const g = new GridHelper(s, Math.round(s / cellSize), "#444444", "#444444")
+    g.rotation.x = -Math.PI / 2
+    g.children.forEach((c: any) => {
+      c.material.transparent = true; c.material.opacity = 0.3
+      c.material.depthTest = false; c.material.depthWrite = false
     })
-
-    const lines = new Line2(geom, mat)
-    lines.computeLineDistances()
-    return lines
+    return g
   }
 </script>
 
 {#key steps.minor}
-  <T is={makeFineGrid(steps.minor)} />
-  <T is={makeCoarseGrid(steps.major)} />
+  <T is={fineGrid(steps.minor)} />
+  <T is={coarseGrid(steps.major)} />
 {/key}
