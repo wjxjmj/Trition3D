@@ -13,3 +13,5 @@ vite.config.ts.timestamp-*
 /.pnpm-store/
 **/*.obj
 **/*.step
+scripts/screenshot.png
+test-results/
