@@ -1,28 +1,31 @@
 <script lang="ts">
-  import {T} from "@threlte/core"
+  import {T, useThrelte} from "@threlte/core"
   import {GridHelper} from "three"
 
-  // Static dual-layer grid in XY plane (Z-up).
-  // GridHelper draws in XZ plane (Three.js default, Y-up).
-  // Camera uses Z-up (up=[0,0,1]), so XZ=vertical. XY=horizontal ground.
-  // Rotate -PI/2 around X to lay grid flat in XY (the CAD ground plane).
-  const size = 400
+  const {camera} = useThrelte()
 
-  // Coarse grid: 100-unit cells
-  const coarse = new GridHelper(size, 4, "#888888", "#888888")
-  coarse.rotation.x = -Math.PI / 2
-  // Fine grid: 10-unit cells
-  const fine = new GridHelper(size, 40, "#bbbbbb", "#cccccc")
-  fine.rotation.x = -Math.PI / 2
+  // Adaptive grid: cell size scales with camera zoom (Fusion 360 style).
+  const logZoom = $derived(Math.log10(camera.current.zoom || 1))
+  const exponent = $derived(Math.floor(logZoom))
+  const majorStep = $derived(Math.pow(10, -exponent + 1))
+  const minorStep = $derived(majorStep / 10)
 
-  // Set line opacity via the child Line materials
-  coarse.children.forEach((c: any) => {
-    c.material.transparent = true; c.material.opacity = 0.35; c.material.depthTest = false
-  })
-  fine.children.forEach((c: any) => {
-    c.material.transparent = true; c.material.opacity = 0.18; c.material.depthTest = false
-  })
+  function makeGrid(cellSize: number, color: string, opacity: number): GridHelper {
+    const size = 400
+    const divs = Math.round(size / cellSize)
+    const grid = new GridHelper(size, Math.max(1, divs), color, color)
+    grid.rotation.x = -Math.PI / 2 // lay flat in XY for Z-up
+    grid.children.forEach((c: any) => {
+      c.material.transparent = true
+      c.material.opacity = opacity
+      c.material.depthTest = false
+      c.material.depthWrite = false
+    })
+    return grid
+  }
 </script>
 
-<T is={coarse} />
-<T is={fine} />
+{#key majorStep}
+  <T is={makeGrid(majorStep, "#333333", 0.35)} />
+  <T is={makeGrid(minorStep, "#999999", 0.15)} />
+{/key}
