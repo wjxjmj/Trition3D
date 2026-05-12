@@ -22,8 +22,8 @@
     <T.MeshBasicMaterial color="#4cd964" />
   </T.Mesh>
 
-  <!-- Z axis (blue) — vertical (up) -->
-  <T.Mesh position={[0, 0, axisLen / 2]}>
+  <!-- Z axis (blue) — vertical (up), rotate from Y-axis to Z-axis -->
+  <T.Mesh position={[0, 0, axisLen / 2]} rotation.x={Math.PI / 2}>
     <T.CylinderGeometry args={[radius, radius, axisLen, 6]} />
     <T.MeshBasicMaterial color="#007aff" />
   </T.Mesh>
