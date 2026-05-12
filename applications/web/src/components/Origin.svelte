@@ -10,21 +10,22 @@
   const {size, dpr} = useThrelte()
   const planeSize = 15
 
-  // Axes span grid area, offset 0.01 in Z to avoid z-fighting with grid lines
+  // Axes span grid area — depthTest=false so they always render on top
   const gridSize = 400
-  const zOff = 0.01
-  const pointsX = [-gridSize, 0, zOff, gridSize, 0, zOff]
-  const pointsY = [0, -gridSize, zOff, 0, gridSize, zOff]
+  const pointsX = [-gridSize, 0, 0, gridSize, 0, 0]
+  const pointsY = [0, -gridSize, 0, 0, gridSize, 0]
 
   const xGeom = new LineGeometry(); xGeom.setPositions(pointsX)
   const yGeom = new LineGeometry(); yGeom.setPositions(pointsY)
 
   const xMat = new LineMaterial({
-    color: 0xff3b30, linewidth: 2.5, worldUnits: false, depthTest: true,
+    color: 0xff3b30, linewidth: 2.5, worldUnits: false,
+    depthTest: false, depthWrite: false,
     resolution: [1, 1],
   })
   const yMat = new LineMaterial({
-    color: 0x007aff, linewidth: 2.5, worldUnits: false, depthTest: true,
+    color: 0x007aff, linewidth: 2.5, worldUnits: false,
+    depthTest: false, depthWrite: false,
     resolution: [1, 1],
   })
   const xAxis = new Line2(xGeom, xMat)
