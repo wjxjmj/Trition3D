@@ -2,7 +2,7 @@
   import {store} from "shared/stores.svelte"
   import {T, useThrelte} from "@threlte/core"
   import {Environment} from "@threlte/extras"
-  import {Vector2, Vector3, type Vector3Like} from "three"
+  import {Vector2, Vector3, type Vector3Like, GridHelper} from "three"
   import {interactivity} from "@threlte/extras"
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
   import CadControls from "./controls/CadControls/CadControls.svelte"
@@ -18,7 +18,12 @@
 
   interactivity()
 
-  const {size, dpr, camera} = useThrelte()
+  const {size, dpr, camera, renderer} = useThrelte()
+
+  // Set viewport background to warm gray (Fusion 360 style)
+  $effect(() => {
+    renderer.setClearColor("#dadada", 1)
+  })
 
   let points = $derived(store.realization.points ? Object.entries(store.realization.points) : [])
   let planes = $derived(store.realization.planes ? Object.entries(store.realization.planes) : [])
@@ -26,15 +31,17 @@
   let solids = $derived(store.realization.solids ? Object.entries(store.realization.solids) : [])
   let sketches = $derived(store.realization.sketches ? Object.entries(store.realization.sketches) : [])
 
-  // $: store.workbench, log("[store.workbench]", store.workbench)
-  // $: points, log("[store.realization.points]", points)
-  // $: planes, log("[store.realization.planes]", planes)
-  // $: planesById, log("[planesById]", planesById)
-  // $: solids, log("[store.realization.solids]", solids)
-  // $: sketches, log("[store.realization.sketches]", sketches)
+  // Hide default base planes from 3D view (they show in browser tree on hover)
+  const basePlaneNames = new Set(["Front", "Top", "Right"])
+  let visiblePlanes = $derived(planes.filter(([_, p]) => !basePlaneNames.has(p.name)))
+
+  // Grid helper
+  const gridSize = 200
+  const gridDivs = 40
+  const gridMain = new GridHelper(gridSize, gridDivs, "#999999", "#cccccc")
+  gridMain.position.z = -0.01 // slight offset so it sits below origin planes
 
   export function setCameraFocus(goTo: Vector3Like, lookAt: Vector3Like, up: Vector3Like): void {
-    // TODO: make this tween nicely
     const positionMultiple = 1000
     const vector = new Vector3(goTo.x, goTo.y, goTo.z)
     vector.multiplyScalar(positionMultiple)
@@ -106,36 +113,20 @@
     dashed: false,
     resolution: new Vector2($size.width * $dpr, $size.height * $dpr),
   }))
-
-  // mouseButtons={{ LEFT: 0, MIDDLE: 1, RIGHT: 2 }} 0 // standard
-  // mouseButtons={{ LEFT: 0, MIDDLE: 2, RIGHT: 1 }} 1 // no
-  // mouseButtons={{ LEFT: 1, MIDDLE: 0, RIGHT: 2 }} 2 // close!
-  // mouseButtons={{ LEFT: 1, MIDDLE: 2, RIGHT: 0 }} 3 // close?
-  // mouseButtons={{ LEFT: 2, MIDDLE: 1, RIGHT: 0 }} 5 // no
-  // mouseButtons={{ LEFT: 2, MIDDLE: 0, RIGHT: 1 }} 4 // seems to meet most people's expectations
-  // mouseButtons={{ LEFT: 2, MIDDLE: 50, RIGHT: 1 }} 4 // disable left click entirely--free it up for interaction
-
-  // camera position: [160.8, -250.8, 200.55] looks good and angular
 </script>
 
 <T.OrthographicCamera makeDefault position={[160.8, -250.8, 200.55]} zoom={5} up={[0, 0, 1]}>
   <CadControls rotateSpeed={1.8} panSpeed={0.5} oncreate={({ref}) => {}} mouseButtons={{LEFT: 2, MIDDLE: 50, RIGHT: 1}} />
 </T.OrthographicCamera>
 
-<!-- <T.DirectionalLight args={['#ff8888', 50.0]} position.x={-10} position.y={0} position.z={0} />
-<T.DirectionalLight args={['#88ff88', 50.0]} position.x={10} position.y={0} position.z={0} />
-<T.DirectionalLight args={['#8888ff', 50.0]} position.x={0} position.y={0} position.z={10} /> -->
-<!-- <T.DirectionalLight position.x={10} position.y={0} position.z={0} /> -->
-
-<!-- <T.PointLight args={['#ffffff', 5000.0]} position.x={3} position.y={3} position.z={15} />
-<T.PointLight args={['#ffffff', 3000.0]} position.x={3} position.y={-3} position.z={-15} />
-<T.PointLight args={['#ffffff', 3000.0]} position.x={10} position.y={-13} position.z={1.1} />
-<T.PointLight args={['#ffffff', 3000.0]} position.x={-10.5} position.y={11} position.z={0.86} /> -->
-
-<T.AmbientLight intensity={0.4} />
-<T.DirectionalLight position={[10, 10, 10]} intensity={0.5} />
+<!-- Fusion 360 lighting: bright ambient + 45-degree key light -->
+<T.AmbientLight intensity={1.0} />
+<T.DirectionalLight position={[5, 8, 5]} intensity={0.6} />
 
 <Environment path="{base}/envmap/hdr/" files="kloofendal_28d_misty_puresky_1k.hdr" isBackground={false} format="hdr" />
+
+<!-- Infinite ground grid -->
+<T is={gridMain} />
 
 <Origin />
 
@@ -143,7 +134,8 @@
   <Point3D id={pointName} x={point.x} y={point.y} z={point.z} hidden={point.hidden} {collisionLineMaterial} />
 {/each}
 
-{#each planes as [planeName, plane] (`${store.workbench.name}-${planeName}`)}
+<!-- Only show user-created planes (hide Front/Top/Right base planes) -->
+{#each visiblePlanes as [planeName, plane] (`${store.workbench.name}-${planeName}`)}
   <Plane
     name={plane.name}
     id={planeName}
