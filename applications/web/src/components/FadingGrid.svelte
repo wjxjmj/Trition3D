@@ -4,25 +4,22 @@
 
   const {camera} = useThrelte()
 
-  // Three.js mutates camera.zoom imperatively — Svelte can't track it.
-  // useTask polls zoom each frame, stores in $state for $derived to react.
-  let zoom = $state(5) // default zoom matches OrthographicCamera
+  let zoom = $state(5)
+  useTask(() => { zoom = camera.current.zoom })
 
-  useTask(() => {
-    zoom = camera.current.zoom
-  })
-
+  // Adaptive: minor = 10^(-power+1), major = minor * 10
+  // e.g. zoom=5 → minor=10, major=100
   const steps = $derived.by(() => {
     const unitPower = Math.floor(Math.log10(zoom))
-    const major = Math.pow(10, -unitPower + 2)
-    const minor = major / 10
+    const minor = Math.pow(10, -unitPower + 1)
+    const major = minor * 10
     return {major, minor}
   })
 
   function makeGrid(cellSize: number, color: string, opacity: number): GridHelper {
     const size = 800
-    const divs = Math.round(size / cellSize)
-    const grid = new GridHelper(size, Math.max(1, divs), color, color)
+    const divs = Math.max(1, Math.round(size / cellSize))
+    const grid = new GridHelper(size, divs, color, color)
     grid.rotation.x = -Math.PI / 2
     grid.children.forEach((c: any) => {
       c.material.transparent = true
@@ -34,7 +31,9 @@
   }
 </script>
 
-{#key steps.major}
-  <T is={makeGrid(steps.major, "#333333", 0.4)} />
-  <T is={makeGrid(steps.minor, "#999999", 0.15)} />
+{#key steps.minor}
+  <!-- Minor lines: fine, very subtle (every unit) -->
+  <T is={makeGrid(steps.minor, "#333333", 0.1)} />
+  <!-- Major lines: bolder, every 10 units -->
+  <T is={makeGrid(steps.major, "#000000", 0.3)} />
 {/key}
