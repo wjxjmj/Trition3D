@@ -11,6 +11,7 @@
   import Solid from "./Solid.svelte"
   import Sketch from "./Sketch.svelte"
   import CubeGizmo from "./controls/CubeGizmo/CubeGizmo.svelte"
+  import Origin from "./Origin.svelte"
   import {base} from "../base"
 
   const log = (function () { const context = "[Scene.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -135,6 +136,8 @@
 <T.DirectionalLight position={[10, 10, 10]} intensity={0.5} />
 
 <Environment path="{base}/envmap/hdr/" files="kloofendal_28d_misty_puresky_1k.hdr" isBackground={false} format="hdr" />
+
+<Origin />
 
 {#each points as [pointName, point] (`${store.workbench.name}-${pointName}`)}
   <Point3D id={pointName} x={point.x} y={point.y} z={point.z} hidden={point.hidden} {collisionLineMaterial} />
