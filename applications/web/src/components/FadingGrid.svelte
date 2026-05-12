@@ -1,39 +1,74 @@
 <script lang="ts">
   import {T, useThrelte, useTask} from "@threlte/core"
-  import {GridHelper} from "three"
+  import {GridHelper, LineSegments, BufferGeometry, Float32BufferAttribute, LineBasicMaterial} from "three"
+  import {Line2} from "three/addons/lines/Line2.js"
+  import {LineMaterial} from "three/addons/lines/LineMaterial.js"
+  import {LineGeometry} from "three/addons/lines/LineGeometry.js"
+  import {extend} from "@threlte/core"
 
-  const {camera} = useThrelte()
+  extend({Line2})
 
-  let zoom = $state(5)
-  useTask(() => { zoom = camera.current.zoom })
+  const {camera, size, dpr} = useThrelte()
 
-  // Adaptive: minor = 10^(-power+1), major = minor * 10
-  // e.g. zoom=5 → minor=10, major=100
+  let z = $state(5)
+  useTask(() => { z = camera.current.zoom })
+
   const steps = $derived.by(() => {
-    const unitPower = Math.floor(Math.log10(zoom))
+    const unitPower = Math.floor(Math.log10(z))
     const minor = Math.pow(10, -unitPower + 1)
     const major = minor * 10
     return {major, minor}
   })
 
-  function makeGrid(cellSize: number, color: string, opacity: number): GridHelper {
-    const size = 800
-    const divs = Math.max(1, Math.round(size / cellSize))
-    const grid = new GridHelper(size, divs, color, color)
-    grid.rotation.x = -Math.PI / 2
-    grid.children.forEach((c: any) => {
+  // Fine grid: standard GridHelper (thin 1px lines, low opacity)
+  function makeFineGrid(cellSize: number): GridHelper {
+    const s = 800
+    const divs = Math.max(1, Math.round(s / cellSize))
+    const g = new GridHelper(s, divs, "#666666", "#666666")
+    g.rotation.x = -Math.PI / 2
+    g.children.forEach((c: any) => {
       c.material.transparent = true
-      c.material.opacity = opacity
+      c.material.opacity = 0.08
       c.material.depthTest = false
       c.material.depthWrite = false
     })
-    return grid
+    return g
+  }
+
+  // Major grid: Line2 with actual thick lines
+  function makeCoarseGrid(cellSize: number) {
+    const s = 800
+    const half = s / 2
+    const points: number[] = []
+
+    for (let i = -half; i <= half; i += cellSize) {
+      // X-aligned lines
+      points.push(-half, i, 0.01, half, i, 0.01)
+      // Y-aligned lines
+      points.push(i, -half, 0.01, i, half, 0.01)
+    }
+
+    const geom = new LineGeometry()
+    geom.setPositions(points)
+
+    const mat = new LineMaterial({
+      color: 0x000000,
+      linewidth: 1.8 * dpr,
+      transparent: true,
+      opacity: 0.25,
+      depthTest: false,
+      depthWrite: false,
+      resolution: [size.width * dpr, size.height * dpr],
+      worldUnits: false,
+    })
+
+    const lines = new Line2(geom, mat)
+    lines.computeLineDistances()
+    return lines
   }
 </script>
 
 {#key steps.minor}
-  <!-- Minor lines: fine, very subtle (every unit) -->
-  <T is={makeGrid(steps.minor, "#333333", 0.1)} />
-  <!-- Major lines: bolder, every 10 units -->
-  <T is={makeGrid(steps.major, "#000000", 0.3)} />
+  <T is={makeFineGrid(steps.minor)} />
+  <T is={makeCoarseGrid(steps.major)} />
 {/key}
