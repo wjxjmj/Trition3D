@@ -4,7 +4,7 @@
 
   // Z-up coordinate system (camera up=[0,0,1])
   const axisLen = 10000 // "infinite" feel
-  const radius = 0.05
+  const radius = 0.1
   const planeSize = 15
 </script>
 

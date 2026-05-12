@@ -29,7 +29,7 @@
     if (store.selectingFor.length > 0) e.preventDefault()
   }}
 >
-  <Canvas>
+  <Canvas rendererParameters={{antialias: true}}>
     <Scene bind:this={sceneRef} />
   </Canvas>
   <BrowserTree />

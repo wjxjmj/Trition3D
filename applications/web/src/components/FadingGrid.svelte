@@ -1,83 +1,77 @@
 <script lang="ts">
-  import {T} from "@threlte/core"
-  import * as THREE from "three"
+  import {T, useThrelte, useTask} from "@threlte/core"
+  import {GridHelper} from "three"
 
-  // Dual-layer infinite grid in XY plane (Z-up).
-  // Lay flat by rotating -PI/2 around X.
+  const {camera} = useThrelte()
 
-  const size = 400
-  const segments = 200 // 400/200 = 2 units per segment
+  // Adaptive grid: switch cell size based on zoom level
+  let cellSize: number
+  let coarseSize: number
 
-  // Build a shared plane geometry
-  const geom = new THREE.PlaneGeometry(size, size, segments, segments)
+  function updateGrid() {
+    const z = camera.current.zoom
+    if (z < 2)       { cellSize = 100; coarseSize = 1000 }
+    else if (z < 5)  { cellSize = 50;  coarseSize = 500 }
+    else if (z < 12) { cellSize = 10;  coarseSize = 100 }
+    else             { cellSize = 1;   coarseSize = 10 }
+  }
 
-  // --- Fine grid shader (1-unit cells) ---
-  const fineVert = /* glsl */ `
-    varying vec2 vUv;
-    varying vec3 vPos;
-    void main() {
-      vec4 wp = modelMatrix * vec4(position, 1.0);
-      vPos = wp.xyz;
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  // Check zoom every frame and rebuild grid when threshold crossed
+  let prevLevel = 0
+  function gridLevel(z: number) {
+    if (z < 2) return 0
+    if (z < 5) return 1
+    if (z < 12) return 2
+    return 3
+  }
+
+  updateGrid()
+  createGrids()
+
+  let fineGrid: GridHelper
+  let coarseGrid: GridHelper
+
+  function createGrids() {
+    const size = 400
+    const divs = Math.floor(size / cellSize)
+
+    fineGrid?.dispose?.()
+    coarseGrid?.dispose?.()
+
+    fineGrid = new GridHelper(size, divs, "#bbbbbb", "#cccccc")
+    fineGrid.renderOrder = 998
+    // @ts-ignore
+    fineGrid.material.transparent = true
+    // @ts-ignore
+    fineGrid.material.opacity = 0.18
+    // @ts-ignore
+    fineGrid.material.depthWrite = false
+    // @ts-ignore
+    fineGrid.material.depthTest = false
+
+    const coarseDivs = Math.floor(size / coarseSize)
+    coarseGrid = new GridHelper(size, coarseDivs, "#888888", "#888888")
+    coarseGrid.renderOrder = 997
+    // @ts-ignore
+    coarseGrid.material.transparent = true
+    // @ts-ignore
+    coarseGrid.material.opacity = 0.35
+    // @ts-ignore
+    coarseGrid.material.depthWrite = false
+    // @ts-ignore
+    coarseGrid.material.depthTest = false
+  }
+
+  // Rebuild grid when zoom crosses thresholds
+  useTask(() => {
+    const level = gridLevel(camera.current.zoom)
+    if (level !== prevLevel) {
+      prevLevel = level
+      updateGrid()
+      createGrids()
     }
-  `
-  const fineFrag = /* glsl */ `
-    varying vec2 vUv;
-    varying vec3 vPos;
-    void main() {
-      // World-space distance to nearest 1-unit line
-      float fx = abs(fract(vPos.x) - 0.5) * 2.0;
-      float fy = abs(fract(vPos.y) - 0.5) * 2.0;
-      float line = 1.0 - smoothstep(0.02, 0.06, min(fx, fy));
-      // Fade with distance
-      float dist = length(vPos.xy);
-      float fade = 1.0 - smoothstep(120.0, 380.0, dist);
-      float alpha = line * 0.12 * fade;
-      gl_FragColor = vec4(0.0, 0.0, 0.0, alpha);
-    }
-  `
-  const fineMat = new THREE.ShaderMaterial({
-    vertexShader: fineVert,
-    fragmentShader: fineFrag,
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    side: THREE.DoubleSide,
   })
-
-  // --- Coarse grid shader (10-unit cells) ---
-  const coarseFrag = /* glsl */ `
-    varying vec2 vUv;
-    varying vec3 vPos;
-    void main() {
-      // World-space distance to nearest 10-unit line
-      float cx = abs(fract(vPos.x / 10.0) - 0.5) * 2.0;
-      float cy = abs(fract(vPos.y / 10.0) - 0.5) * 2.0;
-      float line = 1.0 - smoothstep(0.02, 0.10, min(cx, cy));
-      float dist = length(vPos.xy);
-      float fade = 1.0 - smoothstep(200.0, 390.0, dist);
-      float alpha = line * 0.22 * fade;
-      gl_FragColor = vec4(0.0, 0.0, 0.0, alpha);
-    }
-  `
-  const coarseMat = new THREE.ShaderMaterial({
-    vertexShader: fineVert,
-    fragmentShader: coarseFrag,
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    side: THREE.DoubleSide,
-  })
-
-  // PlaneGeometry in XY is horizontal with Z-up camera — no rotation needed.
-  // DoubleSide ensures visibility from any angle.
-  const fineMesh = new THREE.Mesh(geom, fineMat)
-  fineMesh.renderOrder = 998
-
-  const coarseMesh = new THREE.Mesh(geom, coarseMat)
-  coarseMesh.renderOrder = 997
 </script>
 
-<T is={coarseMesh} />
-<T is={fineMesh} />
+<T is={coarseGrid} />
+<T is={fineGrid} />
