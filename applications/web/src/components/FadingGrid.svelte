@@ -14,25 +14,25 @@
     return {major, minor}
   })
 
-  // Fine grid: barely-there background lattice
+  // Fine grid: barely visible
   function fineGrid(cellSize: number) {
     const s = 800
-    const g = new GridHelper(s, Math.round(s / cellSize), "#bbbbbb", "#bbbbbb")
+    const g = new GridHelper(s, Math.round(s / cellSize), "#cccccc", "#cccccc")
     g.rotation.x = -Math.PI / 2
     g.children.forEach((c: any) => {
-      c.material.transparent = true; c.material.opacity = 0.06
+      c.material.transparent = true; c.material.opacity = 0.04
       c.material.depthTest = false; c.material.depthWrite = false
     })
     return g
   }
 
-  // Coarse grid: darker, every 10 cells — dominates visually
+  // Coarse grid: bold, every 10 cells
   function coarseGrid(cellSize: number) {
     const s = 800
-    const g = new GridHelper(s, Math.round(s / cellSize), "#444444", "#444444")
+    const g = new GridHelper(s, Math.round(s / cellSize), "#111111", "#111111")
     g.rotation.x = -Math.PI / 2
     g.children.forEach((c: any) => {
-      c.material.transparent = true; c.material.opacity = 0.3
+      c.material.transparent = true; c.material.opacity = 0.45
       c.material.depthTest = false; c.material.depthWrite = false
     })
     return g
