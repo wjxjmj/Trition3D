@@ -10,7 +10,7 @@
   const steps = $derived.by(() => {
     const unitPower = Math.floor(Math.log10(z))
     const minor = Math.pow(10, -unitPower + 1)
-    const major = minor * 10
+    const major = minor * 5
     return {major, minor}
   })
 
