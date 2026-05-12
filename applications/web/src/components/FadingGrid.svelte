@@ -43,6 +43,7 @@
     transparent: true,
     depthWrite: false,
     depthTest: false,
+    side: THREE.DoubleSide,
   })
 
   // --- Coarse grid shader (10-unit cells) ---
@@ -61,20 +62,20 @@
     }
   `
   const coarseMat = new THREE.ShaderMaterial({
-    vertexShader: fineVert, // same vertex shader
+    vertexShader: fineVert,
     fragmentShader: coarseFrag,
     transparent: true,
     depthWrite: false,
     depthTest: false,
+    side: THREE.DoubleSide,
   })
 
-  // Both planes rotated to lie flat in XY (Z-up)
+  // PlaneGeometry in XY is horizontal with Z-up camera — no rotation needed.
+  // DoubleSide ensures visibility from any angle.
   const fineMesh = new THREE.Mesh(geom, fineMat)
-  fineMesh.rotation.x = -Math.PI / 2
   fineMesh.renderOrder = 998
 
   const coarseMesh = new THREE.Mesh(geom, coarseMat)
-  coarseMesh.rotation.x = -Math.PI / 2
   coarseMesh.renderOrder = 997
 </script>
 
