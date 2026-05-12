@@ -19,12 +19,7 @@
 
   interactivity()
 
-  const {size, dpr, camera, renderer} = useThrelte()
-
-  // Fusion 360 warm light background
-  $effect(() => {
-    renderer.setClearColor("#f5f5f5", 1)
-  })
+  const {size, dpr, camera} = useThrelte()
 
   let points = $derived(store.realization.points ? Object.entries(store.realization.points) : [])
   let planes = $derived(store.realization.planes ? Object.entries(store.realization.planes) : [])
@@ -114,20 +109,16 @@
   <CadControls rotateSpeed={1.8} panSpeed={0.5} oncreate={({ref}) => {}} mouseButtons={{LEFT: 2, MIDDLE: 50, RIGHT: 1}} />
 </T.OrthographicCamera>
 
-<!-- Fusion 360 lighting: bright ambient + 45-degree key light -->
-<T.AmbientLight intensity={1.0} />
+<!-- Fusion 360 style: warm gray background -->
+<T.Color attach="background" args={["#f0f0f0"]} />
+
+<T.AmbientLight intensity={0.8} />
 <T.DirectionalLight position={[5, 8, 5]} intensity={0.6} />
 
 <Environment path="{base}/envmap/hdr/" files="kloofendal_28d_misty_puresky_1k.hdr" isBackground={false} format="hdr" />
 
-<!-- Infinite fading grid (custom shader) -->
+<!-- Dual-layer fading grid (1-unit fine + 10-unit coarse) -->
 <FadingGrid />
-
-<!-- Contact shadow — subtle ground plane for grounding effect -->
-<T.Mesh position={[0, 0, -0.03]} renderOrder={1000}>
-  <T.PlaneGeometry args={[400, 400]} />
-  <T.MeshBasicMaterial color="#000000" transparent opacity={0.06} depthWrite={false} depthTest={false} />
-</T.Mesh>
 
 <Origin />
 
