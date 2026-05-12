@@ -16,14 +16,8 @@
     <T.MeshBasicMaterial color="#ff3b30" />
   </T.Mesh>
 
-  <!-- Y axis (green) — horizontal, along Y -->
+  <!-- Y axis (blue) — horizontal, along Y -->
   <T.Mesh position={[0, 0, 0]}>
-    <T.CylinderGeometry args={[radius, radius, axisLen, 6]} />
-    <T.MeshBasicMaterial color="#4cd964" />
-  </T.Mesh>
-
-  <!-- Z axis (blue) — vertical (up), rotate from Y-axis to Z-axis -->
-  <T.Mesh position={[0, 0, axisLen / 2]} rotation.x={Math.PI / 2}>
     <T.CylinderGeometry args={[radius, radius, axisLen, 6]} />
     <T.MeshBasicMaterial color="#007aff" />
   </T.Mesh>
