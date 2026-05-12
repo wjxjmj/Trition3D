@@ -10,10 +10,11 @@
   const {size, dpr} = useThrelte()
   const planeSize = 15
 
-  // Axes span the grid area (800x800) but stay within its bounds
+  // Axes span grid area, offset 0.01 in Z to avoid z-fighting with grid lines
   const gridSize = 400
-  const pointsX = [-gridSize, 0, 0, gridSize, 0, 0]
-  const pointsY = [0, -gridSize, 0, 0, gridSize, 0]
+  const zOff = 0.01
+  const pointsX = [-gridSize, 0, zOff, gridSize, 0, zOff]
+  const pointsY = [0, -gridSize, zOff, 0, gridSize, zOff]
 
   const xGeom = new LineGeometry(); xGeom.setPositions(pointsX)
   const yGeom = new LineGeometry(); yGeom.setPositions(pointsY)
