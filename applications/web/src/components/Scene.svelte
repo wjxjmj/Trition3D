@@ -19,7 +19,12 @@
 
   interactivity()
 
-  const {size, dpr, camera} = useThrelte()
+  const {size, dpr, camera, renderer} = useThrelte()
+
+  // Fusion 360 warm light background
+  $effect(() => {
+    renderer.setClearColor("#f0f0f0", 1)
+  })
 
   let points = $derived(store.realization.points ? Object.entries(store.realization.points) : [])
   let planes = $derived(store.realization.planes ? Object.entries(store.realization.planes) : [])
@@ -108,9 +113,6 @@
 <T.OrthographicCamera makeDefault position={[160.8, -250.8, 200.55]} zoom={5} up={[0, 0, 1]}>
   <CadControls rotateSpeed={1.8} panSpeed={0.5} oncreate={({ref}) => {}} mouseButtons={{LEFT: 2, MIDDLE: 50, RIGHT: 1}} />
 </T.OrthographicCamera>
-
-<!-- Fusion 360 style: warm gray background -->
-<T.Color attach="background" args={["#f0f0f0"]} />
 
 <T.AmbientLight intensity={0.8} />
 <T.DirectionalLight position={[5, 8, 5]} intensity={0.6} />
