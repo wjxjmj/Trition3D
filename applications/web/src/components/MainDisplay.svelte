@@ -23,7 +23,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-  class="bg-[#dadada] dark:bg-gray-800 relative {store.sketchTool === 'line' || store.sketchTool === 'circle' || store.sketchTool === 'rectangle' ? 'cursor-crosshair' : ''}"
+  class="bg-[#f5f5f5] dark:bg-gray-800 relative {store.sketchTool === 'line' || store.sketchTool === 'circle' || store.sketchTool === 'rectangle' ? 'cursor-crosshair' : ''}"
   style="width:100%; height:{viewportHeight}px"
   onmousedown={e => {
     if (store.selectingFor.length > 0) e.preventDefault()

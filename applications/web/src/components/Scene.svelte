@@ -2,7 +2,7 @@
   import {store} from "shared/stores.svelte"
   import {T, useThrelte} from "@threlte/core"
   import {Environment} from "@threlte/extras"
-  import {Vector2, Vector3, type Vector3Like, GridHelper} from "three"
+  import {Vector2, Vector3, type Vector3Like} from "three"
   import {interactivity} from "@threlte/extras"
   import {LineMaterial} from "three/addons/lines/LineMaterial.js"
   import CadControls from "./controls/CadControls/CadControls.svelte"
@@ -12,6 +12,7 @@
   import Sketch from "./Sketch.svelte"
   import CubeGizmo from "./controls/CubeGizmo/CubeGizmo.svelte"
   import Origin from "./Origin.svelte"
+  import FadingGrid from "./FadingGrid.svelte"
   import {base} from "../base"
 
   const log = (function () { const context = "[Scene.svelte]"; const color="gray"; return Function.prototype.bind.call(console.log, console, `%c${context}`, `font-weight:bold;color:${color};`)})() // prettier-ignore
@@ -20,9 +21,9 @@
 
   const {size, dpr, camera, renderer} = useThrelte()
 
-  // Set viewport background to warm gray (Fusion 360 style)
+  // Fusion 360 warm light background
   $effect(() => {
-    renderer.setClearColor("#dadada", 1)
+    renderer.setClearColor("#f5f5f5", 1)
   })
 
   let points = $derived(store.realization.points ? Object.entries(store.realization.points) : [])
@@ -34,12 +35,6 @@
   // Hide default base planes from 3D view (they show in browser tree on hover)
   const basePlaneNames = new Set(["Front", "Top", "Right"])
   let visiblePlanes = $derived(planes.filter(([_, p]) => !basePlaneNames.has(p.name)))
-
-  // Grid helper
-  const gridSize = 200
-  const gridDivs = 40
-  const gridMain = new GridHelper(gridSize, gridDivs, "#999999", "#cccccc")
-  gridMain.position.z = -0.01 // slight offset so it sits below origin planes
 
   export function setCameraFocus(goTo: Vector3Like, lookAt: Vector3Like, up: Vector3Like): void {
     const positionMultiple = 1000
@@ -125,8 +120,14 @@
 
 <Environment path="{base}/envmap/hdr/" files="kloofendal_28d_misty_puresky_1k.hdr" isBackground={false} format="hdr" />
 
-<!-- Infinite ground grid -->
-<T is={gridMain} />
+<!-- Infinite fading grid (custom shader) -->
+<FadingGrid />
+
+<!-- Contact shadow — subtle ground plane for grounding effect -->
+<T.Mesh position={[0, 0, -0.03]} renderOrder={1000}>
+  <T.PlaneGeometry args={[400, 400]} />
+  <T.MeshBasicMaterial color="#000000" transparent opacity={0.06} depthWrite={false} depthTest={false} />
+</T.Mesh>
 
 <Origin />
 
