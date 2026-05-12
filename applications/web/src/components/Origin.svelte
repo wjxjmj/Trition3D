@@ -1,48 +1,26 @@
 <script lang="ts">
-  import {T, useThrelte, extend} from "@threlte/core"
+  import {T} from "@threlte/core"
   import * as THREE from "three"
-  import {Line2} from "three/addons/lines/Line2.js"
-  import {LineMaterial} from "three/addons/lines/LineMaterial.js"
-  import {LineGeometry} from "three/addons/lines/LineGeometry.js"
 
-  extend({Line2})
-
-  const {size, dpr} = useThrelte()
   const planeSize = 15
-
-  // Screen-space axes via Line2 — fixed pixel width regardless of zoom
   const axisLen = 10000
-  const axisW = 2.5
 
-  function makeAxis(color: number, ...positions: number[]) {
-    const g = new LineGeometry()
-    g.setPositions(positions)
-    const m = new LineMaterial({
-      color,
-      linewidth: axisW * dpr,
-      transparent: true,
-      opacity: 0.85,
-      depthTest: true,
-      depthWrite: true,
-      resolution: [size.width * dpr, size.height * dpr],
-      worldUnits: false,
-    })
-    return new Line2(g, m)
-  }
-
-  // X axis (red) — along X, from -axisLen to +axisLen
-  const xAxis = makeAxis(0xff3b30, -axisLen, 0, 0, axisLen, 0, 0)
-  // Y axis (blue) — along Y
-  const yAxis = makeAxis(0x007aff, 0, -axisLen, 0, 0, axisLen, 0)
-
-  // Plane border geometry
-  const edgeGeom = new THREE.EdgesGeometry(new THREE.PlaneGeometry(planeSize, planeSize))
+  // Simple Line geometry for axes — always 1px, consistent at any zoom
+  const xGeom = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-axisLen, 0, 0), new THREE.Vector3(axisLen, 0, 0),
+  ])
+  const yGeom = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, -axisLen, 0), new THREE.Vector3(0, axisLen, 0),
+  ])
+  const xMat = new THREE.LineBasicMaterial({color: "#ff3b30"})
+  const yMat = new THREE.LineBasicMaterial({color: "#007aff"})
 </script>
 
 <T.Group>
-  <!-- Screen-space axes -->
-  <T is={xAxis} />
-  <T is={yAxis} />
+  <!-- X axis (red) -->
+  <T.Line geometry={xGeom} material={xMat} />
+  <!-- Y axis (blue) -->
+  <T.Line geometry={yGeom} material={yMat} />
 
   <!-- Origin planes -->
   <!-- XY plane (ground) -->
