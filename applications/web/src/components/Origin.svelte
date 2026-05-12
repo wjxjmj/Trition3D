@@ -10,9 +10,10 @@
   const {size, dpr} = useThrelte()
   const planeSize = 15
 
-  // Axes match the plane size — stay within the visible origin box
-  const pointsX = [0, 0, 0, planeSize, 0, 0]
-  const pointsY = [0, 0, 0, 0, planeSize, 0]
+  // Axes span the grid area (800x800) but stay within its bounds
+  const gridSize = 400
+  const pointsX = [-gridSize, 0, 0, gridSize, 0, 0]
+  const pointsY = [0, -gridSize, 0, 0, gridSize, 0]
 
   const xGeom = new LineGeometry(); xGeom.setPositions(pointsX)
   const yGeom = new LineGeometry(); yGeom.setPositions(pointsY)
